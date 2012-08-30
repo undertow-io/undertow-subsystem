@@ -1,0 +1,3 @@
+<subsystem xmlns="urn:jboss:domain:undertow:1.0" worker-threads="12" write-threads="3" read-threads="3">
+  <listener name="static-file" path="c:\\temp\\" socket-binding="http" />
+</subsystem>
