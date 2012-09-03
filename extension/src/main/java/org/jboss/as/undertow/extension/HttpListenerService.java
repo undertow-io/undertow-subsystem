@@ -29,6 +29,7 @@ import java.net.InetSocketAddress;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpOpenListener;
 import io.undertow.server.HttpTransferEncodingHandler;
+import io.undertow.server.handlers.CookieHandler;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.error.SimpleErrorPageHandler;
 import io.undertow.servlet.api.ServletContainer;
@@ -96,8 +97,9 @@ public class HttpListenerService implements Service<HttpListenerService> {
             final InetSocketAddress socketAddress = binding.getValue().getSocketAddress();
             server = worker.getValue().createStreamServer(socketAddress, acceptListener, serverOptions);
             server.resumeAccepts();
-
-            final HttpTransferEncodingHandler transferEncodingHandler = new HttpTransferEncodingHandler(new SimpleErrorPageHandler(pathHandler));
+            final CookieHandler cookie = new CookieHandler();
+            cookie.setNext(new SimpleErrorPageHandler(pathHandler));
+            final HttpTransferEncodingHandler transferEncodingHandler = new HttpTransferEncodingHandler(cookie);
             openListener.setRootHandler(transferEncodingHandler);
             servletContainer  = ServletContainer.Factory.newInstance(pathHandler);
         } catch (IOException e) {

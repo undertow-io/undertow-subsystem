@@ -46,15 +46,25 @@ public class DeploymentResourceLoader implements ResourceLoader {
 
     @Override
     public URL getResource(final String resource) throws MalformedURLException {
-        return deploymentRoot.getChild(resource).toURL();
+        VirtualFile child = deploymentRoot.getChild(resource);
+        if (!child.exists()) {
+            return null;
+        } else {
+            return child.toURL();
+        }
     }
 
     @Override
     public InputStream getResourceAsStream(final String resource) {
-        try {
-            return deploymentRoot.getChild(resource).openStream();
-        } catch (IOException e) {
+        VirtualFile child = deploymentRoot.getChild(resource);
+        if (!child.exists()) {
             return null;
+        } else {
+            try {
+                return child.openStream();
+            } catch (IOException e) {
+                return null;
+            }
         }
     }
 

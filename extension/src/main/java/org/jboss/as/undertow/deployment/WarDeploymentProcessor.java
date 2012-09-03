@@ -36,6 +36,7 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 
+import io.undertow.servlet.api.ClassIntrospecter;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.FilterInfo;
 import io.undertow.servlet.api.InstanceFactory;
@@ -43,6 +44,7 @@ import io.undertow.servlet.api.InstanceHandle;
 import io.undertow.servlet.api.ListenerInfo;
 import io.undertow.servlet.api.ServletContainerInitializerInfo;
 import io.undertow.servlet.api.ServletInfo;
+import io.undertow.servlet.util.ConstructorInstanceFactory;
 import io.undertow.servlet.util.ImmediateInstanceFactory;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.ee.component.ComponentDescription;
@@ -160,7 +162,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             components = new HashMap<String, ComponentInstantiator>();
         }
 
-        DeploymentInfo deploymentInfo = createServletConfig(metaData, module, deploymentClassIndex, components, scisMetaData, deploymentRoot);
+        DeploymentInfo deploymentInfo = createServletConfig(metaData, deploymentUnit, module, deploymentClassIndex, components, scisMetaData, deploymentRoot);
 
         final String pathName = pathNameOfDeployment(deploymentUnit, metaData);
         deploymentInfo.setContextPath(pathName);
@@ -265,13 +267,25 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
     }
 
-    private DeploymentInfo createServletConfig(final JBossWebMetaData mergedMetaData, final Module module, final DeploymentClassIndex classReflectionIndex, final Map<String, ComponentInstantiator> components, final ScisMetaData scisMetaData, final VirtualFile deploymentRoot) throws DeploymentUnitProcessingException {
+    private DeploymentInfo createServletConfig(final JBossWebMetaData mergedMetaData, final DeploymentUnit deploymentUnit, final Module module, final DeploymentClassIndex classReflectionIndex, final Map<String, ComponentInstantiator> components, final ScisMetaData scisMetaData, final VirtualFile deploymentRoot) throws DeploymentUnitProcessingException {
         try {
             final DeploymentInfo d = new DeploymentInfo();
             d.setContextPath(mergedMetaData.getContextRoot());
-            d.setDeploymentName(mergedMetaData.getDistinctName());
+            d.setDeploymentName(deploymentUnit.getName());
             d.setResourceLoader(new DeploymentResourceLoader(deploymentRoot));
             d.setClassLoader(module.getClassLoader());
+
+            //TODO: do this properly
+            d.setClassIntrospecter(new ClassIntrospecter() {
+                @Override
+                public <T> InstanceFactory<T> createInstanceFactory(final Class<T> clazz) {
+                    try {
+                        return new ConstructorInstanceFactory<T>(clazz.getDeclaredConstructor());
+                    } catch (NoSuchMethodException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
 
             final Map<String, List<ServletMappingMetaData>> servletMappings = new HashMap<String, List<ServletMappingMetaData>>();
             final Map<String, List<FilterMappingMetaData>> filterMappings = new HashMap<String, List<FilterMappingMetaData>>();
