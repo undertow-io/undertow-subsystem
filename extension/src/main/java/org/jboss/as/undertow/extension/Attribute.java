@@ -31,7 +31,6 @@ enum Attribute {
     UNKNOWN(null),
     NAME(Constants.NAME),
     SOCKET_BINDING(Constants.SOCKET_BINDING),
-    PATH(Constants.PATH),
     WORKER_THREADS(Constants.WORKER_THREADS),
     READ_THREADS(Constants.READ_THREADS),
     WRITE_THREADS(Constants.WRITE_THREADS),

@@ -42,6 +42,7 @@
         </module-def>
         <module-def name="io.undertow">
             <maven-resource group="io.undertow" artifact="undertow-core"/>
+            <maven-resource group="io.undertow" artifact="undertow-servlet"/>
         </module-def>
         <module-def name="org.jboss.xnio">
             <maven-resource group="org.jboss.xnio" artifact="xnio-api"/>
@@ -62,7 +63,7 @@
 
     <target name="all" depends="base, modules, as-integrate"/>
 
-    <target name="as-integrate" depends="modules" description="Integrate capedwarf into existing AS7 instalation">
+    <target name="as-integrate" depends="modules" description="Integrate undertow into existing AS7 installation">
         <echo message="jboss dir is: ${jboss.dir}"/>
         <fail unless="jboss.dir" description="Jboss AS7 must be defined" message="property jboss.dir must be set"/>
 

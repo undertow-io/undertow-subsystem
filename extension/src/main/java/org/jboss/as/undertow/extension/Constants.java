@@ -31,6 +31,6 @@ public interface Constants {
     String WORKER_THREADS = "worker-threads";
     String READ_THREADS = "read-threads";
     String WRITE_THREADS = "write-threads";
-    String LISTENER = "listener";
+    String HTTP_LISTENER = "http-listener";
     String NAME = "name";
 }

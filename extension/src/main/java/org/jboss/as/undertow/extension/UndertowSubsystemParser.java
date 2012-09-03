@@ -42,10 +42,10 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         for (SimpleAttributeDefinition def : UndertowRootDefinition.ATTRIBUTES) {
             def.marshallAsAttribute(model, false, writer);
         }
-        if (model.hasDefined(Constants.LISTENER)) {
-            for (final Property connector : model.get(Constants.LISTENER).asPropertyList()) {
+        if (model.hasDefined(Constants.HTTP_LISTENER)) {
+            for (final Property connector : model.get(Constants.HTTP_LISTENER).asPropertyList()) {
                 final ModelNode config = connector.getValue();
-                writer.writeStartElement(Element.LISTENER.getLocalName());
+                writer.writeStartElement(Element.HTTP_LISTENER.getLocalName());
                 writer.writeAttribute(Attribute.NAME.getLocalName(), connector.getName());
                 for (SimpleAttributeDefinition attr : ListenerResourceDefinition.ATTRIBUTES) {
                     attr.marshallAsAttribute(config, false, writer);
@@ -94,7 +94,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                 case UNDERTOW_1_0: {
                     final Element element = Element.forName(reader.getLocalName());
                     switch (element) {
-                        case LISTENER: {
+                        case HTTP_LISTENER: {
                             parseListener(reader, address, list);
                             break;
                         }
@@ -126,9 +126,6 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                 case SOCKET_BINDING:
                     ListenerResourceDefinition.SOCKET_BINDING.parseAndSetParameter(value, connector, reader);
                     break;
-                case PATH:
-                    ListenerResourceDefinition.PATH.parseAndSetParameter(value, connector, reader);
-                    break;
                 case NAME:
                     name = value;
                     break;
@@ -138,7 +135,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         }
 
         connector.get(OP).set(ADD);
-        PathAddress address = PathAddress.pathAddress(parent, PathElement.pathElement(Constants.LISTENER, name));
+        PathAddress address = PathAddress.pathAddress(parent, PathElement.pathElement(Constants.HTTP_LISTENER, name));
         connector.get(OP_ADDR).set(address.toModelNode());
         list.add(connector);
 

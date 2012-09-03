@@ -19,49 +19,47 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.undertow.extension;
+package org.jboss.as.undertow.deployment;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.jboss.as.server.deployment.AttachmentKey;
+import org.jboss.as.server.deployment.DeploymentUnit;
+import org.jboss.as.undertow.extension.SharedTldsMetaDataBuilder;
+import org.jboss.metadata.web.spec.TldMetaData;
+
 /**
- * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2012 Red Hat Inc.
+ * @author Remy Maucherat
  */
-enum Element {
-    // must be first
-    UNKNOWN(null),
+public class TldsMetaData {
 
-    HTTP_LISTENER(Constants.HTTP_LISTENER),;
-
-    private final String name;
-
-    Element(final String name) {
-        this.name = name;
-    }
+    public static final AttachmentKey<TldsMetaData> ATTACHMENT_KEY = AttachmentKey.create(TldsMetaData.class);
 
     /**
-     * Get the local name of this element.
-     *
-     * @return the local name
+     * Shared TLDs.
      */
-    public String getLocalName() {
-        return name;
+    private SharedTldsMetaDataBuilder sharedTlds;
+
+    /**
+     * Webapp TLDs.
+     */
+    private Map<String, TldMetaData> tlds;
+
+    public List<TldMetaData> getSharedTlds(DeploymentUnit deploymentUnit) {
+        return sharedTlds.getSharedTlds(deploymentUnit);
     }
 
-    private static final Map<String, Element> MAP;
-
-    static {
-        final Map<String, Element> map = new HashMap<String, Element>();
-        for (Element element : values()) {
-            final String name = element.getLocalName();
-            if (name != null) { map.put(name, element); }
-        }
-        MAP = map;
+    public void setSharedTlds(SharedTldsMetaDataBuilder sharedTlds) {
+        this.sharedTlds = sharedTlds;
     }
 
-    public static Element forName(String localName) {
-        final Element element = MAP.get(localName);
-        return element == null ? UNKNOWN : element;
+    public Map<String, TldMetaData> getTlds() {
+        return tlds;
+    }
+
+    public void setTlds(Map<String, TldMetaData> tlds) {
+        this.tlds = tlds;
     }
 
 }

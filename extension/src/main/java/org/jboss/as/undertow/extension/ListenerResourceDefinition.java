@@ -25,20 +25,13 @@ public class ListenerResourceDefinition extends SimpleResourceDefinition {
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setValidator(new StringLengthValidator(1))
                     .build();
-    protected static final SimpleAttributeDefinition PATH =
-            new SimpleAttributeDefinitionBuilder(Constants.PATH, ModelType.STRING)
-                    .setAllowNull(true)
-                    .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
-                    .setValidator(new StringLengthValidator(1, true, true))
-                    .build();
 
-
-    protected static SimpleAttributeDefinition[] ATTRIBUTES = {SOCKET_BINDING, PATH};
+    protected static SimpleAttributeDefinition[] ATTRIBUTES = {SOCKET_BINDING};
 
     private ListenerResourceDefinition() {
         super(UndertowExtension.LISTENER_PATH,
-                UndertowExtension.getResourceDescriptionResolver(Constants.LISTENER),
-                ListenerAdd.INSTANCE,
+                UndertowExtension.getResourceDescriptionResolver(Constants.HTTP_LISTENER),
+                HttpListenerAdd.INSTANCE,
                 ReloadRequiredRemoveStepHandler.INSTANCE);
     }
 

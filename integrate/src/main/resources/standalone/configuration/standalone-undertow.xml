@@ -251,7 +251,7 @@
             </virtual-server>
         </subsystem-->
         <subsystem xmlns="urn:jboss:domain:undertow:1.0" worker-threads="12" write-threads="3" read-threads="3">
-          <listener name="static-file" path="c:\\temp\\" socket-binding="http" />
+          <http-listener name="default" socket-binding="http" />
         </subsystem>
 
         <subsystem xmlns="urn:jboss:domain:weld:1.0"/>
@@ -267,7 +267,7 @@
         <interface name="unsecure">
             <!--
               ~  Used for IIOP sockets in the standard configuration.
-              ~                  To secure JacORB you need to setup SSL 
+              ~                  To secure JacORB you need to setup SSL
               -->
             <inet-address value="${jboss.bind.address.unsecure:127.0.0.1}"/>
         </interface>

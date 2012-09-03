@@ -28,8 +28,8 @@
     </parent>
 
     <groupId>io.undertow</groupId>
-    <artifactId>undertow-subsystem</artifactId>
-    <version>7.2.0.Alpha1-SNAPSHOT</version>
+    <artifactId>undertow-subsystem-parent</artifactId>
+    <version>1.0.0.Alpha1-SNAPSHOT</version>
 
     <name>Undertow</name>
     <description>Undertow : subsystem</description>
@@ -169,9 +169,9 @@
             <!-- Modules in this project -->
 
             <dependency>
-                <groupId>io.undertow</groupId>
-                <artifactId>undertow-core</artifactId>
-                <version>${version.io.undertow}</version>
+                <groupId>org.jboss.as</groupId>
+                <artifactId>jboss-as-undertow</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
 
@@ -179,21 +179,23 @@
 
             <dependency>
                 <groupId>org.jboss.as</groupId>
-                <artifactId>jboss-as-controller</artifactId>
+                <artifactId>jboss-as-parent</artifactId>
                 <version>${version.jboss.as}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.as</groupId>
-                <artifactId>jboss-as-server</artifactId>
-                <version>${version.jboss.as}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.as</groupId>
-                <artifactId>jboss-as-subsystem-test</artifactId>
-                <version>${version.jboss.as}</version>
-                <scope>test</scope>
+                <scope>import</scope>
+                <type>pom</type>
             </dependency>
 
+            <dependency>
+                <groupId>io.undertow</groupId>
+                <artifactId>undertow-core</artifactId>
+                <version>${version.io.undertow}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.undertow</groupId>
+                <artifactId>undertow-servlet</artifactId>
+                <version>${version.io.undertow}</version>
+            </dependency>
 
             <dependency>
                 <groupId>junit</groupId>

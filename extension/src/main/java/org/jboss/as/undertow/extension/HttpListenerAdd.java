@@ -1,7 +1,6 @@
 package org.jboss.as.undertow.extension;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.jboss.as.undertow.extension.ListenerResourceDefinition.PATH;
 import static org.jboss.as.undertow.extension.ListenerResourceDefinition.SOCKET_BINDING;
 
 import java.util.List;
@@ -22,10 +21,10 @@ import org.xnio.XnioWorker;
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2012 Red Hat Inc.
  */
-public class ListenerAdd extends AbstractAddStepHandler {
-    static final ListenerAdd INSTANCE = new ListenerAdd();
+public class HttpListenerAdd extends AbstractAddStepHandler {
+    static final HttpListenerAdd INSTANCE = new HttpListenerAdd();
 
-    private ListenerAdd() {
+    private HttpListenerAdd() {
 
     }
 
@@ -43,16 +42,15 @@ public class ListenerAdd extends AbstractAddStepHandler {
 
 
         final String bindingRef = SOCKET_BINDING.resolveModelAttribute(context, model).asString();
-        final String path = PATH.resolveModelAttribute(context, model).asString();
 
-        final ListenerService service = new ListenerService(path);
-        final ServiceBuilder<ChannelListener> serviceBuilder = context.getServiceTarget().addService(WebSubsystemServices.LISTENER.append(name), service)
-                .addDependency(WebSubsystemServices.WEB, XnioWorker.class, service.getWorker())
+        final HttpListenerService service = new HttpListenerService();
+        final ServiceBuilder<HttpListenerService> serviceBuilder = context.getServiceTarget().addService(WebSubsystemServices.LISTENER.append(name), service)
+                .addDependency(WebSubsystemServices.XNIO_WORKER, XnioWorker.class, service.getWorker())
                 .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding());
 
         serviceBuilder.setInitialMode(ServiceController.Mode.ACTIVE);
 
-        final ServiceController<ChannelListener> serviceController = serviceBuilder.install();
+        final ServiceController<HttpListenerService> serviceController = serviceBuilder.install();
         if (newControllers != null) {
             newControllers.add(serviceController);
         }
