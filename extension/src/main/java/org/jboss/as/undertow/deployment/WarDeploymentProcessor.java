@@ -36,6 +36,7 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 
+import io.undertow.server.handlers.blocking.BlockingHttpServerExchange;
 import io.undertow.servlet.api.ClassIntrospecter;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.FilterInfo;
@@ -44,6 +45,7 @@ import io.undertow.servlet.api.InstanceHandle;
 import io.undertow.servlet.api.ListenerInfo;
 import io.undertow.servlet.api.ServletContainerInitializerInfo;
 import io.undertow.servlet.api.ServletInfo;
+import io.undertow.servlet.api.ThreadSetupAction;
 import io.undertow.servlet.util.ConstructorInstanceFactory;
 import io.undertow.servlet.util.ImmediateInstanceFactory;
 import org.jboss.as.controller.PathElement;
@@ -195,6 +197,19 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             // add any dependencies required by the setup action
             for (final SetupAction action : setupActions) {
                 builder.addDependencies(action.dependencies());
+                deploymentInfo.addThreadSetupAction(new ThreadSetupAction() {
+
+                    @Override
+                    public Handle setup(final BlockingHttpServerExchange exchange) {
+                        action.setup(Collections.<String, Object>emptyMap());
+                        return new Handle() {
+                            @Override
+                            public void tearDown() {
+                                action.teardown(Collections.<String, Object>emptyMap());
+                            }
+                        };
+                    }
+                });
             }
             /*
             if (metaData.getDistributable() != null) {
@@ -288,7 +303,6 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             });
 
             final Map<String, List<ServletMappingMetaData>> servletMappings = new HashMap<String, List<ServletMappingMetaData>>();
-            final Map<String, List<FilterMappingMetaData>> filterMappings = new HashMap<String, List<FilterMappingMetaData>>();
 
             if (mergedMetaData.getServletMappings() != null) {
                 for (final ServletMappingMetaData mapping : mergedMetaData.getServletMappings()) {
@@ -393,6 +407,10 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     d.addListener(l);
                 }
 
+            }
+
+            for(ParamValueMetaData param : mergedMetaData.getContextParams()) {
+                d.addInitParameter(param.getParamName(), param.getParamValue());
             }
 
             return d;
