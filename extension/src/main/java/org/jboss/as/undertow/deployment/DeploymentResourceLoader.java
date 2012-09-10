@@ -22,6 +22,7 @@
 
 package org.jboss.as.undertow.deployment;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -29,6 +30,7 @@ import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.util.Set;
 
+import io.undertow.UndertowLogger;
 import io.undertow.servlet.api.ResourceLoader;
 import org.jboss.vfs.VirtualFile;
 import org.xnio.Xnio;
@@ -45,36 +47,16 @@ public class DeploymentResourceLoader implements ResourceLoader {
     }
 
     @Override
-    public URL getResource(final String resource) throws MalformedURLException {
-        VirtualFile child = deploymentRoot.getChild(resource);
-        if (!child.exists()) {
-            return null;
-        } else {
-            return child.toURL();
-        }
-    }
-
-    @Override
-    public InputStream getResourceAsStream(final String resource) {
+    public File getResource(final String resource) {
         VirtualFile child = deploymentRoot.getChild(resource);
         if (!child.exists()) {
             return null;
         } else {
             try {
-                return child.openStream();
+                return child.getPhysicalFile();
             } catch (IOException e) {
                 return null;
             }
         }
-    }
-
-    @Override
-    public FileChannel getResourceAsChannel(final String resource, final Xnio xnio) throws IOException {
-        return null;
-    }
-
-    @Override
-    public Set<String> getResourcePaths(final String path) {
-        return null;
     }
 }

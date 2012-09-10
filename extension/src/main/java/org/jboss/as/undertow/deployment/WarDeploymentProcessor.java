@@ -49,7 +49,6 @@ import io.undertow.servlet.api.ThreadSetupAction;
 import io.undertow.servlet.util.ConstructorInstanceFactory;
 import io.undertow.servlet.util.ImmediateInstanceFactory;
 import org.jboss.as.controller.PathElement;
-import org.jboss.as.ee.component.ComponentDescription;
 import org.jboss.as.ee.component.EEModuleDescription;
 import org.jboss.as.naming.ManagedReference;
 import org.jboss.as.server.deployment.Attachments;
@@ -191,7 +190,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
             deploymentUnit.addToAttachmentList(Attachments.DEPLOYMENT_COMPLETE_SERVICES, deploymentServiceName);
 
-            for(Map.Entry<String, ComponentInstantiator> entry : components.entrySet()) {
+            for (Map.Entry<String, ComponentInstantiator> entry : components.entrySet()) {
                 builder.addDependencies(entry.getValue().getServiceNames());
             }
             // add any dependencies required by the setup action
@@ -409,8 +408,14 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
             }
 
-            for(ParamValueMetaData param : mergedMetaData.getContextParams()) {
+            for (ParamValueMetaData param : mergedMetaData.getContextParams()) {
                 d.addInitParameter(param.getParamName(), param.getParamValue());
+            }
+
+            if (mergedMetaData.getWelcomeFileList() != null) {
+                if (mergedMetaData.getWelcomeFileList().getWelcomeFiles() != null) {
+                    d.addWelcomePages(mergedMetaData.getWelcomeFileList().getWelcomeFiles());
+                }
             }
 
             return d;
@@ -421,22 +426,22 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
     private <T> InstanceFactory<T> createInstanceFactory(final ComponentInstantiator creator) {
         return new InstanceFactory<T>() {
-                                @Override
-                                public InstanceHandle<T> createInstance() throws InstantiationException {
-                                    final ManagedReference instance = creator.getReference();
-                                    return new InstanceHandle<T>() {
-                                        @Override
-                                        public T getInstance() {
-                                            return (T) instance.getInstance();
-                                        }
+            @Override
+            public InstanceHandle<T> createInstance() throws InstantiationException {
+                final ManagedReference instance = creator.getReference();
+                return new InstanceHandle<T>() {
+                    @Override
+                    public T getInstance() {
+                        return (T) instance.getInstance();
+                    }
 
-                                        @Override
-                                        public void release() {
-                                            instance.release();
-                                        }
-                                    };
-                                }
-                            };
+                    @Override
+                    public void release() {
+                        instance.release();
+                    }
+                };
+            }
+        };
     }
 
     /**
