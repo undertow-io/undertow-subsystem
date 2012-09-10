@@ -412,10 +412,11 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 d.addInitParameter(param.getParamName(), param.getParamValue());
             }
 
-            if (mergedMetaData.getWelcomeFileList() != null) {
-                if (mergedMetaData.getWelcomeFileList().getWelcomeFiles() != null) {
+            if (mergedMetaData.getWelcomeFileList() != null &&
+                    mergedMetaData.getWelcomeFileList().getWelcomeFiles() != null) {
                     d.addWelcomePages(mergedMetaData.getWelcomeFileList().getWelcomeFiles());
-                }
+            } else {
+                d.addWelcomePages("index.html", "index.htm", "index.jsp");
             }
 
             return d;
