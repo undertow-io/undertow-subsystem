@@ -32,5 +32,14 @@ public interface Constants {
     String READ_THREADS = "read-threads";
     String WRITE_THREADS = "write-threads";
     String HTTP_LISTENER = "http-listener";
+    String LISTENER = "listener";
     String NAME = "name";
+    String WORKER = "worker";
+
+    String WORKER_READ_THREADS = "read-threads";
+    String WORKER_TASK_CORE_THREADS = "task-core-threads";
+    String WORKER_TASK_KEEPALIVE = "task-keepalive";
+    String WORKER_TASK_LIMIT = "task-limit";
+    String WORKER_TASK_MAX_THREADS = "task-max-threads";
+    String WORKER_WRITE_THREADS = "write-threads";
 }

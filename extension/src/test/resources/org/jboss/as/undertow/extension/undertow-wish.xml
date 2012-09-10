@@ -1,0 +1,48 @@
+<subsystem name="undertow"  >
+
+  <worker accept-threads="5" read-threads="5" write-threads="5" >
+    <high-water-mark value="10000" />
+    ... more options....
+  </worker>
+    <worker-thread-pool
+           read-threads="5"
+           task-core-threads="6"
+           task-keepalive="7"
+           task-limit="8"
+           task-max-threads="9"
+           write-threads="10"
+        />
+
+  <http-listener name="listener1" socket="my-binding" handler="myHandlerChain">
+    <tcp-nodelay value="true" />
+  </http-listener>
+
+  <http-listener name="listener2" socket="my-sother-binding" handler="default">
+    <tcp-nodelay value="true" >
+  </http-listener>
+
+  <handler-chain name="myHandlerChain">
+     <handler name="connectionLimitingHandler"> 
+     <handler name="virtualHostHandler">
+     <handler-chain name="default" /> <!-- only executed if virtual host does not match -->
+  </handler-chain>
+
+  <connection-limiting-handler name="connectionLimitingHandler" requests-per-second="10" />
+
+  <virtual-host-handler name="virtualHostHandler" >
+    <host name="www.mysite.com" handler="mySite" />
+    <host name="www.somesite.com" handler="myOtherSite" />
+  </virtual-host-handler>
+
+  <handler-chain name="mySite" >
+    <handler name="someSecurityHandler" />
+    <handler name="compressionHandler" />
+    <handler name="mySiteServlet" />
+  </handler-chain>
+
+  <security-handler name="someSecurityHandler" >
+    ...some security stuff
+  </security-handler>
+ 
+  
+</subsystem>

@@ -31,10 +31,13 @@ enum Attribute {
     UNKNOWN(null),
     NAME(Constants.NAME),
     SOCKET_BINDING(Constants.SOCKET_BINDING),
-    WORKER_THREADS(Constants.WORKER_THREADS),
-    READ_THREADS(Constants.READ_THREADS),
-    WRITE_THREADS(Constants.WRITE_THREADS),
-    ;
+    PATH(Constants.PATH),
+    WORKER_READ_THREADS(Constants.WORKER_READ_THREADS),
+    WORKER_TASK_CORE_THREADS(Constants.WORKER_TASK_CORE_THREADS),
+    WORKER_TASK_KEEPALIVE(Constants.WORKER_TASK_KEEPALIVE),
+    WORKER_TASK_LIMIT(Constants.WORKER_TASK_LIMIT),
+    WORKER_TASK_MAX_THREADS(Constants.WORKER_TASK_MAX_THREADS),
+    WORKER_WRITE_THREADS(Constants.WORKER_WRITE_THREADS);
 
     private final String name;
 
@@ -57,8 +60,7 @@ enum Attribute {
         final Map<String, Attribute> map = new HashMap<String, Attribute>();
         for (Attribute element : values()) {
             final String name = element.getLocalName();
-            if (name != null)
-                map.put(name, element);
+            if (name != null) { map.put(name, element); }
         }
         MAP = map;
     }

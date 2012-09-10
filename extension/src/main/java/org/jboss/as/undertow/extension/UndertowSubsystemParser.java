@@ -73,13 +73,13 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
             final String value = reader.getAttributeValue(i);
             final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
             switch (attribute) {
-                case WORKER_THREADS:
+                case WORKER_TASK_CORE_THREADS:
                     UndertowRootDefinition.WORKER_THREADS.parseAndSetParameter(value, subsystem, reader);
                     break;
-                case READ_THREADS:
+                case WORKER_READ_THREADS:
                     UndertowRootDefinition.READ_THREADS.parseAndSetParameter(value, subsystem, reader);
                     break;
-                case WRITE_THREADS:
+                case WORKER_WRITE_THREADS:
                     UndertowRootDefinition.WRITE_THREADS.parseAndSetParameter(value, subsystem, reader);
                     break;
                 default:

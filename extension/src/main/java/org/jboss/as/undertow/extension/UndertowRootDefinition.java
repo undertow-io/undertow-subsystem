@@ -16,18 +16,18 @@ public class UndertowRootDefinition extends SimpleResourceDefinition {
     public static final UndertowRootDefinition INSTANCE = new UndertowRootDefinition();
 
     protected static final SimpleAttributeDefinition WORKER_THREADS =
-            new SimpleAttributeDefinitionBuilder(Constants.WORKER_THREADS, ModelType.INT, true)
+            new SimpleAttributeDefinitionBuilder(Constants.WORKER_TASK_CORE_THREADS, ModelType.INT, true)
                     .setAllowExpression(true)
                     .setDefaultValue(new ModelNode(10))
                     .build();
 
     protected static final SimpleAttributeDefinition READ_THREADS =
-            new SimpleAttributeDefinitionBuilder(Constants.READ_THREADS, ModelType.INT, true)
+            new SimpleAttributeDefinitionBuilder(Constants.WORKER_READ_THREADS, ModelType.INT, true)
                     .setAllowExpression(true)
                     .setDefaultValue(new ModelNode(4))
                     .build();
     protected static final SimpleAttributeDefinition WRITE_THREADS =
-            new SimpleAttributeDefinitionBuilder(Constants.WRITE_THREADS, ModelType.INT, true)
+            new SimpleAttributeDefinitionBuilder(Constants.WORKER_WRITE_THREADS, ModelType.INT, true)
                     .setAllowExpression(true)
                     .setDefaultValue(new ModelNode(4))
                     .build();

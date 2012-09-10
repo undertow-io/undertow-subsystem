@@ -27,6 +27,7 @@ public class UndertowExtension implements Extension {
 
     protected static final PathElement SUBSYSTEM_PATH = PathElement.pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
     protected static final PathElement LISTENER_PATH = PathElement.pathElement(Constants.HTTP_LISTENER);
+    protected static final PathElement WORKER_PATH = PathElement.pathElement("configuration", Constants.WORKER);
     private static final String RESOURCE_NAME = UndertowExtension.class.getPackage().getName() + ".LocalDescriptions";
 
     static StandardResourceDescriptionResolver getResourceDescriptionResolver(final String keyPrefix) {
@@ -46,6 +47,7 @@ public class UndertowExtension implements Extension {
         final ManagementResourceRegistration registration = subsystem.registerSubsystemModel(UndertowRootDefinition.INSTANCE);
         registration.registerOperationHandler(DESCRIBE, GenericSubsystemDescribeHandler.INSTANCE, GenericSubsystemDescribeHandler.INSTANCE, false, OperationEntry.EntryType.PRIVATE);
         registration.registerSubModel(ListenerResourceDefinition.INSTANCE);
+        registration.registerSubModel(WorkerResourceDefinition.INSTANCE);
         subsystem.registerXMLElementWriter(UndertowSubsystemParser.INSTANCE);
     }
 
