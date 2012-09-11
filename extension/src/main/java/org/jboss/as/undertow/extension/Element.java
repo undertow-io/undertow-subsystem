@@ -31,7 +31,9 @@ enum Element {
     // must be first
     UNKNOWN(null),
 
-    HTTP_LISTENER(Constants.HTTP_LISTENER),;
+    HTTP_LISTENER(Constants.HTTP_LISTENER),
+    WORKER(Constants.WORKER),
+    ;
 
     private final String name;
 

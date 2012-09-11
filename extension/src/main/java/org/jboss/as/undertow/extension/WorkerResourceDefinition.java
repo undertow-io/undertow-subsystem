@@ -3,6 +3,9 @@ package org.jboss.as.undertow.extension;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
@@ -11,7 +14,6 @@ import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
-import org.jboss.as.remoting.Attribute;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 import org.xnio.Option;
@@ -25,27 +27,16 @@ public class WorkerResourceDefinition extends SimpleResourceDefinition {
 
     //The defaults for these come from XnioWorker
 
-    static final SimpleAttributeDefinition THREAD_DAEMON = createAttribute(Options.THREAD_DAEMON, "thread-daemon", false);
-    static final SimpleAttributeDefinition WORKER_TASK_CORE_THREADS = createAttribute(Options.WORKER_TASK_CORE_THREADS, Attribute.WORKER_TASK_CORE_THREADS, 4);
-    static final SimpleAttributeDefinition WORKER_TASK_MAX_THREADS = createAttribute(Options.WORKER_TASK_MAX_THREADS, Attribute.WORKER_TASK_LIMIT, 16);
-    static final SimpleAttributeDefinition WORKER_TASK_KEEPALIVE = createAttribute(Options.WORKER_TASK_KEEPALIVE, Attribute.WORKER_TASK_KEEPALIVE, 60);
-    static final SimpleAttributeDefinition STACK_SIZE = createAttribute(Options.STACK_SIZE, "stack-size", 10);
-    static final SimpleAttributeDefinition WORKER_READ_THREADS = createAttribute(Options.WORKER_READ_THREADS, Attribute.WORKER_READ_THREADS, 1);
-    static final SimpleAttributeDefinition WORKER_WRITE_THREADS = createAttribute(Options.WORKER_WRITE_THREADS, Attribute.WORKER_WRITE_THREADS, 1);
-    static final SimpleAttributeDefinition WORKER_TASK_LIMIT = createAttribute(Options.WORKER_TASK_LIMIT, Attribute.WORKER_TASK_LIMIT, 0x4000);
-
-    /*WORKER_NAME
-    THREAD_DAEMON
-    WORKER_TASK_CORE_THREADS
-    WORKER_TASK_MAX_THREADS
-    WORKER_TASK_KEEPALIVE
-    STACK_SIZE
-    WORKER_READ_THREADS
-    WORKER_WRITE_THREADS
-    WORKER_TASK_LIMIT*/
+    static final SimpleAttributeDefinition THREAD_DAEMON = createAttribute(Options.THREAD_DAEMON, Constants.THREAD_DAEMON, false);
+    static final SimpleAttributeDefinition WORKER_TASK_CORE_THREADS = createAttribute(Options.WORKER_TASK_CORE_THREADS, Constants.WORKER_TASK_CORE_THREADS, 4);
+    static final SimpleAttributeDefinition WORKER_TASK_MAX_THREADS = createAttribute(Options.WORKER_TASK_MAX_THREADS, Constants.WORKER_TASK_MAX_THREADS, 16);
+    static final SimpleAttributeDefinition WORKER_TASK_KEEPALIVE = createAttribute(Options.WORKER_TASK_KEEPALIVE, Constants.WORKER_TASK_KEEPALIVE, 60);
+    static final SimpleAttributeDefinition STACK_SIZE = createAttribute(Options.STACK_SIZE, Constants.STACK_SIZE, 10L);
+    static final SimpleAttributeDefinition WORKER_READ_THREADS = createAttribute(Options.WORKER_READ_THREADS, Constants.WORKER_READ_THREADS, 1);
+    static final SimpleAttributeDefinition WORKER_WRITE_THREADS = createAttribute(Options.WORKER_WRITE_THREADS, Constants.WORKER_WRITE_THREADS, 1);
+    static final SimpleAttributeDefinition WORKER_TASK_LIMIT = createAttribute(Options.WORKER_TASK_LIMIT, Constants.WORKER_TASK_LIMIT, 0x4000);
 
     /*
-    dmlloyd:	correct
     workers support...
     WORKER_NAME THREAD_DAEMON WORKER_TASK_CORE_THREADS WORKER_TASK_MAX_THREADS WORKER_TASK_KEEPALIVE STACK_SIZE WORKER_READ_THREADS WORKER_WRITE_THREADS
     WORKER_NAME should be derived from the resource name for ease of debugging and whatnot
@@ -58,7 +49,7 @@ public class WorkerResourceDefinition extends SimpleResourceDefinition {
      */
 
 
-    static AttributeDefinition[] ATTRIBUTES = new AttributeDefinition[]{
+    static SimpleAttributeDefinition[] ATTRIBUTES = new SimpleAttributeDefinition[]{
             WORKER_READ_THREADS,
             WORKER_TASK_CORE_THREADS,
             WORKER_TASK_KEEPALIVE,
@@ -66,9 +57,20 @@ public class WorkerResourceDefinition extends SimpleResourceDefinition {
             WORKER_TASK_MAX_THREADS,
             WORKER_WRITE_THREADS,
             THREAD_DAEMON,
-            WORKER_TASK_LIMIT,
             STACK_SIZE
     };
+
+    static final Map<String, SimpleAttributeDefinition> ATTRIBUTES_BY_XMLNAME;
+
+    static {
+        Map<String, SimpleAttributeDefinition> attrs = new HashMap<String, SimpleAttributeDefinition>();
+        for (AttributeDefinition attr : ATTRIBUTES) {
+            attrs.put(attr.getXmlName(), (SimpleAttributeDefinition) attr);
+        }
+        ATTRIBUTES_BY_XMLNAME = Collections.unmodifiableMap(attrs);
+    }
+
+
     public static final WorkerResourceDefinition INSTANCE = new WorkerResourceDefinition();
 
 
@@ -108,7 +110,7 @@ public class WorkerResourceDefinition extends SimpleResourceDefinition {
             } else {
                 modelType = ModelType.OBJECT;
             }
-            return new SimpleAttributeDefinitionBuilder(option.getName(), modelType)
+            return new SimpleAttributeDefinitionBuilder(option.getName(), modelType,true)
                     .setDefaultValue(defaultModel)
                     .setXmlName(xmlName)
                     .build();

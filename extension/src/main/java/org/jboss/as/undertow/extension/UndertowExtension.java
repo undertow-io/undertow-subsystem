@@ -27,7 +27,7 @@ public class UndertowExtension implements Extension {
 
     protected static final PathElement SUBSYSTEM_PATH = PathElement.pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
     protected static final PathElement LISTENER_PATH = PathElement.pathElement(Constants.HTTP_LISTENER);
-    protected static final PathElement WORKER_PATH = PathElement.pathElement("configuration", Constants.WORKER);
+    protected static final PathElement WORKER_PATH = PathElement.pathElement(Constants.WORKER);
     private static final String RESOURCE_NAME = UndertowExtension.class.getPackage().getName() + ".LocalDescriptions";
 
     static StandardResourceDescriptionResolver getResourceDescriptionResolver(final String keyPrefix) {

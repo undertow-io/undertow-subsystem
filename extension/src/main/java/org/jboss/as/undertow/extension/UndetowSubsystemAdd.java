@@ -51,9 +51,9 @@ class UndetowSubsystemAdd extends AbstractBoottimeAddStepHandler {
      */
     @Override
     protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-        for (SimpleAttributeDefinition attr : UndertowRootDefinition.ATTRIBUTES) {
+        /*for (SimpleAttributeDefinition attr : UndertowRootDefinition.ATTRIBUTES) {
             attr.validateAndSet(operation, model);
-        }
+        }*/
     }
 
     /**
@@ -63,15 +63,6 @@ class UndetowSubsystemAdd extends AbstractBoottimeAddStepHandler {
     public void performBoottime(OperationContext context, ModelNode operation, final ModelNode model,
                                 ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
             throws OperationFailedException {
-        int writeThreads = UndertowRootDefinition.WRITE_THREADS.resolveModelAttribute(context, model).asInt();
-        int readThreads = UndertowRootDefinition.READ_THREADS.resolveModelAttribute(context, model).asInt();
-        int workerThreads = UndertowRootDefinition.WORKER_THREADS.resolveModelAttribute(context, model).asInt();
-
-        final ServiceTarget target = context.getServiceTarget();
-        final WorkerService workerService = new WorkerService(writeThreads, readThreads, workerThreads);
-        newControllers.add(target.addService(WebSubsystemServices.XNIO_WORKER, workerService)
-                .setInitialMode(ServiceController.Mode.ON_DEMAND)
-                .install());
 
 
         context.addStep(new AbstractDeploymentChainStep() {

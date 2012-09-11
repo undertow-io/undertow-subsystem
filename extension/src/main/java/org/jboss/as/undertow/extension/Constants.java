@@ -28,11 +28,7 @@ package org.jboss.as.undertow.extension;
 public interface Constants {
     String SOCKET_BINDING = "socket-binding";
     String PATH = "path";
-    String WORKER_THREADS = "worker-threads";
-    String READ_THREADS = "read-threads";
-    String WRITE_THREADS = "write-threads";
     String HTTP_LISTENER = "http-listener";
-    String LISTENER = "listener";
     String NAME = "name";
     String WORKER = "worker";
 
@@ -42,4 +38,6 @@ public interface Constants {
     String WORKER_TASK_LIMIT = "task-limit";
     String WORKER_TASK_MAX_THREADS = "task-max-threads";
     String WORKER_WRITE_THREADS = "write-threads";
+    String THREAD_DAEMON = "thread-daemon";
+    String STACK_SIZE = "stack-size";
 }

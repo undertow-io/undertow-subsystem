@@ -1,3 +1,4 @@
-<subsystem xmlns="urn:jboss:domain:undertow:1.0" worker-threads="12" write-threads="3" read-threads="3">
-  <http-listener name="static-file" socket-binding="http" />
+<subsystem xmlns="urn:jboss:domain:undertow:1.0">
+    <worker name="default" task-core-threads="12" write-threads="3" read-threads="3"/>
+    <http-listener name="static-file" socket-binding="http" />
 </subsystem>

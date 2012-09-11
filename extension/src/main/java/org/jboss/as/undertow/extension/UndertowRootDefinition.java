@@ -15,7 +15,7 @@ import org.jboss.dmr.ModelType;
 public class UndertowRootDefinition extends SimpleResourceDefinition {
     public static final UndertowRootDefinition INSTANCE = new UndertowRootDefinition();
 
-    protected static final SimpleAttributeDefinition WORKER_THREADS =
+  /*  protected static final SimpleAttributeDefinition WORKER_THREADS =
             new SimpleAttributeDefinitionBuilder(Constants.WORKER_TASK_CORE_THREADS, ModelType.INT, true)
                     .setAllowExpression(true)
                     .setDefaultValue(new ModelNode(10))
@@ -31,8 +31,8 @@ public class UndertowRootDefinition extends SimpleResourceDefinition {
                     .setAllowExpression(true)
                     .setDefaultValue(new ModelNode(4))
                     .build();
-
-    protected static SimpleAttributeDefinition[] ATTRIBUTES = {WORKER_THREADS, READ_THREADS, WRITE_THREADS};
+*/
+    //protected static SimpleAttributeDefinition[] ATTRIBUTES = {WORKER_THREADS, READ_THREADS, WRITE_THREADS};
 
     private UndertowRootDefinition() {
         super(UndertowExtension.SUBSYSTEM_PATH,
@@ -44,9 +44,7 @@ public class UndertowRootDefinition extends SimpleResourceDefinition {
     @Override
     public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
         super.registerAttributes(resourceRegistration);
-        for (SimpleAttributeDefinition attr : ATTRIBUTES) {
-            resourceRegistration.registerReadWriteAttribute(attr, null, new WriteAttributeHandlers.AttributeDefinitionValidatingHandler(attr));
-        }
+
     }
 
 

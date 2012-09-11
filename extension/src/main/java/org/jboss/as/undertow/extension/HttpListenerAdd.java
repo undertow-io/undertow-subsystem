@@ -45,7 +45,7 @@ public class HttpListenerAdd extends AbstractAddStepHandler {
 
         final HttpListenerService service = new HttpListenerService();
         final ServiceBuilder<HttpListenerService> serviceBuilder = context.getServiceTarget().addService(WebSubsystemServices.LISTENER.append(name), service)
-                .addDependency(WebSubsystemServices.XNIO_WORKER, XnioWorker.class, service.getWorker())
+                .addDependency(WebSubsystemServices.XNIO_WORKER.append("default"), XnioWorker.class, service.getWorker())
                 .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding());
 
         serviceBuilder.setInitialMode(ServiceController.Mode.ACTIVE);

@@ -1,12 +1,14 @@
 package org.jboss.as.undertow.extension;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADDRESS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.parsing.ParseUtils.requireNoNamespaceAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
 
+import java.util.HashSet;
 import java.util.List;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -14,6 +16,7 @@ import javax.xml.stream.XMLStreamException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.SimpleAttributeDefinition;
+import org.jboss.as.controller.operations.common.Util;
 import org.jboss.as.controller.parsing.ParseUtils;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
 import org.jboss.dmr.ModelNode;
@@ -39,8 +42,16 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
     public void writeContent(XMLExtendedStreamWriter writer, SubsystemMarshallingContext context) throws XMLStreamException {
         context.startSubsystemElement(Namespace.CURRENT.getUriString(), false);
         ModelNode model = context.getModelNode();
-        for (SimpleAttributeDefinition def : UndertowRootDefinition.ATTRIBUTES) {
-            def.marshallAsAttribute(model, false, writer);
+
+        if (model.hasDefined(Constants.WORKER)) {
+            for (final Property worker : model.get(Constants.WORKER).asPropertyList()) {
+                writer.writeStartElement(Constants.WORKER);
+                writer.writeAttribute(Constants.NAME, worker.getName());
+                for (SimpleAttributeDefinition def : WorkerResourceDefinition.ATTRIBUTES) {
+                    def.marshallAsAttribute(worker.getValue(), false, writer);
+                }
+                writer.writeEndElement();
+            }
         }
         if (model.hasDefined(Constants.HTTP_LISTENER)) {
             for (final Property connector : model.get(Constants.HTTP_LISTENER).asPropertyList()) {
@@ -64,28 +75,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
     @Override
     public void readElement(XMLExtendedStreamReader reader, List<ModelNode> list) throws XMLStreamException {
         PathAddress address = PathAddress.pathAddress(UndertowExtension.SUBSYSTEM_PATH);
-        final ModelNode subsystem = new ModelNode();
-        subsystem.get(OP).set(ADD);
-        subsystem.get(OP_ADDR).set(address.toModelNode());
-        final int count = reader.getAttributeCount();
-        for (int i = 0; i < count; i++) {
-            requireNoNamespaceAttribute(reader, i);
-            final String value = reader.getAttributeValue(i);
-            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
-            switch (attribute) {
-                case WORKER_TASK_CORE_THREADS:
-                    UndertowRootDefinition.WORKER_THREADS.parseAndSetParameter(value, subsystem, reader);
-                    break;
-                case WORKER_READ_THREADS:
-                    UndertowRootDefinition.READ_THREADS.parseAndSetParameter(value, subsystem, reader);
-                    break;
-                case WORKER_WRITE_THREADS:
-                    UndertowRootDefinition.WRITE_THREADS.parseAndSetParameter(value, subsystem, reader);
-                    break;
-                default:
-                    throw unexpectedAttribute(reader, i);
-            }
-        }
+        final ModelNode subsystem = Util.createAddOperation(address);
         list.add(subsystem);
         final Namespace namespace = Namespace.forUri(reader.getNamespaceURI());
         // elements
@@ -96,6 +86,10 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                     switch (element) {
                         case HTTP_LISTENER: {
                             parseListener(reader, address, list);
+                            break;
+                        }
+                        case WORKER: {
+                            parseWorker(reader, address, list);
                             break;
                         }
                         default: {
@@ -111,6 +105,32 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         }
         ParseUtils.requireNoContent(reader);
 
+    }
+
+    static void parseWorker(XMLExtendedStreamReader reader, PathAddress parent, List<ModelNode> list) throws XMLStreamException {
+        ModelNode worker = Util.createAddOperation(parent);
+        PathAddress address = null;
+        for (int i = 0; i < reader.getAttributeCount(); i++) {
+            requireNoNamespaceAttribute(reader, i);
+            final String value = reader.getAttributeValue(i);
+            final String name = reader.getAttributeLocalName(i);
+            final SimpleAttributeDefinition ad = WorkerResourceDefinition.ATTRIBUTES_BY_XMLNAME.get(name);
+            if (ad != null) {
+                ad.parseAndSetParameter(value, worker, reader);
+            } else if (name.equals(Constants.NAME)) {
+                address = parent.append(Constants.WORKER, value);
+            } else {
+                throw unexpectedAttribute(reader, i);
+            }
+        }
+        if (address == null) {
+            HashSet<String> missing = new HashSet<String>();
+            missing.add(Constants.NAME);
+            throw ParseUtils.missingRequired(reader, missing);
+        }
+        worker.get(ADDRESS).set(address.toModelNode());
+        list.add(worker);
+        ParseUtils.requireNoContent(reader);
     }
 
     static void parseListener(XMLExtendedStreamReader reader, PathAddress parent, List<ModelNode> list) throws XMLStreamException {
