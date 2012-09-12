@@ -23,7 +23,6 @@
 package org.jboss.as.undertow.extension;
 
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 
 import io.undertow.server.HttpHandler;
@@ -35,7 +34,6 @@ import io.undertow.server.handlers.error.SimpleErrorPageHandler;
 import io.undertow.servlet.api.ServletContainer;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.msc.service.Service;
-import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
@@ -102,8 +100,9 @@ public class HttpListenerService implements Service<HttpListenerService> {
             final HttpTransferEncodingHandler transferEncodingHandler = new HttpTransferEncodingHandler(cookie);
             openListener.setRootHandler(transferEncodingHandler);
             servletContainer  = ServletContainer.Factory.newInstance(pathHandler);
+            UndertowMessages.MESSAGES.listenerStarted("Http listener", socketAddress);
         } catch (IOException e) {
-            throw new StartException(e);
+            throw new StartException("Could not start http listener", e);
         }
     }
 

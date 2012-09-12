@@ -6,12 +6,10 @@ import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.ServiceVerificationHandler;
-import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.server.AbstractDeploymentChainStep;
 import org.jboss.as.server.DeploymentProcessorTarget;
 import org.jboss.as.server.deployment.Phase;
 import org.jboss.as.server.deployment.jbossallxml.JBossAllXmlParserRegisteringProcessor;
-import org.jboss.as.web.WebExtension;
 import org.jboss.as.undertow.deployment.ELExpressionFactoryProcessor;
 import org.jboss.as.undertow.deployment.EarContextRootProcessor;
 import org.jboss.as.undertow.deployment.JBossWebParsingDeploymentProcessor;
@@ -26,12 +24,11 @@ import org.jboss.as.undertow.deployment.WarStructureDeploymentProcessor;
 import org.jboss.as.undertow.deployment.WebFragmentParsingDeploymentProcessor;
 import org.jboss.as.undertow.deployment.WebJBossAllParser;
 import org.jboss.as.undertow.deployment.WebParsingDeploymentProcessor;
+import org.jboss.as.web.WebExtension;
 import org.jboss.as.web.deployment.component.WebComponentProcessor;
 import org.jboss.dmr.ModelNode;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.msc.service.ServiceController;
-import org.jboss.msc.service.ServiceTarget;
-import org.xnio.XnioWorker;
 
 
 /**
@@ -51,9 +48,7 @@ class UndetowSubsystemAdd extends AbstractBoottimeAddStepHandler {
      */
     @Override
     protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-        /*for (SimpleAttributeDefinition attr : UndertowRootDefinition.ATTRIBUTES) {
-            attr.validateAndSet(operation, model);
-        }*/
+
     }
 
     /**

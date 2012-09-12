@@ -56,7 +56,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <version.compiler.plugin>2.5.1</version.compiler.plugin>
-
+        <version.checkstyle.plugin>2.9.1</version.checkstyle.plugin>
         <!--
             Dependency versions. Please keep alphabetical.
 
@@ -70,11 +70,12 @@
 
         <version.junit>4.8.2</version.junit>
         <version.xnio>3.1.0.Beta5</version.xnio>
-        <version.org.jboss.logging>3.1.1.GA</version.org.jboss.logging>
+        <version.org.jboss.logging>3.1.2.GA</version.org.jboss.logging>
         <version.org.jboss.logmanager>1.4.0.Beta1</version.org.jboss.logmanager>
         <version.org.jboss.logging.processor>1.0.3.Final</version.org.jboss.logging.processor>
         <version.jboss.as>7.2.0.Alpha1-SNAPSHOT</version.jboss.as>
         <version.io.undertow>1.0.0.Alpha1-SNAPSHOT</version.io.undertow>
+
         <!-- Surefire args -->
         <surefire.jpda.args/>
         <surefire.system.args>-da ${surefire.jpda.args}</surefire.system.args>

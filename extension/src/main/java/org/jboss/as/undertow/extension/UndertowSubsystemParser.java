@@ -56,8 +56,8 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         if (model.hasDefined(Constants.HTTP_LISTENER)) {
             for (final Property connector : model.get(Constants.HTTP_LISTENER).asPropertyList()) {
                 final ModelNode config = connector.getValue();
-                writer.writeStartElement(Element.HTTP_LISTENER.getLocalName());
-                writer.writeAttribute(Attribute.NAME.getLocalName(), connector.getName());
+                writer.writeStartElement(Constants.HTTP_LISTENER);
+                writer.writeAttribute(Constants.NAME, connector.getName());
                 for (SimpleAttributeDefinition attr : ListenerResourceDefinition.ATTRIBUTES) {
                     attr.marshallAsAttribute(config, false, writer);
 
@@ -82,13 +82,12 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             switch (namespace) {
                 case UNDERTOW_1_0: {
-                    final Element element = Element.forName(reader.getLocalName());
-                    switch (element) {
-                        case HTTP_LISTENER: {
+                    switch (reader.getLocalName()) {
+                        case Constants.HTTP_LISTENER: {
                             parseListener(reader, address, list);
                             break;
                         }
-                        case WORKER: {
+                        case Constants.WORKER: {
                             parseWorker(reader, address, list);
                             break;
                         }
@@ -141,12 +140,12 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         for (int i = 0; i < count; i++) {
             requireNoNamespaceAttribute(reader, i);
             final String value = reader.getAttributeValue(i);
-            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
-            switch (attribute) {
-                case SOCKET_BINDING:
+
+            switch (reader.getAttributeLocalName(i)) {
+                case Constants.SOCKET_BINDING:
                     ListenerResourceDefinition.SOCKET_BINDING.parseAndSetParameter(value, connector, reader);
                     break;
-                case NAME:
+                case Constants.NAME:
                     name = value;
                     break;
                 default:

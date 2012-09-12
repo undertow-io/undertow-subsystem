@@ -15,10 +15,7 @@ import org.jboss.dmr.ModelType;
  */
 public class ListenerResourceDefinition extends SimpleResourceDefinition {
     protected static final ListenerResourceDefinition INSTANCE = new ListenerResourceDefinition();
-    protected static final SimpleAttributeDefinition NAME =
-            new SimpleAttributeDefinitionBuilder(Constants.NAME, ModelType.STRING)
-                    .setAllowNull(false)
-                    .build();
+
     protected static final SimpleAttributeDefinition SOCKET_BINDING =
             new SimpleAttributeDefinitionBuilder(Constants.SOCKET_BINDING, ModelType.STRING)
                     .setAllowNull(false)

@@ -1,8 +1,5 @@
 package org.jboss.as.undertow.extension;
 
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,13 +7,9 @@ import java.util.Map;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
-import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.ModelType;
-import org.xnio.Option;
 import org.xnio.Options;
 
 /**
@@ -27,14 +20,30 @@ public class WorkerResourceDefinition extends SimpleResourceDefinition {
 
     //The defaults for these come from XnioWorker
 
-    static final SimpleAttributeDefinition THREAD_DAEMON = createAttribute(Options.THREAD_DAEMON, Constants.THREAD_DAEMON, false);
-    static final SimpleAttributeDefinition WORKER_TASK_CORE_THREADS = createAttribute(Options.WORKER_TASK_CORE_THREADS, Constants.WORKER_TASK_CORE_THREADS, 4);
-    static final SimpleAttributeDefinition WORKER_TASK_MAX_THREADS = createAttribute(Options.WORKER_TASK_MAX_THREADS, Constants.WORKER_TASK_MAX_THREADS, 16);
-    static final SimpleAttributeDefinition WORKER_TASK_KEEPALIVE = createAttribute(Options.WORKER_TASK_KEEPALIVE, Constants.WORKER_TASK_KEEPALIVE, 60);
-    static final SimpleAttributeDefinition STACK_SIZE = createAttribute(Options.STACK_SIZE, Constants.STACK_SIZE, 10L);
-    static final SimpleAttributeDefinition WORKER_READ_THREADS = createAttribute(Options.WORKER_READ_THREADS, Constants.WORKER_READ_THREADS, 1);
-    static final SimpleAttributeDefinition WORKER_WRITE_THREADS = createAttribute(Options.WORKER_WRITE_THREADS, Constants.WORKER_WRITE_THREADS, 1);
-    static final SimpleAttributeDefinition WORKER_TASK_LIMIT = createAttribute(Options.WORKER_TASK_LIMIT, Constants.WORKER_TASK_LIMIT, 0x4000);
+    static final OptionAttributeDefinition THREAD_DAEMON = new OptionAttributeDefinition.Builder(Constants.THREAD_DAEMON, Options.THREAD_DAEMON)
+            .setDefaultValue(new ModelNode(false))
+            .build();
+    static final OptionAttributeDefinition WORKER_TASK_CORE_THREADS = new OptionAttributeDefinition.Builder(Constants.WORKER_TASK_CORE_THREADS, Options.WORKER_TASK_CORE_THREADS)
+            .setDefaultValue(new ModelNode(4))
+            .build();
+    static final OptionAttributeDefinition WORKER_TASK_MAX_THREADS = new OptionAttributeDefinition.Builder(Constants.WORKER_TASK_MAX_THREADS, Options.WORKER_TASK_MAX_THREADS)
+            .setDefaultValue(new ModelNode(16))
+            .build();
+    static final OptionAttributeDefinition WORKER_TASK_KEEPALIVE = new OptionAttributeDefinition.Builder(Constants.WORKER_TASK_KEEPALIVE, Options.WORKER_TASK_KEEPALIVE)
+            .setDefaultValue(new ModelNode(60))
+            .build();
+    static final OptionAttributeDefinition STACK_SIZE = new OptionAttributeDefinition.Builder(Constants.STACK_SIZE, Options.STACK_SIZE)
+            .setDefaultValue(new ModelNode(10L))
+            .build();
+    static final OptionAttributeDefinition WORKER_READ_THREADS = new OptionAttributeDefinition.Builder(Constants.WORKER_READ_THREADS, Options.WORKER_READ_THREADS)
+            .setDefaultValue(new ModelNode(1))
+            .build();
+    static final OptionAttributeDefinition WORKER_WRITE_THREADS = new OptionAttributeDefinition.Builder(Constants.WORKER_WRITE_THREADS, Options.WORKER_WRITE_THREADS)
+            .setDefaultValue(new ModelNode(1))
+            .build();
+    static final OptionAttributeDefinition WORKER_TASK_LIMIT = new OptionAttributeDefinition.Builder(Constants.WORKER_TASK_LIMIT, Options.WORKER_TASK_LIMIT)
+            .setDefaultValue(new ModelNode(0x4000))
+            .build();
 
     /*
     workers support...
@@ -49,7 +58,7 @@ public class WorkerResourceDefinition extends SimpleResourceDefinition {
      */
 
 
-    static SimpleAttributeDefinition[] ATTRIBUTES = new SimpleAttributeDefinition[]{
+    static OptionAttributeDefinition[] ATTRIBUTES = new OptionAttributeDefinition[]{
             WORKER_READ_THREADS,
             WORKER_TASK_CORE_THREADS,
             WORKER_TASK_KEEPALIVE,
@@ -60,12 +69,12 @@ public class WorkerResourceDefinition extends SimpleResourceDefinition {
             STACK_SIZE
     };
 
-    static final Map<String, SimpleAttributeDefinition> ATTRIBUTES_BY_XMLNAME;
+    static final Map<String, OptionAttributeDefinition> ATTRIBUTES_BY_XMLNAME;
 
     static {
-        Map<String, SimpleAttributeDefinition> attrs = new HashMap<String, SimpleAttributeDefinition>();
+        Map<String, OptionAttributeDefinition> attrs = new HashMap<>();
         for (AttributeDefinition attr : ATTRIBUTES) {
-            attrs.put(attr.getXmlName(), (SimpleAttributeDefinition) attr);
+            attrs.put(attr.getXmlName(), (OptionAttributeDefinition) attr);
         }
         ATTRIBUTES_BY_XMLNAME = Collections.unmodifiableMap(attrs);
     }
@@ -73,52 +82,6 @@ public class WorkerResourceDefinition extends SimpleResourceDefinition {
 
     public static final WorkerResourceDefinition INSTANCE = new WorkerResourceDefinition();
 
-
-    private static SimpleAttributeDefinition createAttribute(Option option, Attribute attribute, Object defaultValue) {
-        return createAttribute(option, attribute.getLocalName(), defaultValue);
-    }
-
-    private static SimpleAttributeDefinition createAttribute(Option option, String xmlName, Object defaultValue) {
-
-        try {
-            Field typeField = option.getClass().getDeclaredField("type");
-            typeField.setAccessible(true);
-            Class type = (Class) typeField.get(option);
-            ModelType modelType;
-            ModelNode defaultModel = new ModelNode();
-            if (type.isAssignableFrom(Integer.class)) {
-                modelType = ModelType.INT;
-                defaultModel.set((Integer) defaultValue);
-            } else if (type.isAssignableFrom(Long.class)) {
-                modelType = ModelType.LONG;
-                defaultModel.set((Long) defaultValue);
-            } else if (type.isAssignableFrom(BigInteger.class)) {
-                modelType = ModelType.BIG_INTEGER;
-                defaultModel.set((BigInteger) defaultValue);
-            } else if (type.isAssignableFrom(Double.class)) {
-                modelType = ModelType.DOUBLE;
-                defaultModel.set((Double) defaultValue);
-            } else if (type.isAssignableFrom(BigDecimal.class)) {
-                modelType = ModelType.BIG_DECIMAL;
-                defaultModel.set((BigDecimal) defaultValue);
-            } else if (type.isAssignableFrom(String.class)) {
-                modelType = ModelType.STRING;
-                defaultModel.set((String) defaultValue);
-            } else if (type.isAssignableFrom(Boolean.class)) {
-                modelType = ModelType.BOOLEAN;
-                defaultModel.set((Boolean) defaultValue);
-            } else {
-                modelType = ModelType.OBJECT;
-            }
-            return new SimpleAttributeDefinitionBuilder(option.getName(), modelType,true)
-                    .setDefaultValue(defaultModel)
-                    .setXmlName(xmlName)
-                    .build();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     private WorkerResourceDefinition() {
         super(UndertowExtension.WORKER_PATH,

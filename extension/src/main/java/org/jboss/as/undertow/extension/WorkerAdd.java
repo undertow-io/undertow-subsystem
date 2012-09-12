@@ -12,10 +12,11 @@ import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
+import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
-import org.jboss.msc.service.ServiceTarget;
 import org.xnio.Option;
 import org.xnio.OptionMap;
+import org.xnio.XnioWorker;
 
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2012 Red Hat Inc.
@@ -40,8 +41,8 @@ public class WorkerAdd extends AbstractAddStepHandler {
         final String name = address.getLastElement().getValue();
 
         final OptionMap.Builder builder = OptionMap.builder();
-        for (AttributeDefinition attr : WorkerResourceDefinition.ATTRIBUTES) {
-            Option option = Option.fromString(attr.getName(), WorkerAdd.class.getClassLoader());
+        for (OptionAttributeDefinition attr : WorkerResourceDefinition.ATTRIBUTES) {
+            Option option = attr.getOption();
             ModelNode value = attr.resolveModelAttribute(context, model);
             if (attr.getType() == ModelType.INT) {
                 builder.set((Option<Integer>) option, value.asInt());
@@ -52,11 +53,17 @@ public class WorkerAdd extends AbstractAddStepHandler {
             }
         }
 
-        final ServiceTarget target = context.getServiceTarget();
         final WorkerService workerService = new WorkerService(builder.getMap());
-        newControllers.add(target.addService(WebSubsystemServices.XNIO_WORKER.append(name), workerService)
-                .setInitialMode(ServiceController.Mode.ON_DEMAND)
-                .install());
+        final ServiceBuilder<XnioWorker> serviceBuilder = context.getServiceTarget().
+                addService(WebSubsystemServices.XNIO_WORKER.append(name), workerService);
+
+        serviceBuilder.setInitialMode(ServiceController.Mode.ACTIVE);
+
+        final ServiceController<XnioWorker> serviceController = serviceBuilder.install();
+        if (newControllers != null) {
+            newControllers.add(serviceController);
+        }
+
 
     }
 }
