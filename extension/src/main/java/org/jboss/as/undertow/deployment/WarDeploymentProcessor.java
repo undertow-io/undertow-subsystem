@@ -74,6 +74,7 @@ import org.jboss.metadata.web.spec.FilterMappingMetaData;
 import org.jboss.metadata.web.spec.FilterMetaData;
 import org.jboss.metadata.web.spec.ListenerMetaData;
 import org.jboss.metadata.web.spec.ServletMappingMetaData;
+import org.jboss.metadata.web.spec.TldMetaData;
 import org.jboss.modules.Module;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController.Mode;
@@ -395,15 +396,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
             if (mergedMetaData.getListeners() != null) {
                 for (ListenerMetaData listener : mergedMetaData.getListeners()) {
-                    ComponentInstantiator creator = components.get(listener.getListenerClass());
-                    ListenerInfo l;
-                    if (creator != null) {
-                        InstanceFactory<EventListener> factory = createInstanceFactory(creator);
-                        l = new ListenerInfo((Class<? extends EventListener>) classReflectionIndex.classIndex(listener.getListenerClass()).getModuleClass(), factory);
-                    } else {
-                        l = new ListenerInfo((Class<? extends EventListener>) classReflectionIndex.classIndex(listener.getListenerClass()).getModuleClass());
-                    }
-                    d.addListener(l);
+                    addListener(classReflectionIndex, components, d, listener);
                 }
 
             }
@@ -414,15 +407,46 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
             if (mergedMetaData.getWelcomeFileList() != null &&
                     mergedMetaData.getWelcomeFileList().getWelcomeFiles() != null) {
-                    d.addWelcomePages(mergedMetaData.getWelcomeFileList().getWelcomeFiles());
+                d.addWelcomePages(mergedMetaData.getWelcomeFileList().getWelcomeFiles());
             } else {
                 d.addWelcomePages("index.html", "index.htm", "index.jsp");
+            }
+
+            TldsMetaData tldsMetaData = deploymentUnit.getAttachment(TldsMetaData.ATTACHMENT_KEY);
+            if (tldsMetaData != null) {
+                if (tldsMetaData.getTlds() != null) {
+                    for (Map.Entry<String, TldMetaData> tld : tldsMetaData.getTlds().entrySet()) {
+                        for (final ListenerMetaData listener : tld.getValue().getListeners()) {
+                            addListener(classReflectionIndex, components, d, listener);
+                        }
+                    }
+                }
+                List<TldMetaData> sharedTlds = tldsMetaData.getSharedTlds(deploymentUnit);
+                if (sharedTlds != null) {
+                    for (TldMetaData metaData : sharedTlds) {
+                        for (final ListenerMetaData listener : metaData.getListeners()) {
+                            addListener(classReflectionIndex, components, d, listener);
+                        }
+                    }
+                }
             }
 
             return d;
         } catch (ClassNotFoundException e) {
             throw new DeploymentUnitProcessingException(e);
         }
+    }
+
+    private void addListener(final DeploymentClassIndex classReflectionIndex, final Map<String, ComponentInstantiator> components, final DeploymentInfo d, final ListenerMetaData listener) throws ClassNotFoundException {
+        ComponentInstantiator creator = components.get(listener.getListenerClass());
+        ListenerInfo l;
+        if (creator != null) {
+            InstanceFactory<EventListener> factory = createInstanceFactory(creator);
+            l = new ListenerInfo((Class<? extends EventListener>) classReflectionIndex.classIndex(listener.getListenerClass()).getModuleClass(), factory);
+        } else {
+            l = new ListenerInfo((Class<? extends EventListener>) classReflectionIndex.classIndex(listener.getListenerClass()).getModuleClass());
+        }
+        d.addListener(l);
     }
 
     private <T> InstanceFactory<T> createInstanceFactory(final ComponentInstantiator creator) {
