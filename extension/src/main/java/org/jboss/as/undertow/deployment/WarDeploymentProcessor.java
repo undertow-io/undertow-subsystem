@@ -400,9 +400,10 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 }
 
             }
-
-            for (ParamValueMetaData param : mergedMetaData.getContextParams()) {
-                d.addInitParameter(param.getParamName(), param.getParamValue());
+            if (mergedMetaData.getContextParams() != null) {
+                for (ParamValueMetaData param : mergedMetaData.getContextParams()) {
+                    d.addInitParameter(param.getParamName(), param.getParamValue());
+                }
             }
 
             if (mergedMetaData.getWelcomeFileList() != null &&
@@ -424,8 +425,10 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 List<TldMetaData> sharedTlds = tldsMetaData.getSharedTlds(deploymentUnit);
                 if (sharedTlds != null) {
                     for (TldMetaData metaData : sharedTlds) {
-                        for (final ListenerMetaData listener : metaData.getListeners()) {
-                            addListener(classReflectionIndex, components, d, listener);
+                        if (metaData.getListeners() != null) {
+                            for (final ListenerMetaData listener : metaData.getListeners()) {
+                                addListener(classReflectionIndex, components, d, listener);
+                            }
                         }
                     }
                 }

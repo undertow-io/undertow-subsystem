@@ -16,6 +16,7 @@ import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
 import org.xnio.Option;
 import org.xnio.OptionMap;
+import org.xnio.Options;
 import org.xnio.XnioWorker;
 
 /**
@@ -52,6 +53,7 @@ public class WorkerAdd extends AbstractAddStepHandler {
                 builder.set(option, value.asBoolean());
             }
         }
+        builder.set(Options.WORKER_NAME, "Undertow");
 
         final WorkerService workerService = new WorkerService(builder.getMap());
         final ServiceBuilder<XnioWorker> serviceBuilder = context.getServiceTarget().
