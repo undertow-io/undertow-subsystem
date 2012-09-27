@@ -362,6 +362,12 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     }
                     f.setAsyncSupported(filter.isAsyncSupported());
                     d.addFilter(f);
+
+                    if (filter.getInitParam() != null) {
+                        for (ParamValueMetaData initParam : filter.getInitParam()) {
+                            f.addInitParam(initParam.getParamName(), initParam.getParamValue());
+                        }
+                    }
                 }
             }
             if (mergedMetaData.getFilterMappings() != null) {
