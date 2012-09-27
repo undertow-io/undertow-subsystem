@@ -24,6 +24,7 @@ package org.jboss.as.undertow.deployment;
 
 import javax.servlet.ServletException;
 
+import io.undertow.server.HttpHandler;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import org.jboss.as.undertow.extension.HttpListenerService;
@@ -48,10 +49,11 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
 
     @Override
     public void start(final StartContext startContext) throws StartException {
-        deploymentManager= connector.getValue().getServletContainer().addDeployment(deploymentInfo);
+        deploymentManager = connector.getValue().getServletContainer().addDeployment(deploymentInfo);
         deploymentManager.deploy();
         try {
-            deploymentManager.start();
+            HttpHandler handler = deploymentManager.start();
+            connector.getValue().getPathHandler().addPath(deploymentInfo.getContextPath(), handler);
         } catch (ServletException e) {
             throw new StartException(e);
         }

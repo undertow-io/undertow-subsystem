@@ -129,7 +129,9 @@
                 <file relative-to="jboss.server.log.dir" path="server.log"/>
                 <append value="false"/>
             </file-handler>
-
+             <logger category="io.undertow.request">
+                 <level name="DEBUG"/>
+             </logger>
             <logger category="com.arjuna">
                 <level name="WARN"/>
             </logger>

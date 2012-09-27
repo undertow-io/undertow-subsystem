@@ -88,7 +88,7 @@ public class HttpListenerService implements Service<HttpListenerService> {
         xnio = Xnio.getInstance("nio", HttpListenerService.class.getClassLoader());
         try {
             OptionMap serverOptions = OptionMap.builder()
-                    .set(Options.WORKER_ACCEPT_THREADS, 1)
+                    .set(Options.WORKER_ACCEPT_THREADS, 3)
                     .set(Options.TCP_NODELAY, true)
                     .set(Options.REUSE_ADDRESSES, true)
                     .getMap();
@@ -103,7 +103,7 @@ public class HttpListenerService implements Service<HttpListenerService> {
             cookie.setNext(new SimpleErrorPageHandler(sessionAttachmentHandler));
             final HttpTransferEncodingHandler transferEncodingHandler = new HttpTransferEncodingHandler(cookie);
             openListener.setRootHandler(transferEncodingHandler);
-            servletContainer  = ServletContainer.Factory.newInstance(pathHandler);
+            servletContainer  = ServletContainer.Factory.newInstance();
             UndertowMessages.MESSAGES.listenerStarted("Http listener", socketAddress);
         } catch (IOException e) {
             throw new StartException("Could not start http listener", e);
