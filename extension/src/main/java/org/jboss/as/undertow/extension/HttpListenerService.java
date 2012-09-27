@@ -31,6 +31,8 @@ import io.undertow.server.HttpTransferEncodingHandler;
 import io.undertow.server.handlers.CookieHandler;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.error.SimpleErrorPageHandler;
+import io.undertow.server.handlers.form.FormEncodedDataHandler;
+import io.undertow.server.handlers.form.MultiPartHandler;
 import io.undertow.server.session.InMemorySessionManager;
 import io.undertow.server.session.SessionAttachmentHandler;
 import io.undertow.servlet.api.ServletContainer;
@@ -92,13 +94,19 @@ public class HttpListenerService implements Service<HttpListenerService> {
                     .set(Options.TCP_NODELAY, true)
                     .set(Options.REUSE_ADDRESSES, true)
                     .getMap();
-            openListener = new HttpOpenListener(new ByteBufferSlicePool(BufferAllocator.DIRECT_BYTE_BUFFER_ALLOCATOR, 8192, 8192 * 8192));
+            //TODO: make this configurable, and use a more realistic buffer size by default.
+            //this is only this large to work around an XNIO bug
+            openListener = new HttpOpenListener(new ByteBufferSlicePool(BufferAllocator.DIRECT_BYTE_BUFFER_ALLOCATOR, 81920, 81920 * 8192));
             ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener = ChannelListeners.openListenerAdapter(openListener);
             final InetSocketAddress socketAddress = binding.getValue().getSocketAddress();
             server = worker.getValue().createStreamServer(socketAddress, acceptListener, serverOptions);
             server.resumeAccepts();
+            FormEncodedDataHandler formEncodedDataHandler = new FormEncodedDataHandler();
+            formEncodedDataHandler.setNext(pathHandler);
+            MultiPartHandler multiPartHandler = new MultiPartHandler();
+            multiPartHandler.setNext(formEncodedDataHandler);
             SessionAttachmentHandler sessionAttachmentHandler = new SessionAttachmentHandler(new InMemorySessionManager());
-            sessionAttachmentHandler.setNext(pathHandler);
+            sessionAttachmentHandler.setNext(multiPartHandler);
             final CookieHandler cookie = new CookieHandler();
             cookie.setNext(new SimpleErrorPageHandler(sessionAttachmentHandler));
             final HttpTransferEncodingHandler transferEncodingHandler = new HttpTransferEncodingHandler(cookie);
