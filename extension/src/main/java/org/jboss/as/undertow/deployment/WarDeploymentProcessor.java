@@ -318,7 +318,10 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     final ServletInfo s;
                     final ComponentInstantiator creator = components.get(servlet.getServletClass());
 
-                    if (creator != null) {
+                    if(servlet.getJspFile() != null) {
+                        //TODO: real JSP support
+                        s = new ServletInfo(servlet.getName(), (Class<? extends Servlet>) getClass().getClassLoader().loadClass("org.apache.jasper.servlet.JspServlet"));
+                    } else if (creator != null) {
                         //TODO: fix this once we have web-common
                         InstanceFactory<Servlet> factory = createInstanceFactory(creator);
                         s = new ServletInfo(servlet.getName(), (Class<? extends Servlet>) classReflectionIndex.classIndex(servlet.getServletClass()).getModuleClass(), factory);
