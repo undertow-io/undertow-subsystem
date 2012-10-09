@@ -39,6 +39,7 @@ import javax.servlet.ServletContainerInitializer;
 import io.undertow.server.handlers.blocking.BlockingHttpServerExchange;
 import io.undertow.servlet.api.ClassIntrospecter;
 import io.undertow.servlet.api.DeploymentInfo;
+import io.undertow.servlet.api.ErrorPage;
 import io.undertow.servlet.api.FilterInfo;
 import io.undertow.servlet.api.InstanceFactory;
 import io.undertow.servlet.api.InstanceHandle;
@@ -70,6 +71,7 @@ import org.jboss.metadata.javaee.spec.ParamValueMetaData;
 import org.jboss.metadata.web.jboss.JBossServletMetaData;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.metadata.web.spec.DispatcherType;
+import org.jboss.metadata.web.spec.ErrorPageMetaData;
 import org.jboss.metadata.web.spec.FilterMappingMetaData;
 import org.jboss.metadata.web.spec.FilterMetaData;
 import org.jboss.metadata.web.spec.ListenerMetaData;
@@ -318,7 +320,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     final ServletInfo s;
                     final ComponentInstantiator creator = components.get(servlet.getServletClass());
 
-                    if(servlet.getJspFile() != null) {
+                    if (servlet.getJspFile() != null) {
                         //TODO: real JSP support
                         s = new ServletInfo(servlet.getName(), (Class<? extends Servlet>) getClass().getClassLoader().loadClass("org.apache.jasper.servlet.JspServlet"));
                     } else if (creator != null) {
@@ -420,6 +422,18 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 d.addWelcomePages(mergedMetaData.getWelcomeFileList().getWelcomeFiles());
             } else {
                 d.addWelcomePages("index.html", "index.htm", "index.jsp");
+            }
+
+            if (mergedMetaData.getErrorPages() != null) {
+                for (final ErrorPageMetaData page : mergedMetaData.getErrorPages()) {
+                    final ErrorPage errorPage;
+                    if (page.getExceptionType() == null || page.getExceptionType().isEmpty()) {
+                        errorPage = new ErrorPage(page.getLocation(), Integer.parseInt(page.getErrorCode()));
+                    } else {
+                        errorPage = new ErrorPage(page.getLocation(), (Class<? extends Throwable>)classReflectionIndex.classIndex(page.getExceptionType()).getModuleClass());
+                    }
+                    d.addErrorPages(errorPage);
+                }
             }
 
             TldsMetaData tldsMetaData = deploymentUnit.getAttachment(TldsMetaData.ATTACHMENT_KEY);
