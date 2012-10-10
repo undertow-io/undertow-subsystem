@@ -291,8 +291,9 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             final DeploymentInfo d = new DeploymentInfo();
             d.setContextPath(mergedMetaData.getContextRoot());
             if(mergedMetaData.getDescriptionGroup() != null) {
-                d.setDeploymentName(mergedMetaData.getDescriptionGroup().getDisplayName());
+                d.setDisplayName(mergedMetaData.getDescriptionGroup().getDisplayName());
             }
+            d.setDeploymentName(deploymentUnit.getName());
             d.setResourceLoader(new DeploymentResourceLoader(deploymentRoot));
             d.setClassLoader(module.getClassLoader());
 
