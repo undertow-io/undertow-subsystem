@@ -44,6 +44,7 @@ import io.undertow.servlet.api.FilterInfo;
 import io.undertow.servlet.api.InstanceFactory;
 import io.undertow.servlet.api.InstanceHandle;
 import io.undertow.servlet.api.ListenerInfo;
+import io.undertow.servlet.api.MimeMapping;
 import io.undertow.servlet.api.ServletContainerInitializerInfo;
 import io.undertow.servlet.api.ServletInfo;
 import io.undertow.servlet.api.ThreadSetupAction;
@@ -75,6 +76,7 @@ import org.jboss.metadata.web.spec.ErrorPageMetaData;
 import org.jboss.metadata.web.spec.FilterMappingMetaData;
 import org.jboss.metadata.web.spec.FilterMetaData;
 import org.jboss.metadata.web.spec.ListenerMetaData;
+import org.jboss.metadata.web.spec.MimeMappingMetaData;
 import org.jboss.metadata.web.spec.ServletMappingMetaData;
 import org.jboss.metadata.web.spec.TldMetaData;
 import org.jboss.modules.Module;
@@ -288,7 +290,9 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         try {
             final DeploymentInfo d = new DeploymentInfo();
             d.setContextPath(mergedMetaData.getContextRoot());
-            d.setDeploymentName(deploymentUnit.getName());
+            if(mergedMetaData.getDescriptionGroup() != null) {
+                d.setDeploymentName(mergedMetaData.getDescriptionGroup().getDisplayName());
+            }
             d.setResourceLoader(new DeploymentResourceLoader(deploymentRoot));
             d.setClassLoader(module.getClassLoader());
 
@@ -433,6 +437,12 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                         errorPage = new ErrorPage(page.getLocation(), (Class<? extends Throwable>)classReflectionIndex.classIndex(page.getExceptionType()).getModuleClass());
                     }
                     d.addErrorPages(errorPage);
+                }
+            }
+
+            if(mergedMetaData.getMimeMappings() != null) {
+                for(final MimeMappingMetaData mapping : mergedMetaData.getMimeMappings()) {
+                    d.addMimeMapping(new MimeMapping(mapping.getExtension(), mapping.getMimeType()));
                 }
             }
 
