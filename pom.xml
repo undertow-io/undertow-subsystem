@@ -75,6 +75,8 @@
         <version.org.jboss.logging.processor>1.0.3.Final</version.org.jboss.logging.processor>
         <version.jboss.as>7.2.0.Alpha1-SNAPSHOT</version.jboss.as>
         <version.io.undertow>1.0.0.Alpha1-SNAPSHOT</version.io.undertow>
+        <version.io.undertow.jastow>1.0.0.Alpha1-SNAPSHOT</version.io.undertow.jastow>
+        <version.org.jboss.web.jasper-jdt>7.0.3.Final</version.org.jboss.web.jasper-jdt>
 
         <!-- Surefire args -->
         <surefire.jpda.args/>
@@ -199,6 +201,12 @@
             </dependency>
 
             <dependency>
+                <groupId>io.undertow</groupId>
+                <artifactId>undertow-jsp</artifactId>
+                <version>${version.io.undertow}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${version.junit}</version>
@@ -230,6 +238,17 @@
                 <version>${version.org.jboss.logmanager}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.jboss.web</groupId>
+                <artifactId>jasper-jdt</artifactId>
+                <version>${version.org.jboss.web.jasper-jdt}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.undertow.jastow</groupId>
+                <artifactId>jastow</artifactId>
+                <version>${version.io.undertow.jastow}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.jboss.xnio</groupId>

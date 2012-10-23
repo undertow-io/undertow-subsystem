@@ -36,6 +36,7 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 
+import io.undertow.jsp.JspServletBuilder;
 import io.undertow.server.handlers.blocking.BlockingHttpServerExchange;
 import io.undertow.servlet.api.ClassIntrospecter;
 import io.undertow.servlet.api.DeploymentInfo;
@@ -50,6 +51,9 @@ import io.undertow.servlet.api.ServletInfo;
 import io.undertow.servlet.api.ThreadSetupAction;
 import io.undertow.servlet.util.ConstructorInstanceFactory;
 import io.undertow.servlet.util.ImmediateInstanceFactory;
+import org.apache.jasper.deploy.JspPropertyGroup;
+import org.apache.jasper.deploy.TagLibraryInfo;
+import org.apache.jasper.servlet.JspServlet;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.ee.component.EEModuleDescription;
 import org.jboss.as.naming.ManagedReference;
@@ -297,6 +301,8 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             d.setResourceLoader(new DeploymentResourceLoader(deploymentRoot));
             d.setClassLoader(module.getClassLoader());
 
+            JspServletBuilder.setupDeployment(d, new HashMap<String, JspPropertyGroup>(), new HashMap<String, TagLibraryInfo>(), new HackInstanceManager());
+
             //TODO: do this properly
             d.setClassIntrospecter(new ClassIntrospecter() {
                 @Override
@@ -327,7 +333,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
                     if (servlet.getJspFile() != null) {
                         //TODO: real JSP support
-                        s = new ServletInfo(servlet.getName(), (Class<? extends Servlet>) getClass().getClassLoader().loadClass("org.apache.jasper.servlet.JspServlet"));
+                        s = new ServletInfo(servlet.getName(), JspServlet.class);
                     } else if (creator != null) {
                         //TODO: fix this once we have web-common
                         InstanceFactory<Servlet> factory = createInstanceFactory(creator);
@@ -356,6 +362,11 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     d.addServlet(s);
                 }
             }
+
+            //default JSP servlet
+            d.addServlet(new ServletInfo("Default JSP Servlet", JspServlet.class)
+                    .addMapping("*.jsp"));
+
 
             if (mergedMetaData.getFilters() != null) {
                 for (final FilterMetaData filter : mergedMetaData.getFilters()) {

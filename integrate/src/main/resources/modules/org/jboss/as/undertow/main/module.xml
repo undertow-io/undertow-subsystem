@@ -28,6 +28,7 @@
     </resources>
 
     <dependencies>
+        <module name="io.undertow"/>
         <module name="sun.jdk"/>
         <module name="javax.annotation.api"/>
         <module name="javax.api"/>
@@ -57,7 +58,6 @@
         <module name="org.jboss.common-core"/>
         <module name="org.picketbox"/>
         <module name="javax.security.jacc.api"/>
-        <module name="io.undertow"/>
         <module name="org.jboss.xnio"/>
         <module name="org.jboss.xnio.nio" services="import"/>
 

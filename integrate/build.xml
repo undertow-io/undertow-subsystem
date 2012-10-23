@@ -45,6 +45,9 @@
         <module-def name="io.undertow">
             <maven-resource group="io.undertow" artifact="undertow-core"/>
             <maven-resource group="io.undertow" artifact="undertow-servlet"/>
+            <maven-resource group="io.undertow" artifact="undertow-jsp"/>
+            <maven-resource group="io.undertow.jastow" artifact="jastow"/>
+            <maven-resource group="org.jboss.web" artifact="jasper-jdt"/>
         </module-def>
         <module-def name="org.jboss.xnio">
             <maven-resource group="org.jboss.xnio" artifact="xnio-api"/>
