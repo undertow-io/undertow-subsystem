@@ -51,9 +51,16 @@ import io.undertow.servlet.api.ServletInfo;
 import io.undertow.servlet.api.ThreadSetupAction;
 import io.undertow.servlet.util.ConstructorInstanceFactory;
 import io.undertow.servlet.util.ImmediateInstanceFactory;
+import org.apache.jasper.deploy.FunctionInfo;
 import org.apache.jasper.deploy.JspPropertyGroup;
+import org.apache.jasper.deploy.TagAttributeInfo;
+import org.apache.jasper.deploy.TagFileInfo;
+import org.apache.jasper.deploy.TagInfo;
 import org.apache.jasper.deploy.TagLibraryInfo;
+import org.apache.jasper.deploy.TagLibraryValidatorInfo;
+import org.apache.jasper.deploy.TagVariableInfo;
 import org.apache.jasper.servlet.JspServlet;
+import org.jboss.annotation.javaee.Icon;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.ee.component.EEModuleDescription;
 import org.jboss.as.naming.ManagedReference;
@@ -72,17 +79,25 @@ import org.jboss.as.web.deployment.component.ComponentInstantiator;
 import org.jboss.dmr.ModelNode;
 import org.jboss.metadata.ear.jboss.JBossAppMetaData;
 import org.jboss.metadata.ear.spec.EarMetaData;
+import org.jboss.metadata.javaee.spec.DescriptionGroupMetaData;
 import org.jboss.metadata.javaee.spec.ParamValueMetaData;
 import org.jboss.metadata.web.jboss.JBossServletMetaData;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
+import org.jboss.metadata.web.spec.AttributeMetaData;
 import org.jboss.metadata.web.spec.DispatcherType;
 import org.jboss.metadata.web.spec.ErrorPageMetaData;
 import org.jboss.metadata.web.spec.FilterMappingMetaData;
 import org.jboss.metadata.web.spec.FilterMetaData;
+import org.jboss.metadata.web.spec.FunctionMetaData;
+import org.jboss.metadata.web.spec.JspConfigMetaData;
+import org.jboss.metadata.web.spec.JspPropertyGroupMetaData;
 import org.jboss.metadata.web.spec.ListenerMetaData;
 import org.jboss.metadata.web.spec.MimeMappingMetaData;
 import org.jboss.metadata.web.spec.ServletMappingMetaData;
+import org.jboss.metadata.web.spec.TagFileMetaData;
+import org.jboss.metadata.web.spec.TagMetaData;
 import org.jboss.metadata.web.spec.TldMetaData;
+import org.jboss.metadata.web.spec.VariableMetaData;
 import org.jboss.modules.Module;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController.Mode;
@@ -294,14 +309,30 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         try {
             final DeploymentInfo d = new DeploymentInfo();
             d.setContextPath(mergedMetaData.getContextRoot());
-            if(mergedMetaData.getDescriptionGroup() != null) {
+            if (mergedMetaData.getDescriptionGroup() != null) {
                 d.setDisplayName(mergedMetaData.getDescriptionGroup().getDisplayName());
             }
             d.setDeploymentName(deploymentUnit.getName());
             d.setResourceLoader(new DeploymentResourceLoader(deploymentRoot));
             d.setClassLoader(module.getClassLoader());
 
-            JspServletBuilder.setupDeployment(d, new HashMap<String, JspPropertyGroup>(), new HashMap<String, TagLibraryInfo>(), new HackInstanceManager());
+
+
+            HashMap<String, TagLibraryInfo> tldInfo = createTldsInfo(deploymentUnit, classReflectionIndex, components, d);
+            HashMap<String, JspPropertyGroup> propertyGroups = createJspConfig(mergedMetaData);
+
+            JspServletBuilder.setupDeployment(d, propertyGroups, tldInfo, new HackInstanceManager());
+
+
+            //default JSP servlet
+            final ServletInfo jspServlet = new ServletInfo("Default JSP Servlet", JspServlet.class)
+                    .addMapping("*.jsp")
+                    .addMapping("*.jspx");
+            d.addServlet(jspServlet);
+
+            for (final String mapping : propertyGroups.keySet()) {
+                jspServlet.addMapping(mapping);
+            }
 
             //TODO: do this properly
             d.setClassIntrospecter(new ClassIntrospecter() {
@@ -362,11 +393,6 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     d.addServlet(s);
                 }
             }
-
-            //default JSP servlet
-            d.addServlet(new ServletInfo("Default JSP Servlet", JspServlet.class)
-                    .addMapping("*.jsp"));
-
 
             if (mergedMetaData.getFilters() != null) {
                 for (final FilterMetaData filter : mergedMetaData.getFilters()) {
@@ -446,43 +472,230 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     if (page.getExceptionType() == null || page.getExceptionType().isEmpty()) {
                         errorPage = new ErrorPage(page.getLocation(), Integer.parseInt(page.getErrorCode()));
                     } else {
-                        errorPage = new ErrorPage(page.getLocation(), (Class<? extends Throwable>)classReflectionIndex.classIndex(page.getExceptionType()).getModuleClass());
+                        errorPage = new ErrorPage(page.getLocation(), (Class<? extends Throwable>) classReflectionIndex.classIndex(page.getExceptionType()).getModuleClass());
                     }
                     d.addErrorPages(errorPage);
                 }
             }
 
-            if(mergedMetaData.getMimeMappings() != null) {
-                for(final MimeMappingMetaData mapping : mergedMetaData.getMimeMappings()) {
+            if (mergedMetaData.getMimeMappings() != null) {
+                for (final MimeMappingMetaData mapping : mergedMetaData.getMimeMappings()) {
                     d.addMimeMapping(new MimeMapping(mapping.getExtension(), mapping.getMimeType()));
                 }
             }
 
-            TldsMetaData tldsMetaData = deploymentUnit.getAttachment(TldsMetaData.ATTACHMENT_KEY);
-            if (tldsMetaData != null) {
-                if (tldsMetaData.getTlds() != null) {
-                    for (Map.Entry<String, TldMetaData> tld : tldsMetaData.getTlds().entrySet()) {
-                        for (final ListenerMetaData listener : tld.getValue().getListeners()) {
-                            addListener(classReflectionIndex, components, d, listener);
-                        }
-                    }
-                }
-                List<TldMetaData> sharedTlds = tldsMetaData.getSharedTlds(deploymentUnit);
-                if (sharedTlds != null) {
-                    for (TldMetaData metaData : sharedTlds) {
-                        if (metaData.getListeners() != null) {
-                            for (final ListenerMetaData listener : metaData.getListeners()) {
-                                addListener(classReflectionIndex, components, d, listener);
-                            }
-                        }
-                    }
-                }
-            }
 
             return d;
         } catch (ClassNotFoundException e) {
             throw new DeploymentUnitProcessingException(e);
         }
+    }
+
+    private HashMap<String, JspPropertyGroup> createJspConfig(JBossWebMetaData metaData) {
+        final HashMap<String, JspPropertyGroup> ret = new HashMap<String, JspPropertyGroup>();
+        // JSP Config
+        JspConfigMetaData config = metaData.getJspConfig();
+        if (config != null) {
+            // JSP Property groups
+            List<JspPropertyGroupMetaData> groups = config.getPropertyGroups();
+            if (groups != null) {
+                for (JspPropertyGroupMetaData group : groups) {
+                    org.apache.jasper.deploy.JspPropertyGroup jspPropertyGroup = new org.apache.jasper.deploy.JspPropertyGroup();
+                    for (String pattern : group.getUrlPatterns()) {
+                        jspPropertyGroup.addUrlPattern(pattern);
+                    }
+                    jspPropertyGroup.setElIgnored(group.getElIgnored());
+                    jspPropertyGroup.setPageEncoding(group.getPageEncoding());
+                    jspPropertyGroup.setScriptingInvalid(group.getScriptingInvalid());
+                    jspPropertyGroup.setIsXml(group.getIsXml());
+                    if (group.getIncludePreludes() != null) {
+                        for (String includePrelude : group.getIncludePreludes()) {
+                            jspPropertyGroup.addIncludePrelude(includePrelude);
+                        }
+                    }
+                    if (group.getIncludeCodas() != null) {
+                        for (String includeCoda : group.getIncludeCodas()) {
+                            jspPropertyGroup.addIncludeCoda(includeCoda);
+                        }
+                    }
+                    jspPropertyGroup.setDeferredSyntaxAllowedAsLiteral(group.getDeferredSyntaxAllowedAsLiteral());
+                    jspPropertyGroup.setTrimDirectiveWhitespaces(group.getTrimDirectiveWhitespaces());
+                    jspPropertyGroup.setDefaultContentType(group.getDefaultContentType());
+                    jspPropertyGroup.setBuffer(group.getBuffer());
+                    jspPropertyGroup.setErrorOnUndeclaredNamespace(group.getErrorOnUndeclaredNamespace());
+                    for (String pattern : jspPropertyGroup.getUrlPatterns()) {
+                        // Split off the groups to individual mappings
+                        ret.put(pattern, jspPropertyGroup);
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+
+    private HashMap<String, TagLibraryInfo> createTldsInfo(final DeploymentUnit deploymentUnit, final DeploymentClassIndex classReflectionIndex, final Map<String, ComponentInstantiator> components, final DeploymentInfo d) throws ClassNotFoundException {
+
+        TldsMetaData tldsMetaData = deploymentUnit.getAttachment(TldsMetaData.ATTACHMENT_KEY);
+        final HashMap<String, TagLibraryInfo> ret = new HashMap<String, TagLibraryInfo>();
+        if (tldsMetaData != null) {
+            if (tldsMetaData.getTlds() != null) {
+                for (Map.Entry<String, TldMetaData> tld : tldsMetaData.getTlds().entrySet()) {
+                    createTldInfo(tld.getKey(), tld.getValue(), ret, classReflectionIndex, components, d);
+                }
+            }
+            List<TldMetaData> sharedTlds = tldsMetaData.getSharedTlds(deploymentUnit);
+            if (sharedTlds != null) {
+                for (TldMetaData metaData : sharedTlds) {
+
+                    createTldInfo(null, metaData, ret, classReflectionIndex, components, d);
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    private TagLibraryInfo createTldInfo(final String location, final TldMetaData tldMetaData, final HashMap<String, TagLibraryInfo> ret, final DeploymentClassIndex classReflectionIndex, final Map<String, ComponentInstantiator> components, final DeploymentInfo d) throws ClassNotFoundException {
+        String relativeLocation = location;
+        String jarPath = null;
+        if (relativeLocation != null && relativeLocation.startsWith("/WEB-INF/lib/")) {
+            int pos = relativeLocation.indexOf('/', "/WEB-INF/lib/".length());
+            if (pos > 0) {
+                jarPath = relativeLocation.substring(pos);
+                if (jarPath.startsWith("/")) {
+                    jarPath = jarPath.substring(1);
+                }
+                relativeLocation = relativeLocation.substring(0, pos);
+            }
+        }
+
+        TagLibraryInfo tagLibraryInfo = new TagLibraryInfo();
+        tagLibraryInfo.setTlibversion(tldMetaData.getTlibVersion());
+        if (tldMetaData.getJspVersion() == null)
+            tagLibraryInfo.setJspversion(tldMetaData.getVersion());
+        else
+            tagLibraryInfo.setJspversion(tldMetaData.getJspVersion());
+        tagLibraryInfo.setShortname(tldMetaData.getShortName());
+        tagLibraryInfo.setUri(tldMetaData.getUri());
+        if (tldMetaData.getDescriptionGroup() != null) {
+            tagLibraryInfo.setInfo(tldMetaData.getDescriptionGroup().getDescription());
+        }
+        // Listener
+        if (tldMetaData.getListeners() != null) {
+            for (ListenerMetaData listener : tldMetaData.getListeners()) {
+                tagLibraryInfo.addListener(listener.getListenerClass());
+                addListener(classReflectionIndex, components, d, listener);
+            }
+        }
+        // Validator
+        if (tldMetaData.getValidator() != null) {
+            TagLibraryValidatorInfo tagLibraryValidatorInfo = new TagLibraryValidatorInfo();
+            tagLibraryValidatorInfo.setValidatorClass(tldMetaData.getValidator().getValidatorClass());
+            if (tldMetaData.getValidator().getInitParams() != null) {
+                for (ParamValueMetaData paramValueMetaData : tldMetaData.getValidator().getInitParams()) {
+                    tagLibraryValidatorInfo.addInitParam(paramValueMetaData.getParamName(), paramValueMetaData.getParamValue());
+                }
+            }
+            tagLibraryInfo.setValidator(tagLibraryValidatorInfo);
+        }
+        // Tag
+        if (tldMetaData.getTags() != null) {
+            for (TagMetaData tagMetaData : tldMetaData.getTags()) {
+                TagInfo tagInfo = new TagInfo();
+                tagInfo.setTagName(tagMetaData.getName());
+                tagInfo.setTagClassName(tagMetaData.getTagClass());
+                tagInfo.setTagExtraInfo(tagMetaData.getTeiClass());
+                if (tagMetaData.getBodyContent() != null)
+                    tagInfo.setBodyContent(tagMetaData.getBodyContent().toString());
+                tagInfo.setDynamicAttributes(tagMetaData.getDynamicAttributes());
+                // Description group
+                if (tagMetaData.getDescriptionGroup() != null) {
+                    DescriptionGroupMetaData descriptionGroup = tagMetaData.getDescriptionGroup();
+                    if (descriptionGroup.getIcons() != null && descriptionGroup.getIcons().value() != null
+                            && (descriptionGroup.getIcons().value().length > 0)) {
+                        Icon icon = descriptionGroup.getIcons().value()[0];
+                        tagInfo.setLargeIcon(icon.largeIcon());
+                        tagInfo.setSmallIcon(icon.smallIcon());
+                    }
+                    tagInfo.setInfoString(descriptionGroup.getDescription());
+                    tagInfo.setDisplayName(descriptionGroup.getDisplayName());
+                }
+                // Variable
+                if (tagMetaData.getVariables() != null) {
+                    for (VariableMetaData variableMetaData : tagMetaData.getVariables()) {
+                        TagVariableInfo tagVariableInfo = new TagVariableInfo();
+                        tagVariableInfo.setNameGiven(variableMetaData.getNameGiven());
+                        tagVariableInfo.setNameFromAttribute(variableMetaData.getNameFromAttribute());
+                        tagVariableInfo.setClassName(variableMetaData.getVariableClass());
+                        tagVariableInfo.setDeclare(variableMetaData.getDeclare());
+                        if (variableMetaData.getScope() != null)
+                            tagVariableInfo.setScope(variableMetaData.getScope().toString());
+                        tagInfo.addTagVariableInfo(tagVariableInfo);
+                    }
+                }
+                // Attribute
+                if (tagMetaData.getAttributes() != null) {
+                    for (AttributeMetaData attributeMetaData : tagMetaData.getAttributes()) {
+                        TagAttributeInfo tagAttributeInfo = new TagAttributeInfo();
+                        tagAttributeInfo.setName(attributeMetaData.getName());
+                        tagAttributeInfo.setType(attributeMetaData.getType());
+                        tagAttributeInfo.setReqTime(attributeMetaData.getRtexprvalue());
+                        tagAttributeInfo.setRequired(attributeMetaData.getRequired());
+                        tagAttributeInfo.setFragment(attributeMetaData.getFragment());
+                        if (attributeMetaData.getDeferredValue() != null) {
+                            tagAttributeInfo.setDeferredValue("true");
+                            tagAttributeInfo.setExpectedTypeName(attributeMetaData.getDeferredValue().getType());
+                        } else {
+                            tagAttributeInfo.setDeferredValue("false");
+                        }
+                        if (attributeMetaData.getDeferredMethod() != null) {
+                            tagAttributeInfo.setDeferredMethod("true");
+                            tagAttributeInfo.setMethodSignature(attributeMetaData.getDeferredMethod().getMethodSignature());
+                        } else {
+                            tagAttributeInfo.setDeferredMethod("false");
+                        }
+                        tagInfo.addTagAttributeInfo(tagAttributeInfo);
+                    }
+                }
+                tagLibraryInfo.addTagInfo(tagInfo);
+            }
+        }
+        // Tag files
+        if (tldMetaData.getTagFiles() != null) {
+            for (TagFileMetaData tagFileMetaData : tldMetaData.getTagFiles()) {
+                TagFileInfo tagFileInfo = new TagFileInfo();
+                tagFileInfo.setName(tagFileMetaData.getName());
+                tagFileInfo.setPath(tagFileMetaData.getPath());
+                tagLibraryInfo.addTagFileInfo(tagFileInfo);
+            }
+        }
+        // Function
+        if (tldMetaData.getFunctions() != null) {
+            for (FunctionMetaData functionMetaData : tldMetaData.getFunctions()) {
+                FunctionInfo functionInfo = new FunctionInfo();
+                functionInfo.setName(functionMetaData.getName());
+                functionInfo.setFunctionClass(functionMetaData.getFunctionClass());
+                functionInfo.setFunctionSignature(functionMetaData.getFunctionSignature());
+                tagLibraryInfo.addFunctionInfo(functionInfo);
+            }
+        }
+
+        if (jarPath == null && relativeLocation == null) {
+            ret.put(tagLibraryInfo.getUri(), tagLibraryInfo);
+        } else if (jarPath == null) {
+            tagLibraryInfo.setLocation("");
+            tagLibraryInfo.setPath(relativeLocation);
+            ret.put(tagLibraryInfo.getUri(), tagLibraryInfo);
+            ret.put(relativeLocation, tagLibraryInfo);
+        } else {
+            tagLibraryInfo.setLocation(relativeLocation);
+            tagLibraryInfo.setPath(jarPath);
+            ret.put(tagLibraryInfo.getUri(), tagLibraryInfo);
+            if (jarPath.equals("META-INF/taglib.tld")) {
+                ret.put(relativeLocation, tagLibraryInfo);
+            }
+        }
+        return tagLibraryInfo;
     }
 
     private void addListener(final DeploymentClassIndex classReflectionIndex, final Map<String, ComponentInstantiator> components, final DeploymentInfo d, final ListenerMetaData listener) throws ClassNotFoundException {
