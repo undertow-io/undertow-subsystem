@@ -387,7 +387,9 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     }
                     if (servlet.getInitParam() != null) {
                         for (ParamValueMetaData initParam : servlet.getInitParam()) {
-                            s.addInitParam(initParam.getParamName(), initParam.getParamValue());
+                            if (!s.getInitParams().containsKey(initParam.getParamName())) {
+                                s.addInitParam(initParam.getParamName(), initParam.getParamValue());
+                            }
                         }
                     }
                     d.addServlet(s);
