@@ -315,8 +315,8 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             d.setDeploymentName(deploymentUnit.getName());
             d.setResourceLoader(new DeploymentResourceLoader(deploymentRoot));
             d.setClassLoader(module.getClassLoader());
-
-
+            d.setMajorVersion(Integer.parseInt(mergedMetaData.getServletVersion().charAt(0) + ""));
+            d.setMinorVersion(Integer.parseInt(mergedMetaData.getServletVersion().charAt(2) + ""));
 
             HashMap<String, TagLibraryInfo> tldInfo = createTldsInfo(deploymentUnit, classReflectionIndex, components, d);
             HashMap<String, JspPropertyGroup> propertyGroups = createJspConfig(mergedMetaData);
