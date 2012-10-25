@@ -1,5 +1,7 @@
 package org.jboss.as.undertow.extension;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
@@ -24,6 +26,7 @@ import org.jboss.as.undertow.deployment.WarStructureDeploymentProcessor;
 import org.jboss.as.undertow.deployment.WebFragmentParsingDeploymentProcessor;
 import org.jboss.as.undertow.deployment.WebJBossAllParser;
 import org.jboss.as.undertow.deployment.WebParsingDeploymentProcessor;
+import org.jboss.as.web.SharedTldsMetaDataBuilder;
 import org.jboss.as.web.WebExtension;
 import org.jboss.as.web.deployment.component.WebComponentProcessor;
 import org.jboss.dmr.ModelNode;
@@ -59,13 +62,34 @@ class UndetowSubsystemAdd extends AbstractBoottimeAddStepHandler {
                                 ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
             throws OperationFailedException {
 
+        //TODO: where should we put this, this does not seem the correct place for it
+        try {
+            Class.forName("org.apache.jasper.compiler.JspRuntimeContext", true, this.getClass().getClassLoader());
+        } catch (ClassNotFoundException e) {
+            UndertowLogger.ROOT_LOGGER.couldNotInitJsp(e);
+        }
+
 
         context.addStep(new AbstractDeploymentChainStep() {
             @Override
             protected void execute(DeploymentProcessorTarget processorTarget) {
 
                 final SharedWebMetaDataBuilder sharedWebBuilder = new SharedWebMetaDataBuilder(model.clone());
-                final SharedTldsMetaDataBuilder sharedTldsBuilder = new SharedTldsMetaDataBuilder(model.clone());
+                final SharedTldsMetaDataBuilder sharedTldsBuilder;
+                try {
+                    //horrible hack alert, we need to fix this in the AS
+                    final Constructor<SharedTldsMetaDataBuilder> declaredConstructor = SharedTldsMetaDataBuilder.class.getDeclaredConstructor(ModelNode.class);
+                    declaredConstructor.setAccessible(true);
+                    sharedTldsBuilder = declaredConstructor.newInstance(model.clone());
+                } catch (InstantiationException e) {
+                    throw new RuntimeException(e);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                } catch (NoSuchMethodException e) {
+                    throw new RuntimeException(e);
+                }
 
                 processorTarget.addDeploymentProcessor(WebExtension.SUBSYSTEM_NAME, Phase.STRUCTURE, Phase.STRUCTURE_REGISTER_JBOSS_ALL_XML_PARSER, new JBossAllXmlParserRegisteringProcessor<JBossWebMetaData>(WebJBossAllParser.ROOT_ELEMENT, WebJBossAllParser.ATTACHMENT_KEY, new WebJBossAllParser()));
                 processorTarget.addDeploymentProcessor(WebExtension.SUBSYSTEM_NAME, Phase.STRUCTURE, Phase.STRUCTURE_WAR_DEPLOYMENT_INIT, new WarDeploymentInitializingProcessor());
@@ -77,7 +101,7 @@ class UndetowSubsystemAdd extends AbstractBoottimeAddStepHandler {
                 processorTarget.addDeploymentProcessor(WebExtension.SUBSYSTEM_NAME, Phase.PARSE, Phase.PARSE_WEB_COMPONENTS, new WebComponentProcessor());
                 processorTarget.addDeploymentProcessor(WebExtension.SUBSYSTEM_NAME, Phase.PARSE, Phase.PARSE_EAR_CONTEXT_ROOT, new EarContextRootProcessor());
                 processorTarget.addDeploymentProcessor(WebExtension.SUBSYSTEM_NAME, Phase.PARSE, Phase.PARSE_WEB_MERGE_METADATA, new WarMetaDataProcessor());
-                processorTarget.addDeploymentProcessor(WebExtension.SUBSYSTEM_NAME, Phase.PARSE, Phase.PARSE_WEB_MERGE_METADATA+1, new TldParsingDeploymentProcessor()); //todo: fix priority
+                processorTarget.addDeploymentProcessor(WebExtension.SUBSYSTEM_NAME, Phase.PARSE, Phase.PARSE_WEB_MERGE_METADATA + 1, new TldParsingDeploymentProcessor()); //todo: fix priority
 
                 processorTarget.addDeploymentProcessor(WebExtension.SUBSYSTEM_NAME, Phase.DEPENDENCIES, Phase.DEPENDENCIES_WAR_MODULE, new WarClassloadingDependencyProcessor());
 

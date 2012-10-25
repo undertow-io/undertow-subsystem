@@ -28,6 +28,7 @@ import io.undertow.server.HttpHandler;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import org.jboss.as.undertow.extension.HttpListenerService;
+import org.jboss.as.web.deployment.WebInjectionContainer;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
@@ -41,21 +42,29 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
 
     private final DeploymentInfo deploymentInfo;
     private final InjectedValue<HttpListenerService> connector = new InjectedValue<HttpListenerService>();
+    private final WebInjectionContainer webInjectionContainer;
     private volatile DeploymentManager deploymentManager;
 
-    public UndertowDeploymentService(final DeploymentInfo deploymentInfo) {
+    public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer) {
         this.deploymentInfo = deploymentInfo;
+        this.webInjectionContainer = webInjectionContainer;
     }
 
     @Override
     public void start(final StartContext startContext) throws StartException {
-        deploymentManager = connector.getValue().getServletContainer().addDeployment(deploymentInfo);
-        deploymentManager.deploy();
+        WebInjectionContainer.setCurrentInjectionContainer(webInjectionContainer);
+
         try {
-            HttpHandler handler = deploymentManager.start();
-            connector.getValue().getPathHandler().addPath(deploymentInfo.getContextPath(), handler);
-        } catch (ServletException e) {
-            throw new StartException(e);
+            deploymentManager = connector.getValue().getServletContainer().addDeployment(deploymentInfo);
+            deploymentManager.deploy();
+            try {
+                HttpHandler handler = deploymentManager.start();
+                connector.getValue().getPathHandler().addPath(deploymentInfo.getContextPath(), handler);
+            } catch (ServletException e) {
+                throw new StartException(e);
+            }
+        } finally {
+            WebInjectionContainer.setCurrentInjectionContainer(null);
         }
     }
 

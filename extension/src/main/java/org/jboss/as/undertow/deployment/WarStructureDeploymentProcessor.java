@@ -40,7 +40,7 @@ import org.jboss.as.server.deployment.module.ModuleSpecification;
 import org.jboss.as.server.deployment.module.MountHandle;
 import org.jboss.as.server.deployment.module.ResourceRoot;
 import org.jboss.as.server.deployment.module.TempFileProviderService;
-import org.jboss.as.undertow.extension.SharedTldsMetaDataBuilder;
+import org.jboss.as.web.SharedTldsMetaDataBuilder;
 import org.jboss.as.web.deployment.WarMetaData;
 import org.jboss.metadata.web.spec.WebMetaData;
 import org.jboss.vfs.VFS;

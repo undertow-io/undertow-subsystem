@@ -22,11 +22,6 @@
 
 package org.jboss.as.undertow.extension;
 
-import static org.jboss.logging.Logger.Level.ERROR;
-import static org.jboss.logging.Logger.Level.WARN;
-
-import java.io.Closeable;
-
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Cause;
 import org.jboss.logging.LogMessage;
@@ -53,6 +48,10 @@ public interface UndertowLogger extends BasicLogger {
      * A root logger with the category of the package name.
      */
     UndertowLogger ROOT_LOGGER = Logger.getMessageLogger(UndertowLogger.class, UndertowLogger.class.getPackage().getName());
+
+    @LogMessage(level = Logger.Level.ERROR)
+    @Message(id = 17301, value = "Could not initialize JSP")
+    void couldNotInitJsp(@Cause ClassNotFoundException e);
 
     // id = 11500, value = "%s caught exception attempting to revert operation %s at address %s" -- now unused
 

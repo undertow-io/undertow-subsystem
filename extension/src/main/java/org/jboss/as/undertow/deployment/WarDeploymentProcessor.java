@@ -75,6 +75,7 @@ import org.jboss.as.undertow.extension.HttpListenerService;
 import org.jboss.as.undertow.extension.WebSubsystemServices;
 import org.jboss.as.web.deployment.WarMetaData;
 import org.jboss.as.web.deployment.WebAttachments;
+import org.jboss.as.web.deployment.WebInjectionContainer;
 import org.jboss.as.web.deployment.component.ComponentInstantiator;
 import org.jboss.dmr.ModelNode;
 import org.jboss.metadata.ear.jboss.JBossAppMetaData;
@@ -164,6 +165,8 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
         ScisMetaData scisMetaData = deploymentUnit.getAttachment(ScisMetaData.ATTACHMENT_KEY);
 
+        final WebInjectionContainer injectionContainer = new WebInjectionContainer(module.getClassLoader());
+
         // see AS7-2077
         // basically we want to ignore components that have failed for whatever reason
         // if they are important they will be picked up when the web deployment actually starts
@@ -181,6 +184,8 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 }
                 if (skip) {
                     it.remove();
+                } else {
+                    injectionContainer.addInstantiator(entry.getKey(), entry.getValue());
                 }
             }
         } else {
@@ -203,12 +208,9 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         String securityDomain = metaDataSecurityDomain == null ? SecurityConstants.DEFAULT_APPLICATION_POLICY : SecurityUtil
                 .unprefixSecurityDomain(metaDataSecurityDomain);
 
-        // Setup an deployer configured ServletContext attributes
-        final List<ServletContextAttribute> attributes = deploymentUnit.getAttachment(ServletContextAttribute.ATTACHMENT_KEY);
-
         try {
             final ServiceName deploymentServiceName = ServiceName.JBOSS.append("undertow", deploymentInfo.getContextPath());
-            UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo);
+            UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer);
             final ServiceBuilder<UndertowDeploymentService> builder = serviceTarget.addService(deploymentServiceName, service)
                     .addDependency(WebSubsystemServices.LISTENER.append(defaultHost), HttpListenerService.class, service.getConnector());
 
@@ -486,6 +488,11 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 }
             }
 
+            // Setup an deployer configured ServletContext attributes
+            final List<ServletContextAttribute> attributes = deploymentUnit.getAttachmentList(ServletContextAttribute.ATTACHMENT_KEY);
+            for(ServletContextAttribute attribute : attributes) {
+                d.addServletContextAttribute(attribute.getName(), attribute.getValue());
+            }
 
             return d;
         } catch (ClassNotFoundException e) {
