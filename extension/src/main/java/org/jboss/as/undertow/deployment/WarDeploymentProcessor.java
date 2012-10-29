@@ -73,6 +73,7 @@ import org.jboss.as.server.deployment.SetupAction;
 import org.jboss.as.server.deployment.reflect.DeploymentClassIndex;
 import org.jboss.as.undertow.extension.HttpListenerService;
 import org.jboss.as.undertow.extension.WebSubsystemServices;
+import org.jboss.as.web.deployment.ServletContextAttribute;
 import org.jboss.as.web.deployment.WarMetaData;
 import org.jboss.as.web.deployment.WebAttachments;
 import org.jboss.as.web.deployment.WebInjectionContainer;
