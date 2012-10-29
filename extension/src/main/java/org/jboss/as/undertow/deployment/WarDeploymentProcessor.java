@@ -36,6 +36,7 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 
+import io.undertow.jsp.JspFileWrapper;
 import io.undertow.jsp.JspServletBuilder;
 import io.undertow.server.handlers.blocking.BlockingHttpServerExchange;
 import io.undertow.servlet.api.ClassIntrospecter;
@@ -369,6 +370,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     if (servlet.getJspFile() != null) {
                         //TODO: real JSP support
                         s = new ServletInfo(servlet.getName(), JspServlet.class);
+                        s.addAdditionalHandler(new JspFileWrapper(servlet.getJspFile()));
                     } else if (creator != null) {
                         //TODO: fix this once we have web-common
                         InstanceFactory<Servlet> factory = createInstanceFactory(creator);
