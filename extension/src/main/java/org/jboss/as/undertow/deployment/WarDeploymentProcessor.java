@@ -330,7 +330,8 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             //default JSP servlet
             final ServletInfo jspServlet = new ServletInfo("Default JSP Servlet", JspServlet.class)
                     .addMapping("*.jsp")
-                    .addMapping("*.jspx");
+                    .addMapping("*.jspx")
+                    .addInitParam("development", "false"); //todo: make configurable
             d.addServlet(jspServlet);
 
             for (final String mapping : propertyGroups.keySet()) {
