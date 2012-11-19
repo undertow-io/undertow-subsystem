@@ -40,6 +40,7 @@ import io.undertow.jsp.JspFileWrapper;
 import io.undertow.jsp.JspServletBuilder;
 import io.undertow.server.handlers.blocking.BlockingHttpServerExchange;
 import io.undertow.servlet.api.ClassIntrospecter;
+import io.undertow.servlet.api.DefaultServletConfig;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.ErrorPage;
 import io.undertow.servlet.api.FilterInfo;
@@ -50,6 +51,7 @@ import io.undertow.servlet.api.MimeMapping;
 import io.undertow.servlet.api.ServletContainerInitializerInfo;
 import io.undertow.servlet.api.ServletInfo;
 import io.undertow.servlet.api.ThreadSetupAction;
+import io.undertow.servlet.handlers.DefaultServlet;
 import io.undertow.servlet.util.ConstructorInstanceFactory;
 import io.undertow.servlet.util.ImmediateInstanceFactory;
 import org.apache.jasper.deploy.FunctionInfo;
@@ -327,6 +329,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
             JspServletBuilder.setupDeployment(d, propertyGroups, tldInfo, new HackInstanceManager());
             d.setJspConfigDescriptor(new JspConfigDescriptorImpl(tldInfo.values(), propertyGroups.values()));
+            d.setDefaultServletConfig(new DefaultServletConfig(true, Collections.<String>emptySet()));
 
             //default JSP servlet
             final ServletInfo jspServlet = new ServletInfo("Default JSP Servlet", JspServlet.class)
