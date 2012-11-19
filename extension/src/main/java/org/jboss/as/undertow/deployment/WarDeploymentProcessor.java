@@ -326,7 +326,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             HashMap<String, JspPropertyGroup> propertyGroups = createJspConfig(mergedMetaData);
 
             JspServletBuilder.setupDeployment(d, propertyGroups, tldInfo, new HackInstanceManager());
-
+            d.setJspConfigDescriptor(new JspConfigDescriptorImpl(tldInfo.values(), propertyGroups.values()));
 
             //default JSP servlet
             final ServletInfo jspServlet = new ServletInfo("Default JSP Servlet", JspServlet.class)
