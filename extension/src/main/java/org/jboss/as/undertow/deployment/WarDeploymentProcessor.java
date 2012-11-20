@@ -96,6 +96,7 @@ import org.jboss.metadata.web.spec.FunctionMetaData;
 import org.jboss.metadata.web.spec.JspConfigMetaData;
 import org.jboss.metadata.web.spec.JspPropertyGroupMetaData;
 import org.jboss.metadata.web.spec.ListenerMetaData;
+import org.jboss.metadata.web.spec.LocaleEncodingMetaData;
 import org.jboss.metadata.web.spec.MimeMappingMetaData;
 import org.jboss.metadata.web.spec.ServletMappingMetaData;
 import org.jboss.metadata.web.spec.TagFileMetaData;
@@ -503,6 +504,13 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             final List<ServletContextAttribute> attributes = deploymentUnit.getAttachmentList(ServletContextAttribute.ATTACHMENT_KEY);
             for(ServletContextAttribute attribute : attributes) {
                 d.addServletContextAttribute(attribute.getName(), attribute.getValue());
+            }
+
+            if(mergedMetaData.getLocalEncodings() != null &&
+                    mergedMetaData.getLocalEncodings().getMappings() != null) {
+                for(LocaleEncodingMetaData locale : mergedMetaData.getLocalEncodings().getMappings()) {
+                    d.addLocaleCharsetMapping(locale.getLocale(), locale.getEncoding());
+                }
             }
 
             return d;
