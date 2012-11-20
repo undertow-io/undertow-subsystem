@@ -51,7 +51,6 @@ import io.undertow.servlet.api.MimeMapping;
 import io.undertow.servlet.api.ServletContainerInitializerInfo;
 import io.undertow.servlet.api.ServletInfo;
 import io.undertow.servlet.api.ThreadSetupAction;
-import io.undertow.servlet.handlers.DefaultServlet;
 import io.undertow.servlet.util.ConstructorInstanceFactory;
 import io.undertow.servlet.util.ImmediateInstanceFactory;
 import org.apache.jasper.deploy.FunctionInfo;
@@ -338,7 +337,8 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     .addInitParam("development", "false"); //todo: make configurable
             d.addServlet(jspServlet);
 
-            for (final String mapping : propertyGroups.keySet()) {
+            final Set<String> jspPropertyGroupMappings = propertyGroups.keySet();
+            for (final String mapping : jspPropertyGroupMappings) {
                 jspServlet.addMapping(mapping);
             }
 
@@ -391,7 +391,11 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     List<ServletMappingMetaData> mappings = servletMappings.get(servlet.getName());
                     if (mappings != null) {
                         for (ServletMappingMetaData mapping : mappings) {
-                            s.addMappings(mapping.getUrlPatterns());
+                            for(String pattern : mapping.getUrlPatterns()) {
+                                if(!jspPropertyGroupMappings.contains(pattern)) {
+                                    s.addMapping(pattern);
+                                }
+                            }
                         }
                     }
                     if (servlet.getInitParam() != null) {
