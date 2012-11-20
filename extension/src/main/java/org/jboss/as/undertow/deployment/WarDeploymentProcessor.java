@@ -324,6 +324,16 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             d.setMajorVersion(Integer.parseInt(mergedMetaData.getServletVersion().charAt(0) + ""));
             d.setMinorVersion(Integer.parseInt(mergedMetaData.getServletVersion().charAt(2) + ""));
 
+            //for 2.2 apps we do not require a leading / in path mappings
+            boolean is22OrOlder;
+            if(d.getMajorVersion() == 1) {
+                is22OrOlder = true;
+            } else if(d.getMajorVersion() == 2) {
+                is22OrOlder = d.getMinorVersion() < 3;
+            } else {
+                is22OrOlder = false;
+            }
+
             HashMap<String, TagLibraryInfo> tldInfo = createTldsInfo(deploymentUnit, classReflectionIndex, components, d);
             HashMap<String, JspPropertyGroup> propertyGroups = createJspConfig(mergedMetaData);
 
@@ -392,8 +402,11 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     List<ServletMappingMetaData> mappings = servletMappings.get(servlet.getName());
                     if (mappings != null) {
                         for (ServletMappingMetaData mapping : mappings) {
-                            for(String pattern : mapping.getUrlPatterns()) {
-                                if(!jspPropertyGroupMappings.contains(pattern)) {
+                            for (String pattern : mapping.getUrlPatterns()) {
+                                if (is22OrOlder && !pattern.startsWith("*") && !pattern.startsWith("/")) {
+                                    pattern = "/" + pattern;
+                                }
+                                if (!jspPropertyGroupMappings.contains(pattern)) {
                                     s.addMapping(pattern);
                                 }
                             }
@@ -433,7 +446,10 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             if (mergedMetaData.getFilterMappings() != null) {
                 for (final FilterMappingMetaData mapping : mergedMetaData.getFilterMappings()) {
                     if (mapping.getUrlPatterns() != null) {
-                        for (final String url : mapping.getUrlPatterns()) {
+                        for (String url : mapping.getUrlPatterns()) {
+                            if (is22OrOlder && !url.startsWith("*") && !url.startsWith("/")) {
+                                url = "/" + url;
+                            }
                             if (mapping.getDispatchers() != null && !mapping.getDispatchers().isEmpty()) {
                                 for (DispatcherType dispatcher : mapping.getDispatchers()) {
 
@@ -502,13 +518,13 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
             // Setup an deployer configured ServletContext attributes
             final List<ServletContextAttribute> attributes = deploymentUnit.getAttachmentList(ServletContextAttribute.ATTACHMENT_KEY);
-            for(ServletContextAttribute attribute : attributes) {
+            for (ServletContextAttribute attribute : attributes) {
                 d.addServletContextAttribute(attribute.getName(), attribute.getValue());
             }
 
-            if(mergedMetaData.getLocalEncodings() != null &&
+            if (mergedMetaData.getLocalEncodings() != null &&
                     mergedMetaData.getLocalEncodings().getMappings() != null) {
-                for(LocaleEncodingMetaData locale : mergedMetaData.getLocalEncodings().getMappings()) {
+                for (LocaleEncodingMetaData locale : mergedMetaData.getLocalEncodings().getMappings()) {
                     d.addLocaleCharsetMapping(locale.getLocale(), locale.getEncoding());
                 }
             }
