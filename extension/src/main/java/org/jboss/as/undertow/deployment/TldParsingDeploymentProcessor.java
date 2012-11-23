@@ -110,9 +110,12 @@ public class TldParsingDeploymentProcessor implements DeploymentUnitProcessor {
                         }
                         final TldMetaData value = parseTLD(child);
                         value.setUri(tld.getTaglibUri());
-                        String key = value.getUri() == null ? "/" + pathNameRelativeToRoot : value.getUri();
+                        String key = "/" + pathNameRelativeToRoot;
                         if(!tlds.containsKey(key)) {
                             tlds.put(key, value);
+                        }
+                        if(value.getUri() != null && ! tlds.containsKey(value.getUri())) {
+                            tlds.put(value.getUri(), value);
                         }
                         found = true;
                         break;
@@ -150,9 +153,12 @@ public class TldParsingDeploymentProcessor implements DeploymentUnitProcessor {
                     }
 
                     final TldMetaData value = parseTLD(file);
-                    String key = value.getUri() == null ? "/" + pathNameRelativeToRoot : value.getUri();
+                    String key = "/" + pathNameRelativeToRoot;
                     if (!tlds.containsKey(key)) {
                         tlds.put(key, value);
+                    }
+                    if (value.getUri() != null && !tlds.containsKey(value.getUri())) {
+                        tlds.put(value.getUri(), value);
                     }
                 } else if (file.isDirectory() && !CLASSES.equals(file.getName()) && !LIB.equals(file.getName())) {
                     processTlds(deploymentRoot, file.getChildren(), tlds);
@@ -177,9 +183,12 @@ public class TldParsingDeploymentProcessor implements DeploymentUnitProcessor {
                             root.getPathName()), e);
                 }
                 final TldMetaData value = parseTLD(file);
-                String key = value.getUri() == null ? "/" + pathNameRelativeToRoot : value.getUri();
+                String key = "/" + pathNameRelativeToRoot;
                 if (!tlds.containsKey(key)) {
                     tlds.put(key, value);
+                }
+                if (value.getUri() != null && !tlds.containsKey(value.getUri())) {
+                    tlds.put(value.getUri(), value);
                 }
             } else if (file.isDirectory()) {
                 processTlds(root, file.getChildren(), tlds);
