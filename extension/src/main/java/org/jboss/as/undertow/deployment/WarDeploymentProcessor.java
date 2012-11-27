@@ -25,9 +25,11 @@ package org.jboss.as.undertow.deployment;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -536,7 +538,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
     }
 
     private HashMap<String, JspPropertyGroup> createJspConfig(JBossWebMetaData metaData) {
-        final HashMap<String, JspPropertyGroup> ret = new HashMap<String, JspPropertyGroup>();
+        final HashMap<String, JspPropertyGroup> result = new HashMap<String, JspPropertyGroup>();
         // JSP Config
         JspConfigMetaData config = metaData.getJspConfig();
         if (config != null) {
@@ -569,10 +571,23 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     jspPropertyGroup.setErrorOnUndeclaredNamespace(group.getErrorOnUndeclaredNamespace());
                     for (String pattern : jspPropertyGroup.getUrlPatterns()) {
                         // Split off the groups to individual mappings
-                        ret.put(pattern, jspPropertyGroup);
+                        result.put(pattern, jspPropertyGroup);
                     }
                 }
             }
+        }
+
+        //it looks like jasper needs these in order of least specified to most specific
+        final LinkedHashMap<String, JspPropertyGroup> ret = new LinkedHashMap<String, JspPropertyGroup>();
+        final ArrayList<String> paths = new ArrayList<String>(result.keySet());
+        Collections.sort(paths, new Comparator<String>() {
+            @Override
+            public int compare(final String o1, final String o2) {
+                return o1.length() - o2.length();
+            }
+        });
+        for(String path : paths) {
+            ret.put(path, result.get(path));
         }
         return ret;
     }
