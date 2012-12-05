@@ -46,13 +46,18 @@ import io.undertow.servlet.api.DefaultServletConfig;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.ErrorPage;
 import io.undertow.servlet.api.FilterInfo;
+import io.undertow.servlet.api.HttpMethodSecurityInfo;
 import io.undertow.servlet.api.InstanceFactory;
 import io.undertow.servlet.api.InstanceHandle;
 import io.undertow.servlet.api.ListenerInfo;
+import io.undertow.servlet.api.LoginConfig;
 import io.undertow.servlet.api.MimeMapping;
+import io.undertow.servlet.api.SecurityConstraint;
 import io.undertow.servlet.api.ServletContainerInitializerInfo;
 import io.undertow.servlet.api.ServletInfo;
+import io.undertow.servlet.api.ServletSecurityInfo;
 import io.undertow.servlet.api.ThreadSetupAction;
+import io.undertow.servlet.api.WebResourceCollection;
 import io.undertow.servlet.util.ConstructorInstanceFactory;
 import io.undertow.servlet.util.ImmediateInstanceFactory;
 import org.apache.jasper.deploy.FunctionInfo;
@@ -68,6 +73,8 @@ import org.jboss.annotation.javaee.Icon;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.ee.component.EEModuleDescription;
 import org.jboss.as.naming.ManagedReference;
+import org.jboss.as.security.plugins.SecurityDomainContext;
+import org.jboss.as.security.service.SecurityDomainService;
 import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
@@ -91,20 +98,26 @@ import org.jboss.metadata.web.jboss.JBossServletMetaData;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.metadata.web.spec.AttributeMetaData;
 import org.jboss.metadata.web.spec.DispatcherType;
+import org.jboss.metadata.web.spec.EmptyRoleSemanticType;
 import org.jboss.metadata.web.spec.ErrorPageMetaData;
 import org.jboss.metadata.web.spec.FilterMappingMetaData;
 import org.jboss.metadata.web.spec.FilterMetaData;
 import org.jboss.metadata.web.spec.FunctionMetaData;
+import org.jboss.metadata.web.spec.HttpMethodConstraintMetaData;
 import org.jboss.metadata.web.spec.JspConfigMetaData;
 import org.jboss.metadata.web.spec.JspPropertyGroupMetaData;
 import org.jboss.metadata.web.spec.ListenerMetaData;
 import org.jboss.metadata.web.spec.LocaleEncodingMetaData;
+import org.jboss.metadata.web.spec.LoginConfigMetaData;
 import org.jboss.metadata.web.spec.MimeMappingMetaData;
+import org.jboss.metadata.web.spec.SecurityConstraintMetaData;
 import org.jboss.metadata.web.spec.ServletMappingMetaData;
 import org.jboss.metadata.web.spec.TagFileMetaData;
 import org.jboss.metadata.web.spec.TagMetaData;
 import org.jboss.metadata.web.spec.TldMetaData;
+import org.jboss.metadata.web.spec.TransportGuaranteeType;
 import org.jboss.metadata.web.spec.VariableMetaData;
+import org.jboss.metadata.web.spec.WebResourceCollectionMetaData;
 import org.jboss.modules.Module;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController.Mode;
@@ -115,6 +128,8 @@ import org.jboss.security.SecurityConstants;
 import org.jboss.security.SecurityUtil;
 import org.jboss.vfs.VirtualFile;
 
+import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.DENY;
+import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.PERMIT;
 import static org.jboss.as.web.WebMessages.MESSAGES;
 
 public class WarDeploymentProcessor implements DeploymentUnitProcessor {
@@ -218,7 +233,8 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             final ServiceName deploymentServiceName = ServiceName.JBOSS.append("undertow", deploymentInfo.getContextPath());
             UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer);
             final ServiceBuilder<UndertowDeploymentService> builder = serviceTarget.addService(deploymentServiceName, service)
-                    .addDependency(WebSubsystemServices.LISTENER.append(defaultHost), HttpListenerService.class, service.getConnector());
+                    .addDependency(WebSubsystemServices.LISTENER.append(defaultHost), HttpListenerService.class, service.getConnector())
+                    .addDependency(SecurityDomainService.SERVICE_NAME.append(securityDomain), SecurityDomainContext.class, service.getSecurityDomainContextValue());
 
             deploymentUnit.addToAttachmentList(Attachments.DEPLOYMENT_COMPLETE_SERVICES, deploymentServiceName);
 
@@ -328,9 +344,9 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
             //for 2.2 apps we do not require a leading / in path mappings
             boolean is22OrOlder;
-            if(d.getMajorVersion() == 1) {
+            if (d.getMajorVersion() == 1) {
                 is22OrOlder = true;
-            } else if(d.getMajorVersion() == 2) {
+            } else if (d.getMajorVersion() == 2) {
                 is22OrOlder = d.getMinorVersion() < 3;
             } else {
                 is22OrOlder = false;
@@ -386,7 +402,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     if (servlet.getJspFile() != null) {
                         //TODO: real JSP support
                         s = new ServletInfo(servlet.getName(), JspServlet.class);
-                        s.addAdditionalHandler(new JspFileWrapper(servlet.getJspFile()));
+                        s.addHandlerChainWrapper(new JspFileWrapper(servlet.getJspFile()));
                     } else if (creator != null) {
                         //TODO: fix this once we have web-common
                         InstanceFactory<Servlet> factory = createInstanceFactory(creator);
@@ -421,6 +437,24 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                             }
                         }
                     }
+                    if (servlet.getServletSecurity() != null) {
+                        ServletSecurityInfo securityInfo = new ServletSecurityInfo();
+                        s.setServletSecurityInfo(securityInfo);
+                        securityInfo.setEmptyRoleSemantic(servlet.getServletSecurity().getEmptyRoleSemantic() == EmptyRoleSemanticType.PERMIT ? PERMIT : DENY)
+                                .setTransportGuaranteeType(transportGuaranteeType(servlet.getServletSecurity().getTransportGuarantee()))
+                                .addRolesAllowed(servlet.getServletSecurity().getRolesAllowed());
+                        if (servlet.getServletSecurity().getHttpMethodConstraints() != null) {
+                            for (HttpMethodConstraintMetaData method : servlet.getServletSecurity().getHttpMethodConstraints()) {
+                                securityInfo.addHttpMethodSecurityInfo(
+                                        new HttpMethodSecurityInfo()
+                                                .setEmptyRoleSemantic(method.getEmptyRoleSemantic() == EmptyRoleSemanticType.PERMIT ? PERMIT : DENY)
+                                                .setTransportGuaranteeType(transportGuaranteeType(method.getTransportGuarantee()))
+                                                .addRolesAllowed(method.getRolesAllowed())
+                                                .setMethod(method.getMethod()));
+                            }
+                        }
+                    }
+
                     d.addServlet(s);
                 }
             }
@@ -518,6 +552,32 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 }
             }
 
+            if(mergedMetaData.getSecurityConstraints() != null) {
+                for(SecurityConstraintMetaData constraint : mergedMetaData.getSecurityConstraints()) {
+                    SecurityConstraint securityConstraint = new SecurityConstraint()
+                            .setTransportGuaranteeType(transportGuaranteeType(constraint.getTransportGuarantee()))
+                            .addRolesAllowed(constraint.getRoleNames());
+
+                    if(constraint.getResourceCollections() != null) {
+                        for(final WebResourceCollectionMetaData resourceCollection : constraint.getResourceCollections()) {
+                            securityConstraint.addWebResourceCollection(new WebResourceCollection()
+                            .addHttpMethods(resourceCollection.getHttpMethods())
+                            .addHttpMethodOmissions(resourceCollection.getHttpMethodOmissions())
+                            .addUrlPatterns(resourceCollection.getUrlPatterns()));
+                        }
+                    }
+                    d.addSecurityConstraint(securityConstraint);
+                }
+            }
+            final LoginConfigMetaData loginConfig = mergedMetaData.getLoginConfig();
+            if(loginConfig != null) {
+                if(loginConfig.getFormLoginConfig() != null) {
+                    d.setLoginConfig(new LoginConfig(loginConfig.getAuthMethod(), loginConfig.getRealmName(), loginConfig.getFormLoginConfig().getLoginPage(), loginConfig.getFormLoginConfig().getErrorPage()));
+                } else {
+                    d.setLoginConfig(new LoginConfig(loginConfig.getAuthMethod(), loginConfig.getRealmName()));
+                }
+            }
+
             // Setup an deployer configured ServletContext attributes
             final List<ServletContextAttribute> attributes = deploymentUnit.getAttachmentList(ServletContextAttribute.ATTACHMENT_KEY);
             for (ServletContextAttribute attribute : attributes) {
@@ -535,6 +595,18 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         } catch (ClassNotFoundException e) {
             throw new DeploymentUnitProcessingException(e);
         }
+    }
+
+    private io.undertow.servlet.api.TransportGuaranteeType transportGuaranteeType(final TransportGuaranteeType type) {
+        switch (type) {
+            case CONFIDENTIAL:
+                return io.undertow.servlet.api.TransportGuaranteeType.CONFIDENTIAL;
+            case INTEGRAL:
+                return io.undertow.servlet.api.TransportGuaranteeType.INTEGRAL;
+            case NONE:
+                return io.undertow.servlet.api.TransportGuaranteeType.NONE;
+        }
+        throw new RuntimeException("UNREACHABLE");
     }
 
     private HashMap<String, JspPropertyGroup> createJspConfig(JBossWebMetaData metaData) {
@@ -586,7 +658,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 return o1.length() - o2.length();
             }
         });
-        for(String path : paths) {
+        for (String path : paths) {
             ret.put(path, result.get(path));
         }
         return ret;
