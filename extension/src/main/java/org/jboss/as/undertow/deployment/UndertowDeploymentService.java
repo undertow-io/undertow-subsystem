@@ -27,7 +27,9 @@ import javax.servlet.ServletException;
 import io.undertow.server.HttpHandler;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
+import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.undertow.extension.HttpListenerService;
+import org.jboss.as.undertow.security.IdentityManagerImpl;
 import org.jboss.as.web.deployment.WebInjectionContainer;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
@@ -43,6 +45,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
     private final DeploymentInfo deploymentInfo;
     private final InjectedValue<HttpListenerService> connector = new InjectedValue<HttpListenerService>();
     private final WebInjectionContainer webInjectionContainer;
+    private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
     private volatile DeploymentManager deploymentManager;
 
     public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer) {
@@ -52,8 +55,9 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
 
     @Override
     public void start(final StartContext startContext) throws StartException {
-        WebInjectionContainer.setCurrentInjectionContainer(webInjectionContainer);
 
+        deploymentInfo.setIdentityManager(new IdentityManagerImpl(securityDomainContextValue.getValue(), deploymentInfo.getPrincipleVsRoleMapping()));
+        WebInjectionContainer.setCurrentInjectionContainer(webInjectionContainer);
         try {
             deploymentManager = connector.getValue().getServletContainer().addDeployment(deploymentInfo);
             deploymentManager.deploy();
@@ -76,6 +80,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
             throw new RuntimeException(e);
         }
         deploymentManager.undeploy();
+        deploymentInfo.setIdentityManager(null);
     }
 
     @Override
@@ -85,5 +90,9 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
 
     public InjectedValue<HttpListenerService> getConnector() {
         return connector;
+    }
+
+    public InjectedValue<SecurityDomainContext> getSecurityDomainContextValue() {
+        return securityDomainContextValue;
     }
 }

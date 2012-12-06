@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EventListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -84,6 +85,8 @@ import org.jboss.as.server.deployment.SetupAction;
 import org.jboss.as.server.deployment.reflect.DeploymentClassIndex;
 import org.jboss.as.undertow.extension.HttpListenerService;
 import org.jboss.as.undertow.extension.WebSubsystemServices;
+import org.jboss.as.undertow.security.SecurityContextAssociationHandler;
+import org.jboss.as.undertow.security.SecurityContextCreationHandler;
 import org.jboss.as.web.deployment.ServletContextAttribute;
 import org.jboss.as.web.deployment.WarMetaData;
 import org.jboss.as.web.deployment.WebAttachments;
@@ -94,6 +97,7 @@ import org.jboss.metadata.ear.jboss.JBossAppMetaData;
 import org.jboss.metadata.ear.spec.EarMetaData;
 import org.jboss.metadata.javaee.spec.DescriptionGroupMetaData;
 import org.jboss.metadata.javaee.spec.ParamValueMetaData;
+import org.jboss.metadata.javaee.spec.SecurityRoleRefMetaData;
 import org.jboss.metadata.web.jboss.JBossServletMetaData;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.metadata.web.spec.AttributeMetaData;
@@ -331,6 +335,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
     private DeploymentInfo createServletConfig(final JBossWebMetaData mergedMetaData, final DeploymentUnit deploymentUnit, final Module module, final DeploymentClassIndex classReflectionIndex, final Map<String, ComponentInstantiator> components, final ScisMetaData scisMetaData, final VirtualFile deploymentRoot) throws DeploymentUnitProcessingException {
         try {
+            mergedMetaData.resolveAnnotations();
             final DeploymentInfo d = new DeploymentInfo();
             d.setContextPath(mergedMetaData.getContextRoot());
             if (mergedMetaData.getDescriptionGroup() != null) {
@@ -394,6 +399,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     list.add(mapping);
                 }
             }
+            final Set<String> seenMappings = new HashSet<String>(jspPropertyGroupMappings);
             if (mergedMetaData.getServlets() != null) {
                 for (final JBossServletMetaData servlet : mergedMetaData.getServlets()) {
                     final ServletInfo s;
@@ -424,8 +430,9 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                                 if (is22OrOlder && !pattern.startsWith("*") && !pattern.startsWith("/")) {
                                     pattern = "/" + pattern;
                                 }
-                                if (!jspPropertyGroupMappings.contains(pattern)) {
+                                if (!seenMappings.contains(pattern)) {
                                     s.addMapping(pattern);
+                                    seenMappings.add(pattern);
                                 }
                             }
                         }
@@ -452,6 +459,11 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                                                 .addRolesAllowed(method.getRolesAllowed())
                                                 .setMethod(method.getMethod()));
                             }
+                        }
+                    }
+                    if(servlet.getSecurityRoleRefs() != null) {
+                        for(final SecurityRoleRefMetaData ref : servlet.getSecurityRoleRefs()) {
+                            s.addSecurityRoleRef(ref.getRoleName(), ref.getRoleLink());
                         }
                     }
 
@@ -578,6 +590,25 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 }
             }
 
+            if(mergedMetaData.getSecurityDomain() != null) {
+
+                String contextId = deploymentUnit.getName();
+                if (deploymentUnit.getParent() != null) {
+                    contextId = deploymentUnit.getParent().getName() + "!" + contextId;
+                }
+                d.addOuterHandlerChainWrapper(SecurityContextCreationHandler.wrapper(mergedMetaData.getSecurityDomain()));
+                d.addDispatchedHandlerChainWrapper(SecurityContextAssociationHandler.wrapper(mergedMetaData.getPrincipalVersusRolesMap(), contextId));
+
+            }
+
+            if(mergedMetaData.getPrincipalVersusRolesMap() != null) {
+                for(Map.Entry<String, Set<String>> entry : mergedMetaData.getPrincipalVersusRolesMap().entrySet()) {
+                    for(String role : entry.getValue()){
+                        d.addPrincipleVsRoleMapping(entry.getKey(), role);
+                    }
+                }
+            }
+
             // Setup an deployer configured ServletContext attributes
             final List<ServletContextAttribute> attributes = deploymentUnit.getAttachmentList(ServletContextAttribute.ATTACHMENT_KEY);
             for (ServletContextAttribute attribute : attributes) {
@@ -598,6 +629,9 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
     }
 
     private io.undertow.servlet.api.TransportGuaranteeType transportGuaranteeType(final TransportGuaranteeType type) {
+        if(type == null) {
+            return io.undertow.servlet.api.TransportGuaranteeType.NONE;
+        }
         switch (type) {
             case CONFIDENTIAL:
                 return io.undertow.servlet.api.TransportGuaranteeType.CONFIDENTIAL;
