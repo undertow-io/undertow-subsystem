@@ -3,7 +3,8 @@ package org.jboss.as.undertow.security;
 import java.security.Principal;
 import java.util.Set;
 
-import io.undertow.idm.Account;
+import io.undertow.security.idm.Account;
+
 
 /**
  * @author Stuart Douglas

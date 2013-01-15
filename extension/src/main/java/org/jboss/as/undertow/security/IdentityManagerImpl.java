@@ -7,10 +7,10 @@ import java.util.Set;
 
 import javax.security.auth.Subject;
 
-import io.undertow.idm.Account;
-import io.undertow.idm.Credential;
-import io.undertow.idm.IdentityManager;
-import io.undertow.idm.PasswordCredential;
+import io.undertow.security.idm.Account;
+import io.undertow.security.idm.Credential;
+import io.undertow.security.idm.IdentityManager;
+import io.undertow.security.idm.PasswordCredential;
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.web.WebLogger;
 import org.jboss.security.AuthenticationManager;
@@ -87,7 +87,12 @@ public class IdentityManagerImpl implements IdentityManager {
     }
 
     @Override
-    public Set<String> getRoles(final Account account) {
-        return ((AccountImpl) account).getRoles();
+    public char[] getPassword(final Account account) {
+        return null;
+    }
+
+    @Override
+    public boolean isUserInGroup(final Account account, final String group) {
+        return ((AccountImpl) account).getRoles().contains(group);
     }
 }
