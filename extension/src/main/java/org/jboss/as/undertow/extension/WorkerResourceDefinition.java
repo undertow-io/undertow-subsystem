@@ -72,7 +72,7 @@ public class WorkerResourceDefinition extends SimpleResourceDefinition {
     static final Map<String, OptionAttributeDefinition> ATTRIBUTES_BY_XMLNAME;
 
     static {
-        Map<String, OptionAttributeDefinition> attrs = new HashMap<String, OptionAttributeDefinition>();
+        Map<String, OptionAttributeDefinition> attrs = new HashMap<>();
         for (AttributeDefinition attr : ATTRIBUTES) {
             attrs.put(attr.getXmlName(), (OptionAttributeDefinition) attr);
         }
