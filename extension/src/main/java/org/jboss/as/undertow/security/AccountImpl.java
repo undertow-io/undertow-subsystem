@@ -1,5 +1,6 @@
 package org.jboss.as.undertow.security;
 
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.Set;
 
@@ -9,7 +10,7 @@ import io.undertow.security.idm.Account;
 /**
  * @author Stuart Douglas
  */
-public class AccountImpl implements Account, Principal {
+public class AccountImpl implements Account, Principal, Serializable {
 
     private final String name;
     private Set<String> roles;

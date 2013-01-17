@@ -570,6 +570,11 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                             .setTransportGuaranteeType(transportGuaranteeType(constraint.getTransportGuarantee()))
                             .addRolesAllowed(constraint.getRoleNames());
 
+                    if(constraint.getAuthConstraint() == null) {
+                        //no auth constraint means we permit the empty roles
+                        securityConstraint.setEmptyRoleSemantic(PERMIT);
+                    }
+
                     if(constraint.getResourceCollections() != null) {
                         for(final WebResourceCollectionMetaData resourceCollection : constraint.getResourceCollections()) {
                             securityConstraint.addWebResourceCollection(new WebResourceCollection()
@@ -589,6 +594,8 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                     d.setLoginConfig(new LoginConfig(loginConfig.getAuthMethod(), loginConfig.getRealmName()));
                 }
             }
+
+            d.addSecurityRoles(mergedMetaData.getSecurityRoleNames());
 
             if(mergedMetaData.getSecurityDomain() != null) {
 
