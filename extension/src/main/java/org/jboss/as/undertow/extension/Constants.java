@@ -26,9 +26,11 @@ package org.jboss.as.undertow.extension;
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2012 Red Hat Inc.
  */
 public interface Constants {
+    String SECURITY_REALM = "security-realm";
     String SOCKET_BINDING = "socket-binding";
     String PATH = "path";
     String HTTP_LISTENER = "http-listener";
+    String HTTPS_LISTENER = "https-listener";
     String NAME = "name";
     String WORKER = "worker";
 
