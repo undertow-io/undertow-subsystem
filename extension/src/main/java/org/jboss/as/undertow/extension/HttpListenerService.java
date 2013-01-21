@@ -95,7 +95,7 @@ public class HttpListenerService implements Service<HttpListenerService> {
                     .getMap();
             //TODO: make this configurable, and use a more realistic buffer size by default.
             //this is only this large to work around an XNIO bug
-            openListener = new HttpOpenListener(new ByteBufferSlicePool(BufferAllocator.DIRECT_BYTE_BUFFER_ALLOCATOR, 81920, 81920 * 8192), 8192);
+            openListener = new HttpOpenListener(new ByteBufferSlicePool(BufferAllocator.DIRECT_BYTE_BUFFER_ALLOCATOR, 8192, 8192 * 8192), 8192);
             ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener = ChannelListeners.openListenerAdapter(openListener);
             final InetSocketAddress socketAddress = binding.getValue().getSocketAddress();
             server = worker.getValue().createStreamServer(socketAddress, acceptListener, serverOptions);
