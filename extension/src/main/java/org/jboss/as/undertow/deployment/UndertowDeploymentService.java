@@ -28,7 +28,7 @@ import io.undertow.server.HttpHandler;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import org.jboss.as.security.plugins.SecurityDomainContext;
-import org.jboss.as.undertow.extension.HttpListenerService;
+import org.jboss.as.undertow.extension.UndertowContainerService;
 import org.jboss.as.undertow.security.IdentityManagerImpl;
 import org.jboss.as.web.deployment.WebInjectionContainer;
 import org.jboss.msc.service.Service;
@@ -43,7 +43,7 @@ import org.jboss.msc.value.InjectedValue;
 public class UndertowDeploymentService implements Service<UndertowDeploymentService> {
 
     private final DeploymentInfo deploymentInfo;
-    private final InjectedValue<HttpListenerService> connector = new InjectedValue<HttpListenerService>();
+    private final InjectedValue<UndertowContainerService> container = new InjectedValue<UndertowContainerService>();
     private final WebInjectionContainer webInjectionContainer;
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
     private volatile DeploymentManager deploymentManager;
@@ -59,11 +59,11 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
         deploymentInfo.setIdentityManager(new IdentityManagerImpl(securityDomainContextValue.getValue(), deploymentInfo.getPrincipleVsRoleMapping()));
         WebInjectionContainer.setCurrentInjectionContainer(webInjectionContainer);
         try {
-            deploymentManager = connector.getValue().getServletContainer().addDeployment(deploymentInfo);
+            deploymentManager = container.getValue().getServletContainer().addDeployment(deploymentInfo);
             deploymentManager.deploy();
             try {
                 HttpHandler handler = deploymentManager.start();
-                connector.getValue().getPathHandler().addPath(deploymentInfo.getContextPath(), handler);
+                container.getValue().getPathHandler().addPath(deploymentInfo.getContextPath(), handler);
             } catch (ServletException e) {
                 throw new StartException(e);
             }
@@ -88,8 +88,8 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
         return this;
     }
 
-    public InjectedValue<HttpListenerService> getConnector() {
-        return connector;
+    public InjectedValue<UndertowContainerService> getContainer() {
+        return container;
     }
 
     public InjectedValue<SecurityDomainContext> getSecurityDomainContextValue() {

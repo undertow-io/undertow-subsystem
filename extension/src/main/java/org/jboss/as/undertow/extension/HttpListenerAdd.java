@@ -15,7 +15,6 @@ import org.jboss.as.network.SocketBinding;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
-import org.xnio.ChannelListener;
 import org.xnio.XnioWorker;
 
 /**
@@ -46,7 +45,8 @@ public class HttpListenerAdd extends AbstractAddStepHandler {
         final HttpListenerService service = new HttpListenerService();
         final ServiceBuilder<HttpListenerService> serviceBuilder = context.getServiceTarget().addService(WebSubsystemServices.LISTENER.append(name), service)
                 .addDependency(WebSubsystemServices.XNIO_WORKER.append("default"), XnioWorker.class, service.getWorker())
-                .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding());
+                .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding())
+                .addDependency(WebSubsystemServices.CONTAINER.append("default"), UndertowContainerService.class, service.getContainer());
 
         serviceBuilder.setInitialMode(ServiceController.Mode.ACTIVE);
 

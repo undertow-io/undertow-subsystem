@@ -17,6 +17,8 @@ public final class WebSubsystemServices {
 
     public static final ServiceName XNIO_WORKER = UNDERTOW.append("worker");
 
+    public static final ServiceName CONTAINER = UNDERTOW.append("container");
+
     /** The base name for jboss.web connector services. */
     public static final ServiceName LISTENER = UNDERTOW.append("listener");
 
