@@ -58,9 +58,20 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                 final ModelNode config = connector.getValue();
                 writer.writeStartElement(Constants.HTTP_LISTENER);
                 writer.writeAttribute(Constants.NAME, connector.getName());
-                for (SimpleAttributeDefinition attr : ListenerResourceDefinition.ATTRIBUTES) {
+                for (SimpleAttributeDefinition attr : HttpListenerResourceDefinition.ATTRIBUTES) {
                     attr.marshallAsAttribute(config, false, writer);
+                }
 
+                writer.writeEndElement();
+            }
+        }
+        if (model.hasDefined(Constants.HTTPS_LISTENER)) {
+            for (final Property connector : model.get(Constants.HTTPS_LISTENER).asPropertyList()) {
+                final ModelNode config = connector.getValue();
+                writer.writeStartElement(Constants.HTTPS_LISTENER);
+                writer.writeAttribute(Constants.NAME, connector.getName());
+                for (SimpleAttributeDefinition attr : HttpsListenerResourceDefinition.ATTRIBUTES) {
+                    attr.marshallAsAttribute(config, false, writer);
                 }
 
                 writer.writeEndElement();
@@ -84,7 +95,11 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                 case UNDERTOW_1_0: {
                     switch (reader.getLocalName()) {
                         case Constants.HTTP_LISTENER: {
-                            parseListener(reader, address, list);
+                            parseHttpListener(reader, address, false, list);
+                            break;
+                        }
+                        case Constants.HTTPS_LISTENER: {
+                            parseHttpListener(reader, address, true, list);
                             break;
                         }
                         case Constants.WORKER: {
@@ -132,7 +147,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         ParseUtils.requireNoContent(reader);
     }
 
-    static void parseListener(XMLExtendedStreamReader reader, PathAddress parent, List<ModelNode> list) throws XMLStreamException {
+    static void parseHttpListener(XMLExtendedStreamReader reader, PathAddress parent, boolean https, List<ModelNode> list) throws XMLStreamException {
         String name = null;
         final ModelNode connector = new ModelNode();
 
@@ -143,7 +158,13 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
 
             switch (reader.getAttributeLocalName(i)) {
                 case Constants.SOCKET_BINDING:
-                    ListenerResourceDefinition.SOCKET_BINDING.parseAndSetParameter(value, connector, reader);
+                    HttpListenerResourceDefinition.SOCKET_BINDING.parseAndSetParameter(value, connector, reader);
+                    break;
+                case Constants.SECURITY_REALM:
+                    if (https == false) {
+                        throw unexpectedAttribute(reader, i);
+                    }
+                    HttpsListenerResourceDefinition.SECURITY_REALM.parseAndSetParameter(value, connector, reader);
                     break;
                 case Constants.NAME:
                     name = value;
@@ -154,10 +175,10 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         }
 
         connector.get(OP).set(ADD);
-        PathAddress address = PathAddress.pathAddress(parent, PathElement.pathElement(Constants.HTTP_LISTENER, name));
+        PathAddress address = PathAddress.pathAddress(parent, PathElement.pathElement(https ? Constants.HTTPS_LISTENER : Constants.HTTP_LISTENER, name));
         connector.get(OP_ADDR).set(address.toModelNode());
         list.add(connector);
-
+        ParseUtils.requireNoContent(reader);
     }
 
 

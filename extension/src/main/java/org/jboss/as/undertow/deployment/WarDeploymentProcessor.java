@@ -23,7 +23,6 @@
 package org.jboss.as.undertow.deployment;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EventListener;
@@ -83,7 +82,7 @@ import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.SetupAction;
 import org.jboss.as.server.deployment.reflect.DeploymentClassIndex;
-import org.jboss.as.undertow.extension.HttpListenerService;
+import org.jboss.as.undertow.extension.UndertowContainerService;
 import org.jboss.as.undertow.extension.WebSubsystemServices;
 import org.jboss.as.undertow.security.SecurityContextAssociationHandler;
 import org.jboss.as.undertow.security.SecurityContextCreationHandler;
@@ -138,10 +137,10 @@ import static org.jboss.as.web.WebMessages.MESSAGES;
 
 public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
-    private final String defaultHost;
+    private final String defaultContainer;
 
-    public WarDeploymentProcessor(final String defaultHost) {
-        this.defaultHost = defaultHost;
+    public WarDeploymentProcessor(final String defaultContainer) {
+        this.defaultContainer = defaultContainer;
     }
 
     @Override
@@ -151,10 +150,11 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         if (warMetaData == null) {
             return;
         }
-        String hostName = hostNameOfDeployment(warMetaData, defaultHost);
-        processDeployment(hostName, warMetaData, deploymentUnit, phaseContext.getServiceTarget());
+        //String hostName = hostNameOfDeployment(warMetaData, defaultHost);
+        processDeployment(warMetaData, deploymentUnit, phaseContext.getServiceTarget());
     }
 
+    /*
     static String hostNameOfDeployment(final WarMetaData metaData, final String defaultHost) {
         Collection<String> hostNames = null;
         if (metaData.getMergedJBossWebMetaData() != null) {
@@ -169,6 +169,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         }
         return hostName;
     }
+    */
 
     @Override
     public void undeploy(final DeploymentUnit context) {
@@ -176,7 +177,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         //deployer.undeploy(context);
     }
 
-    private void processDeployment(final String hostName, final WarMetaData warMetaData, final DeploymentUnit deploymentUnit, final ServiceTarget serviceTarget)
+    private void processDeployment(final WarMetaData warMetaData, final DeploymentUnit deploymentUnit, final ServiceTarget serviceTarget)
             throws DeploymentUnitProcessingException {
         final VirtualFile deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT).getRoot();
         final Module module = deploymentUnit.getAttachment(Attachments.MODULE);
@@ -237,7 +238,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             final ServiceName deploymentServiceName = ServiceName.JBOSS.append("undertow", deploymentInfo.getContextPath());
             UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer);
             final ServiceBuilder<UndertowDeploymentService> builder = serviceTarget.addService(deploymentServiceName, service)
-                    .addDependency(WebSubsystemServices.LISTENER.append(defaultHost), HttpListenerService.class, service.getConnector())
+                    .addDependency(WebSubsystemServices.CONTAINER.append(defaultContainer), UndertowContainerService.class, service.getContainer())
                     .addDependency(SecurityDomainService.SERVICE_NAME.append(securityDomain), SecurityDomainContext.class, service.getSecurityDomainContextValue());
 
             deploymentUnit.addToAttachmentList(Attachments.DEPLOYMENT_COMPLETE_SERVICES, deploymentServiceName);

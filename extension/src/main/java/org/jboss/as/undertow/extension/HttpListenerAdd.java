@@ -1,7 +1,7 @@
 package org.jboss.as.undertow.extension;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.jboss.as.undertow.extension.ListenerResourceDefinition.SOCKET_BINDING;
+import static org.jboss.as.undertow.extension.HttpListenerResourceDefinition.SOCKET_BINDING;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import org.jboss.as.network.SocketBinding;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
-import org.xnio.ChannelListener;
+import org.jboss.msc.service.ServiceName;
 import org.xnio.XnioWorker;
 
 /**
@@ -24,13 +24,12 @@ import org.xnio.XnioWorker;
 public class HttpListenerAdd extends AbstractAddStepHandler {
     static final HttpListenerAdd INSTANCE = new HttpListenerAdd();
 
-    private HttpListenerAdd() {
-
+    HttpListenerAdd() {
     }
 
     @Override
     protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-        for (SimpleAttributeDefinition attr : ListenerResourceDefinition.ATTRIBUTES) {
+        for (SimpleAttributeDefinition attr : HttpListenerResourceDefinition.ATTRIBUTES) {
             attr.validateAndSet(operation, model);
         }
     }
@@ -40,19 +39,31 @@ public class HttpListenerAdd extends AbstractAddStepHandler {
         final PathAddress address = PathAddress.pathAddress(operation.get(OP_ADDR));
         final String name = address.getLastElement().getValue();
 
-
         final String bindingRef = SOCKET_BINDING.resolveModelAttribute(context, model).asString();
 
-        final HttpListenerService service = new HttpListenerService();
-        final ServiceBuilder<HttpListenerService> serviceBuilder = context.getServiceTarget().addService(WebSubsystemServices.LISTENER.append(name), service)
+        final HttpListenerService service = createService();
+        final ServiceBuilder<HttpListenerService> serviceBuilder = context.getServiceTarget().addService(constructServiceName(name), service)
                 .addDependency(WebSubsystemServices.XNIO_WORKER.append("default"), XnioWorker.class, service.getWorker())
-                .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding());
+                .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding())
+                .addDependency(WebSubsystemServices.CONTAINER.append("default"), UndertowContainerService.class, service.getContainer());
 
+        additionalDependencies(context, serviceBuilder, model, service);
         serviceBuilder.setInitialMode(ServiceController.Mode.ACTIVE);
 
         final ServiceController<HttpListenerService> serviceController = serviceBuilder.install();
         if (newControllers != null) {
             newControllers.add(serviceController);
         }
+    }
+
+    protected ServiceName constructServiceName(final String name) {
+        return WebSubsystemServices.HTTP_LISTENER.append(name);
+    }
+
+    protected HttpListenerService createService() {
+        return new HttpListenerService();
+    }
+
+    protected void additionalDependencies(OperationContext context, ServiceBuilder<HttpListenerService> serviceBuilder, ModelNode model, HttpListenerService service) throws OperationFailedException {
     }
 }
