@@ -4,10 +4,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import javax.management.MBeanServer;
+
 import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.as.controller.services.path.PathManager;
+import org.jboss.as.controller.services.path.PathManagerService;
 import org.jboss.as.server.AbstractDeploymentChainStep;
 import org.jboss.as.server.DeploymentProcessorTarget;
 import org.jboss.as.server.deployment.Phase;
@@ -32,6 +36,10 @@ import org.jboss.as.web.deployment.component.WebComponentProcessor;
 import org.jboss.dmr.ModelNode;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.msc.service.ServiceController;
+import org.jboss.msc.service.ServiceName;
+import org.jboss.msc.service.ServiceTarget;
+import org.jboss.msc.service.ServiceBuilder.DependencyType;
+import org.jboss.msc.service.ServiceController.Mode;
 
 
 /**
@@ -68,7 +76,6 @@ class UndetowSubsystemAdd extends AbstractBoottimeAddStepHandler {
         } catch (ClassNotFoundException e) {
             UndertowLogger.ROOT_LOGGER.couldNotInitJsp(e);
         }
-
 
         context.addStep(new AbstractDeploymentChainStep() {
             @Override
@@ -112,6 +119,10 @@ class UndetowSubsystemAdd extends AbstractBoottimeAddStepHandler {
             }
         }, OperationContext.Stage.RUNTIME);
 
-
+        UndertowContainerService container = new UndertowContainerService();
+        final ServiceTarget target = context.getServiceTarget();
+        newControllers.add(target.addService(WebSubsystemServices.CONTAINER.append("default"), container)
+                .setInitialMode(Mode.ON_DEMAND)
+                .install());
     }
 }
