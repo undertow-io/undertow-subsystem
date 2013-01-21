@@ -1,10 +1,11 @@
 package org.jboss.as.undertow.extension;
 
+import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
+import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.SimpleResourceDefinition;
-import org.jboss.as.controller.operations.global.WriteAttributeHandlers;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -35,10 +36,9 @@ public class ListenerResourceDefinition extends SimpleResourceDefinition {
     @Override
     public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
         super.registerAttributes(resourceRegistration);
+        OperationStepHandler handler = new ReloadRequiredWriteAttributeHandler(ATTRIBUTES);
         for (SimpleAttributeDefinition attr : ATTRIBUTES) {
-            resourceRegistration.registerReadWriteAttribute(attr, null, new WriteAttributeHandlers.AttributeDefinitionValidatingHandler(attr));
+            resourceRegistration.registerReadWriteAttribute(attr, null, handler);
         }
     }
-
-
 }
