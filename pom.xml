@@ -82,11 +82,15 @@
 
         <!-- Checkstyle configuration -->
         <linkXRef>false</linkXRef>
+
+        <jboss.home>${env.JBOSS_HOME}</jboss.home>
+        <version.javax.annotations>1.0.0.Final</version.javax.annotations>
+        <version.arquillian>1.0.2.Final</version.arquillian>
+        <version.org.jboss.shrinkwrap.descriptors>2.0.0-alpha-3</version.org.jboss.shrinkwrap.descriptors>
     </properties>
 
     <modules>
         <module>extension</module>
-        <module>integrate</module>
     </modules>
 
     <build>
@@ -175,6 +179,13 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>io.undertow</groupId>
+                <artifactId>jboss-undertow-integrator</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+            </dependency>
+
 
             <!-- External Dependencies -->
 
@@ -184,6 +195,45 @@
                 <version>${version.jboss.as}</version>
                 <scope>import</scope>
                 <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.as</groupId>
+                <artifactId>jboss-as-build</artifactId>
+                <version>${version.jboss.as}</version>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.spec.javax.annotation</groupId>
+                <artifactId>jboss-annotations-api_1.1_spec</artifactId>
+                <version>${version.javax.annotations}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.arquillian.junit</groupId>
+                <artifactId>arquillian-junit-container</artifactId>
+                <scope>test</scope>
+                <version>${version.arquillian}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.arquillian.protocol</groupId>
+                <artifactId>arquillian-protocol-servlet</artifactId>
+                <scope>test</scope>
+                <version>${version.arquillian}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.as</groupId>
+                <artifactId>jboss-as-arquillian-container-managed</artifactId>
+                <version>${version.jboss.as}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.shrinkwrap.descriptors</groupId>
+                <artifactId>shrinkwrap-descriptors-api-base</artifactId>
+                <version>${version.org.jboss.shrinkwrap.descriptors}</version>
             </dependency>
 
             <dependency>
@@ -292,5 +342,20 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
+
+
+    <profiles>
+        <profile>
+            <id>update-as</id>
+            <activation>
+                <property><name>update-as</name></property>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>integrate</module>
+                <module>testsuite</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
