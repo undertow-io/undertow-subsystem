@@ -41,7 +41,7 @@ public class HttpListenerAdd extends AbstractAddStepHandler {
 
         final String bindingRef = SOCKET_BINDING.resolveModelAttribute(context, model).asString();
 
-        final HttpListenerService service = createService();
+        final HttpListenerService service = createService(name);
         final ServiceBuilder<HttpListenerService> serviceBuilder = context.getServiceTarget().addService(constructServiceName(name), service)
                 .addDependency(WebSubsystemServices.XNIO_WORKER.append("default"), XnioWorker.class, service.getWorker())
                 .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding())
@@ -60,7 +60,7 @@ public class HttpListenerAdd extends AbstractAddStepHandler {
         return WebSubsystemServices.HTTP_LISTENER.append(name);
     }
 
-    protected HttpListenerService createService() {
+    protected HttpListenerService createService(final String name) {
         return new HttpListenerService();
     }
 

@@ -56,8 +56,8 @@ public class HttpsListenerAdd extends HttpListenerAdd {
     }
 
     @Override
-    protected HttpListenerService createService() {
-        return new HttpsListenerService();
+    protected HttpListenerService createService(final String name) {
+        return new HttpsListenerService(name);
     }
 
     @Override

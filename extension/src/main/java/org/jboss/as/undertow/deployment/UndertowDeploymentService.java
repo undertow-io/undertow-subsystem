@@ -25,6 +25,8 @@ package org.jboss.as.undertow.deployment;
 import javax.servlet.ServletException;
 
 import io.undertow.server.HttpHandler;
+import io.undertow.server.HttpServerExchange;
+import io.undertow.servlet.api.ConfidentialPortManager;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import org.jboss.as.security.plugins.SecurityDomainContext;
@@ -57,6 +59,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
     public void start(final StartContext startContext) throws StartException {
 
         deploymentInfo.setIdentityManager(new IdentityManagerImpl(securityDomainContextValue.getValue(), deploymentInfo.getPrincipleVsRoleMapping()));
+        deploymentInfo.setConfidentialPortManager(getConfidentialPortManager());
         WebInjectionContainer.setCurrentInjectionContainer(webInjectionContainer);
         try {
             deploymentManager = container.getValue().getServletContainer().addDeployment(deploymentInfo);
@@ -94,5 +97,15 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
 
     public InjectedValue<SecurityDomainContext> getSecurityDomainContextValue() {
         return securityDomainContextValue;
+    }
+
+    private ConfidentialPortManager getConfidentialPortManager() {
+        return new ConfidentialPortManager() {
+
+            @Override
+            public int getConfidentialPort(HttpServerExchange exchange) {
+                return container.getValue().lookupSecurePort("default");
+            }
+        };
     }
 }
