@@ -22,6 +22,10 @@
 
 package org.jboss.as.undertow.extension;
 
+import java.util.ConcurrentModificationException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpOpenListener;
 import io.undertow.server.HttpTransferEncodingHandler;
@@ -55,12 +59,13 @@ public class UndertowContainerService implements Service<UndertowContainerServic
     private volatile ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener;
     private volatile PathHandler pathHandler = new PathHandler();
     private volatile ServletContainer servletContainer;
+    private Map<String, Integer> secureListeners = new ConcurrentHashMap<String, Integer>(1);
 
     /*
      * Service Methods
      */
 
-    public void start(StartContext arg0) throws StartException {
+    public void start(StartContext context) throws StartException {
         //TODO: make this configurable, and use a more realistic buffer size by default.
         //this is only this large to work around an XNIO bug
         openListener = new HttpOpenListener(new ByteBufferSlicePool(BufferAllocator.DIRECT_BYTE_BUFFER_ALLOCATOR, 8192, 8192 * 8192), 8192);
@@ -79,7 +84,7 @@ public class UndertowContainerService implements Service<UndertowContainerServic
         servletContainer = ServletContainer.Factory.newInstance();
     }
 
-    public void stop(StopContext arg0) {
+    public void stop(StopContext context) {
 
     }
 
@@ -113,6 +118,37 @@ public class UndertowContainerService implements Service<UndertowContainerServic
 
     public ServletContainer getServletContainer() {
         return servletContainer;
+    }
+
+    public Integer lookupSecurePort(final String listenerName) {
+        Integer response = null;
+        response = secureListeners.get(listenerName);
+        if (response == null) {
+            while (response == null && secureListeners.isEmpty() == false) {
+                try {
+                    response = secureListeners.values().iterator().next();
+                } catch (ConcurrentModificationException cme) {
+                    // Ignored - The chance of happening is so small but do not wish to add
+                    // additional synchronisation. If listeners are being added and removed
+                    // to a server under load then behaviour could not be expected to be consistent.
+                }
+            }
+        }
+
+        if (response == null) {
+            throw new IllegalStateException("No secure listeners defined.");
+        }
+
+        return response;
+
+    }
+
+    public void registerSecurePort(final String listenerName, final Integer port) {
+        secureListeners.put(listenerName, port);
+    }
+
+    public void unregisterSecurePort(final String name) {
+        secureListeners.remove(name);
     }
 
 }

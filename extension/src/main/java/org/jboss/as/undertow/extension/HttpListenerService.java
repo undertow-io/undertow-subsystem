@@ -44,7 +44,7 @@ import org.xnio.channels.ConnectedStreamChannel;
  */
 public class HttpListenerService implements Service<HttpListenerService> {
 
-    private final InjectedValue<UndertowContainerService> container = new InjectedValue<UndertowContainerService>();
+    protected final InjectedValue<UndertowContainerService> container = new InjectedValue<UndertowContainerService>();
     private final InjectedValue<XnioWorker> worker = new InjectedValue<XnioWorker>();
     private final InjectedValue<SocketBinding> binding = new InjectedValue<SocketBinding>();
 
