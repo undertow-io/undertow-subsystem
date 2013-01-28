@@ -1,4 +1,52 @@
 <subsystem xmlns="urn:jboss:domain:undertow:1.0">
     <worker name="default" task-core-threads="12" write-threads="3" read-threads="3"/>
-    <http-listener name="static-file" socket-binding="http" />
+    <http-listener name="static-file" socket-binding="http"/>
+
+
+    <handler-chain name="entry-chain">
+        <simple-error-page/>
+        <connection-limit high-water-mark="100" low-water-mark="50"/>
+        <!--
+        note that we only provide support for name based virtual hosts here
+        for interface based virtual hosts you can define another <server> with connectors on the
+        interfaces you are interested in.
+
+        -->
+        <virtual-host>
+            <host name="localhost" chain-ref="localhost-chain"/>
+            <host name="www.mysite.com" chain-ref="mysite-chain"/>
+            <!--<host name="disalowed-site.com">
+                &lt;!&ndash;
+                    I am not sure if we want to allow this (nestled handler chains), I don't think it will
+                    map that well to the model
+                &ndash;&gt;
+                <response-code code="400"/>
+            </host>-->
+        </virtual-host>
+
+        <!--
+            A custom handler. It can be passed both properties and handler chain references.
+        -->
+        <handler-factory class="com.test.CustomVirtualHostHandler" module="my.module">
+            <properties>
+                <property name="allowWildcardSubdomains" value="true"/>
+            </properties>
+            <chains>
+                <chain name="*.localhost" chain-ref="localhost-chain"/>
+                <chain name="*.mysite.com" chain-ref="mysite-chain"/>
+                <!--<chain name="*.disalowed-site.com">
+                    &lt;!&ndash;
+                        I am not sure if we want to allow this (nestled handler chains), I don't think it will
+                        map that well to the model
+                    &ndash;&gt;
+                    <response-code code="400"/>
+                </chain>-->
+            </chains>
+        </handler-factory>
+        <!--
+            delegate to another chain defined elsewhere.
+        -->
+        <!--<chain name="my-default-chain"/>-->
+    </handler-chain>
+
 </subsystem>

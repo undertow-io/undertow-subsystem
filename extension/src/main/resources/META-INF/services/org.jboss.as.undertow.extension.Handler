@@ -1,0 +1,5 @@
+#here you list all handlers that implement Handler interface
+org.jboss.as.undertow.extension.handlers.ConnectionLimitHandler
+org.jboss.as.undertow.extension.handlers.VirtualHostHandlerDefinition
+org.jboss.as.undertow.extension.handlers.SimpleErrorPageHandler
+org.jboss.as.undertow.extension.handlers.CustomFactoryHandler

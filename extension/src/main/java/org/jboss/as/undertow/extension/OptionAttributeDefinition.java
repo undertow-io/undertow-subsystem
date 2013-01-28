@@ -19,7 +19,7 @@ import org.xnio.Option;
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2012 Red Hat Inc.
  */
-public class OptionAttributeDefinition extends SimpleAttributeDefinition {
+class OptionAttributeDefinition extends SimpleAttributeDefinition {
     private Option option;
 
     private OptionAttributeDefinition(String name, String xmlName, ModelNode defaultValue, ModelType type, boolean allowNull, boolean allowExpression,

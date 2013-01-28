@@ -63,8 +63,7 @@ public class UndertowContainerService implements Service<UndertowContainerServic
     public void start(StartContext arg0) throws StartException {
         //TODO: make this configurable, and use a more realistic buffer size by default.
         //this is only this large to work around an XNIO bug
-        openListener = new HttpOpenListener(new ByteBufferSlicePool(BufferAllocator.DIRECT_BYTE_BUFFER_ALLOCATOR, 8192,
-                8192 * 8192), 8192);
+        openListener = new HttpOpenListener(new ByteBufferSlicePool(BufferAllocator.DIRECT_BYTE_BUFFER_ALLOCATOR, 8192, 8192 * 8192), 8192);
         acceptListener = ChannelListeners.openListenerAdapter(openListener);
 
         FormEncodedDataHandler formEncodedDataHandler = new FormEncodedDataHandler();

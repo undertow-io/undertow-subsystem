@@ -85,7 +85,7 @@ public class WorkerResourceDefinition extends SimpleResourceDefinition {
 
     private WorkerResourceDefinition() {
         super(UndertowExtension.WORKER_PATH,
-                UndertowExtension.getResourceDescriptionResolver(Constants.WORKER),
+                UndertowExtension.getResolver(Constants.WORKER),
                 WorkerAdd.INSTANCE,
                 ReloadRequiredRemoveStepHandler.INSTANCE
         );

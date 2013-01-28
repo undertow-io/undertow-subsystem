@@ -69,8 +69,8 @@
         <version.junit>4.8.2</version.junit>
         <version.xnio>3.1.0.Beta8</version.xnio>
         <version.org.jboss.logging>3.1.2.GA</version.org.jboss.logging>
-        <version.org.jboss.logmanager>1.4.0.Beta1</version.org.jboss.logmanager>
-        <version.org.jboss.logging.processor>1.1.0.Beta1</version.org.jboss.logging.processor>
+        <version.org.jboss.logmanager>1.4.0.Beta2</version.org.jboss.logmanager>
+        <version.org.jboss.logging.processor>1.1.0.Beta2</version.org.jboss.logging.processor>
         <version.jboss.as>7.2.0.Alpha1-SNAPSHOT</version.jboss.as>
         <version.io.undertow>1.0.0.Alpha1-SNAPSHOT</version.io.undertow>
         <version.io.undertow.jastow>1.0.0.Alpha1</version.io.undertow.jastow>

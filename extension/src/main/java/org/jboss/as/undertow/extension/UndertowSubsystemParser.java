@@ -1,18 +1,20 @@
 package org.jboss.as.undertow.extension;
 
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADDRESS;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.parsing.ParseUtils.requireNoNamespaceAttribute;
+import static org.jboss.as.controller.parsing.ParseUtils.requireSingleAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
+import com.arjuna.ats.internal.jdbc.drivers.modifiers.list;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.SimpleAttributeDefinition;
@@ -77,6 +79,19 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                 writer.writeEndElement();
             }
         }
+        if (model.hasDefined(Constants.HANDLER_CHAIN)) {
+            for (final Property chainProp : model.get(Constants.HANDLER_CHAIN).asPropertyList()) {
+                final ModelNode config = chainProp.getValue();
+                writer.writeStartElement(Constants.HANDLER_CHAIN);
+                writer.writeAttribute(Constants.NAME, chainProp.getName());
+                Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
+                for (final Property handlerProp : config.get(Constants.HANDLER).asPropertyList()){
+                    Handler handler = handlerMap.get(handlerProp.getName());
+                    handler.persist(writer,handlerProp);
+                }
+                writer.writeEndElement();
+            }
+        }
         writer.writeEndElement();
     }
 
@@ -104,6 +119,10 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                         }
                         case Constants.WORKER: {
                             parseWorker(reader, address, list);
+                            break;
+                        }
+                        case Constants.HANDLER_CHAIN: {
+                            parseHandlerChain(reader, address, list);
                             break;
                         }
                         default: {
@@ -138,7 +157,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
             }
         }
         if (address == null) {
-            HashSet<String> missing = new HashSet<String>();
+            HashSet<String> missing = new HashSet<>();
             missing.add(Constants.NAME);
             throw ParseUtils.missingRequired(reader, missing);
         }
@@ -149,7 +168,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
 
     static void parseHttpListener(XMLExtendedStreamReader reader, PathAddress parent, boolean https, List<ModelNode> list) throws XMLStreamException {
         String name = null;
-        final ModelNode connector = new ModelNode();
+        final ModelNode connector = Util.createAddOperation();
 
         final int count = reader.getAttributeCount();
         for (int i = 0; i < count; i++) {
@@ -174,11 +193,29 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
             }
         }
 
-        connector.get(OP).set(ADD);
         PathAddress address = PathAddress.pathAddress(parent, PathElement.pathElement(https ? Constants.HTTPS_LISTENER : Constants.HTTP_LISTENER, name));
         connector.get(OP_ADDR).set(address.toModelNode());
         list.add(connector);
         ParseUtils.requireNoContent(reader);
+    }
+
+    static void parseHandlerChain(final XMLExtendedStreamReader reader, PathAddress parentAddress, List<ModelNode> list) throws XMLStreamException {
+        requireSingleAttribute(reader, NAME);
+        String name = reader.getAttributeValue(null, NAME);
+        PathAddress address = parentAddress.append(Constants.HANDLER_CHAIN, name);
+        list.add(Util.createAddOperation(address));
+
+        Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
+        while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String tagName = reader.getLocalName();
+            Handler handler = handlerMap.get(tagName);
+            if (handler != null) {
+                handler.parse(reader, address, list);
+            } else {
+                throw unexpectedElement(reader);
+            }
+        }
+
     }
 
 

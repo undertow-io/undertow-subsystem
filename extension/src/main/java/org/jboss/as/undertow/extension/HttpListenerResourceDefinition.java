@@ -29,7 +29,7 @@ public class HttpListenerResourceDefinition extends SimpleResourceDefinition {
     protected static SimpleAttributeDefinition[] ATTRIBUTES = {SOCKET_BINDING};
 
     private HttpListenerResourceDefinition() {
-        this(UndertowExtension.HTTP_LISTENER_PATH, UndertowExtension.getResourceDescriptionResolver(Constants.HTTP_LISTENER),
+        this(UndertowExtension.HTTP_LISTENER_PATH, UndertowExtension.getResolver(Constants.HTTP_LISTENER),
                 HttpListenerAdd.INSTANCE);
     }
 
