@@ -83,7 +83,7 @@
         <!-- Checkstyle configuration -->
         <linkXRef>false</linkXRef>
 
-        <jboss.home>${env.JBOSS_HOME}</jboss.home>
+        <jboss.home>${jboss.dir}</jboss.home>
         <version.javax.annotations>1.0.0.Final</version.javax.annotations>
         <version.arquillian>1.0.2.Final</version.arquillian>
         <version.org.jboss.shrinkwrap.descriptors>2.0.0-alpha-3</version.org.jboss.shrinkwrap.descriptors>
