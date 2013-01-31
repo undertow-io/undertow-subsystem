@@ -1,6 +1,5 @@
 package org.jboss.as.undertow.security;
 
-import io.undertow.server.HttpCompletionHandler;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.HttpHandlers;
@@ -26,7 +25,7 @@ public class SecurityContextCreationHandler implements HttpHandler {
     }
 
     @Override
-    public void handleRequest(final HttpServerExchange exchange, final HttpCompletionHandler completionHandler) {
+    public void handleRequest(final HttpServerExchange exchange) {
         //TODO: we should not have to dispact here, once we get rid of the thread local stuff a bit
         WorkerDispatcher.dispatch(exchange, new Runnable() {
             @Override
@@ -36,7 +35,7 @@ public class SecurityContextCreationHandler implements HttpHandler {
                     exchange.putAttachment(UndertowSecurityAttachments.SECURITY_CONTEXT_ATTACHMENT, sc);
                     SecurityActions.setSecurityContextOnAssociation(sc);
 
-                    HttpHandlers.executeHandler(next, exchange, completionHandler);
+                    HttpHandlers.executeHandler(next, exchange);
 
                 } finally {
                     SecurityActions.clearSecurityContext();

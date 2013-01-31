@@ -30,8 +30,8 @@ import java.util.Set;
 
 import javax.security.jacc.PolicyContext;
 
+import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.blocking.BlockingHttpHandler;
-import io.undertow.server.handlers.blocking.BlockingHttpServerExchange;
 import io.undertow.servlet.api.HandlerWrapper;
 import io.undertow.servlet.handlers.ServletAttachments;
 import io.undertow.servlet.handlers.ServletPathMatch;
@@ -53,13 +53,13 @@ public class SecurityContextAssociationHandler implements BlockingHttpHandler {
     }
 
     @Override
-    public void handleRequest(final BlockingHttpServerExchange exchange) throws Exception {
-        SecurityContext sc = exchange.getExchange().getAttachment(UndertowSecurityAttachments.SECURITY_CONTEXT_ATTACHMENT);
+    public void handleBlockingRequest(final HttpServerExchange exchange) throws Exception {
+        SecurityContext sc = exchange.getAttachment(UndertowSecurityAttachments.SECURITY_CONTEXT_ATTACHMENT);
         String previousContextID = null;
         String identity = null;
         try {
             SecurityActions.setSecurityContextOnAssociation(sc);
-            ServletPathMatch servlet = exchange.getExchange().getAttachment(ServletAttachments.SERVLET_PATH_MATCH);
+            ServletPathMatch servlet = exchange.getAttachment(ServletAttachments.SERVLET_PATH_MATCH);
             identity = servlet.getHandler().getManagedServlet().getServletInfo().getRunAs();
             RunAsIdentity runAsIdentity = null;
             if (identity != null) {
@@ -73,7 +73,7 @@ public class SecurityContextAssociationHandler implements BlockingHttpHandler {
             previousContextID = setContextID(contextId);
 
             // Perform the request
-            next.handleRequest(exchange);
+            next.handleBlockingRequest(exchange);
         } finally {
             if (identity != null) {
                 SecurityActions.popRunAsIdentity();

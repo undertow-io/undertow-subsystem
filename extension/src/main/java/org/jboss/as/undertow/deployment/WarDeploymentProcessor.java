@@ -40,7 +40,7 @@ import javax.servlet.ServletContainerInitializer;
 
 import io.undertow.jsp.JspFileWrapper;
 import io.undertow.jsp.JspServletBuilder;
-import io.undertow.server.handlers.blocking.BlockingHttpServerExchange;
+import io.undertow.server.HttpServerExchange;
 import io.undertow.servlet.api.ClassIntrospecter;
 import io.undertow.servlet.api.DefaultServletConfig;
 import io.undertow.servlet.api.DeploymentInfo;
@@ -252,7 +252,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 deploymentInfo.addThreadSetupAction(new ThreadSetupAction() {
 
                     @Override
-                    public Handle setup(final BlockingHttpServerExchange exchange) {
+                    public Handle setup(final HttpServerExchange exchange) {
                         action.setup(Collections.<String, Object>emptyMap());
                         return new Handle() {
                             @Override
