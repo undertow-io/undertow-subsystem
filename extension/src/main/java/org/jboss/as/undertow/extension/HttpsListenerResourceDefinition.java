@@ -53,7 +53,7 @@ public class HttpsListenerResourceDefinition extends HttpListenerResourceDefinit
 
     private HttpsListenerResourceDefinition() {
         super(UndertowExtension.HTTPS_LISTENER_PATH,
-                UndertowExtension.getResourceDescriptionResolver(Constants.HTTPS_LISTENER), HttpsListenerAdd.INSTANCE);
+                UndertowExtension.getResolver(Constants.HTTPS_LISTENER), HttpsListenerAdd.INSTANCE);
     }
 
     @Override

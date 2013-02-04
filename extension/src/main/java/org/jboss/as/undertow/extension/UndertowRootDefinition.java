@@ -11,7 +11,7 @@ public class UndertowRootDefinition extends SimpleResourceDefinition {
 
     private UndertowRootDefinition() {
         super(UndertowExtension.SUBSYSTEM_PATH,
-                UndertowExtension.getResourceDescriptionResolver(null),
+                UndertowExtension.getResolver(),
                 UndetowSubsystemAdd.INSTANCE,
                 ReloadRequiredRemoveStepHandler.INSTANCE);
     }

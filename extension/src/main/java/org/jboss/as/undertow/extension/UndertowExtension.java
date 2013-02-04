@@ -6,6 +6,7 @@ import org.jboss.as.controller.Extension;
 import org.jboss.as.controller.ExtensionContext;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.SubsystemRegistration;
+import org.jboss.as.controller.descriptions.NonResolvingResourceDescriptionResolver;
 import org.jboss.as.controller.descriptions.StandardResourceDescriptionResolver;
 import org.jboss.as.controller.operations.common.GenericSubsystemDescribeHandler;
 import org.jboss.as.controller.parsing.ExtensionParsingContext;
@@ -23,11 +24,17 @@ public class UndertowExtension implements Extension {
     protected static final PathElement HTTP_LISTENER_PATH = PathElement.pathElement(Constants.HTTP_LISTENER);
     protected static final PathElement HTTPS_LISTENER_PATH = PathElement.pathElement(Constants.HTTPS_LISTENER);
     protected static final PathElement WORKER_PATH = PathElement.pathElement(Constants.WORKER);
+    protected static final PathElement HANDLER_CHAIN_PATH = PathElement.pathElement(Constants.HANDLER_CHAIN);
     private static final String RESOURCE_NAME = UndertowExtension.class.getPackage().getName() + ".LocalDescriptions";
 
-    static StandardResourceDescriptionResolver getResourceDescriptionResolver(final String keyPrefix) {
-        String prefix = SUBSYSTEM_NAME + (keyPrefix == null ? "" : "." + keyPrefix);
-        return new StandardResourceDescriptionResolver(prefix, RESOURCE_NAME, UndertowExtension.class.getClassLoader(), true, false);
+    public static StandardResourceDescriptionResolver getResolver(final String... keyPrefix) {
+        /*StringBuilder prefix = new StringBuilder(SUBSYSTEM_NAME);
+        for (String kp : keyPrefix) {
+            prefix.append('.').append(kp);
+        }
+        return new StandardResourceDescriptionResolver(prefix.toString(), RESOURCE_NAME, UndertowExtension.class.getClassLoader(), true, false);*/
+        //todo for now we don't care about this and since model is subject to often change in this phase, no need to resolve properties
+        return new NonResolvingResourceDescriptionResolver();
     }
 
     @Override
@@ -44,6 +51,7 @@ public class UndertowExtension implements Extension {
         registration.registerSubModel(HttpListenerResourceDefinition.INSTANCE);
         registration.registerSubModel(HttpsListenerResourceDefinition.INSTANCE);
         registration.registerSubModel(WorkerResourceDefinition.INSTANCE);
+        registration.registerSubModel(HandlerChainDefinition.INSTANCE);
         subsystem.registerXMLElementWriter(UndertowSubsystemParser.INSTANCE);
     }
 
