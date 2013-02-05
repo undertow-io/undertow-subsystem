@@ -81,6 +81,7 @@
         <property name="org.apache.tomcat.util.http.Parameters.MAX_COUNT" value="10000"/>
         <!-- needed by the RMI-IIOP tests when running with JDK 7 -->
         <property name="jacorb.interop.sun" value="on"/>
+        <property name="org.apache.jasper.Constants.USE_INSTANCE_MANAGER_FOR_TAGS" value="true"/>
     </system-properties>
 
     <management>

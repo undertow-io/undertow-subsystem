@@ -218,7 +218,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             components = new HashMap<String, ComponentInstantiator>();
         }
 
-        DeploymentInfo deploymentInfo = createServletConfig(metaData, deploymentUnit, module, deploymentClassIndex, components, scisMetaData, deploymentRoot);
+        DeploymentInfo deploymentInfo = createServletConfig(metaData, deploymentUnit, module, deploymentClassIndex, injectionContainer, components, scisMetaData, deploymentRoot);
 
         final String pathName = pathNameOfDeployment(deploymentUnit, metaData);
         deploymentInfo.setContextPath(pathName);
@@ -334,7 +334,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
     }
 
-    private DeploymentInfo createServletConfig(final JBossWebMetaData mergedMetaData, final DeploymentUnit deploymentUnit, final Module module, final DeploymentClassIndex classReflectionIndex, final Map<String, ComponentInstantiator> components, final ScisMetaData scisMetaData, final VirtualFile deploymentRoot) throws DeploymentUnitProcessingException {
+    private DeploymentInfo createServletConfig(final JBossWebMetaData mergedMetaData, final DeploymentUnit deploymentUnit, final Module module, final DeploymentClassIndex classReflectionIndex, final WebInjectionContainer webInjectionContainer, final Map<String, ComponentInstantiator> components, final ScisMetaData scisMetaData, final VirtualFile deploymentRoot) throws DeploymentUnitProcessingException {
         try {
             mergedMetaData.resolveAnnotations();
             final DeploymentInfo d = new DeploymentInfo();
@@ -361,7 +361,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             HashMap<String, TagLibraryInfo> tldInfo = createTldsInfo(deploymentUnit, classReflectionIndex, components, d);
             HashMap<String, JspPropertyGroup> propertyGroups = createJspConfig(mergedMetaData);
 
-            JspServletBuilder.setupDeployment(d, propertyGroups, tldInfo, new HackInstanceManager());
+            JspServletBuilder.setupDeployment(d, propertyGroups, tldInfo, new UndertowJSPInstanceManager(webInjectionContainer));
             d.setJspConfigDescriptor(new JspConfigDescriptorImpl(tldInfo.values(), propertyGroups.values()));
             d.setDefaultServletConfig(new DefaultServletConfig(true, Collections.<String>emptySet()));
 

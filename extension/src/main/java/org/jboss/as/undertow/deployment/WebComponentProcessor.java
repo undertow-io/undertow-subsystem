@@ -84,7 +84,7 @@ public class WebComponentProcessor implements DeploymentUnitProcessor {
         }
 
         final WarMetaData warMetaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
-        final org.jboss.as.web.deployment.TldsMetaData tldsMetaData = deploymentUnit.getAttachment(org.jboss.as.web.deployment.TldsMetaData.ATTACHMENT_KEY);
+        final TldsMetaData tldsMetaData = deploymentUnit.getAttachment(TldsMetaData.ATTACHMENT_KEY);
         final Set<String> classes = getAllComponentClasses(deploymentUnit, compositeIndex, warMetaData, tldsMetaData);
         for (String clazz : classes) {
             if (clazz == null || clazz.trim().isEmpty()) {
@@ -132,7 +132,7 @@ public class WebComponentProcessor implements DeploymentUnitProcessor {
      * @param metaData
      * @return
      */
-    private Set<String> getAllComponentClasses(DeploymentUnit deploymentUnit, CompositeIndex index, WarMetaData metaData, org.jboss.as.web.deployment.TldsMetaData tldsMetaData) {
+    private Set<String> getAllComponentClasses(DeploymentUnit deploymentUnit, CompositeIndex index, WarMetaData metaData, TldsMetaData tldsMetaData) {
         final Set<String> classes = new HashSet<String>();
         getAllComponentClasses(metaData.getMergedJBossWebMetaData(), classes);
         if (tldsMetaData == null)
