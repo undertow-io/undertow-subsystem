@@ -38,17 +38,32 @@ public class IdentityManagerImpl implements IdentityManager {
     }
 
     @Override
-    public Account lookupAccount(final String id) {
+    public Account verify(Account account) {
+        // This method is called for previously verfified accounts so just accept it for the moment.
+        return account;
+    }
+
+    @Override
+    public Account verify(String id, Credential credential) {
+        Account account = getAccount(id);
+        if (account != null && verifyCredential(account, credential)) {
+            return account;
+        }
+
+        return null;
+    }
+
+    @Override
+    public Account verify(Credential credential) {
+        throw new RuntimeException("Not yet implemented.");
+    }
+
+    @Override
+    public Account getAccount(final String id) {
         return new AccountImpl(id);
     }
 
-    @Override
-    public Account verifyCredential(final Credential credential) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public boolean verifyCredential(final Account account, final Credential credential) {
+    private boolean verifyCredential(final Account account, final Credential credential) {
         final char[] credentials = ((PasswordCredential) credential).getPassword();
         final AuthenticationManager authenticationManager = securityDomainContext.getAuthenticationManager();
         final MappingManager mappingManager = securityDomainContext.getMappingManager();
@@ -91,8 +106,4 @@ public class IdentityManagerImpl implements IdentityManager {
         return null;
     }
 
-    @Override
-    public boolean isUserInGroup(final Account account, final String group) {
-        return ((AccountImpl) account).getRoles().contains(group);
-    }
 }
