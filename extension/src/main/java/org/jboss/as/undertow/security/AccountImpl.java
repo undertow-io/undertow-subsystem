@@ -15,6 +15,14 @@ public class AccountImpl implements Account, Principal, Serializable {
     private final String name;
     private Set<String> roles;
 
+    private final Principal principal = new Principal() {
+
+        @Override
+        public String getName() {
+            return name;
+        }
+    };
+
     public AccountImpl(final String name) {
         this.name = name;
     }
@@ -47,5 +55,15 @@ public class AccountImpl implements Account, Principal, Serializable {
     @Override
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
+    }
+
+    @Override
+    public Principal getPrincipal() {
+        return principal;
+    }
+
+    @Override
+    public boolean isUserInGroup(String group) {
+        return roles.contains(group);
     }
 }
