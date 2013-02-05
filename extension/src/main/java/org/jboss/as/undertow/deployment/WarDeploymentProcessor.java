@@ -847,16 +847,22 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         }
 
         if (jarPath == null && relativeLocation == null) {
-            ret.put(tagLibraryInfo.getUri(), tagLibraryInfo);
+            if(!ret.containsKey(tagLibraryInfo.getUri())) {
+                ret.put(tagLibraryInfo.getUri(), tagLibraryInfo);
+            }
         } else if (jarPath == null) {
             tagLibraryInfo.setLocation("");
             tagLibraryInfo.setPath(relativeLocation);
-            ret.put(tagLibraryInfo.getUri(), tagLibraryInfo);
+            if(!ret.containsKey(tagLibraryInfo.getUri())) {
+                ret.put(tagLibraryInfo.getUri(), tagLibraryInfo);
+            }
             ret.put(relativeLocation, tagLibraryInfo);
         } else {
             tagLibraryInfo.setLocation(relativeLocation);
             tagLibraryInfo.setPath(jarPath);
-            ret.put(tagLibraryInfo.getUri(), tagLibraryInfo);
+            if(!ret.containsKey(tagLibraryInfo.getUri())) {
+                ret.put(tagLibraryInfo.getUri(), tagLibraryInfo);
+            }
             if (jarPath.equals("META-INF/taglib.tld")) {
                 ret.put(relativeLocation, tagLibraryInfo);
             }
