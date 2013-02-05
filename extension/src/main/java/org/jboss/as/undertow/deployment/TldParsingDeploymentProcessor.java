@@ -45,7 +45,9 @@ import org.jboss.as.undertow.extension.UndertowLogger;
 import org.jboss.as.web.deployment.WarMetaData;
 import org.jboss.metadata.parser.jsp.TldMetaDataParser;
 import org.jboss.metadata.parser.util.NoopXMLResolver;
+import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.metadata.web.spec.JspConfigMetaData;
+import org.jboss.metadata.web.spec.ListenerMetaData;
 import org.jboss.metadata.web.spec.TaglibMetaData;
 import org.jboss.metadata.web.spec.TldMetaData;
 import org.jboss.vfs.VirtualFile;
@@ -165,7 +167,21 @@ public class TldParsingDeploymentProcessor implements DeploymentUnitProcessor {
                 }
             }
         }
+
+        JBossWebMetaData mergedMd = warMetaData.getMergedJBossWebMetaData();
+        if(mergedMd.getListeners() == null) {
+            mergedMd.setListeners(new ArrayList<ListenerMetaData>());
+        }
+
+        for(final TldMetaData tld : tlds.values()) {
+            if(tld.getListeners() != null) {
+            for(ListenerMetaData l : tld.getListeners()) {
+                mergedMd.getListeners().add(l);
+            }
+            }
+        }
     }
+
 
     @Override
     public void undeploy(final DeploymentUnit context) {

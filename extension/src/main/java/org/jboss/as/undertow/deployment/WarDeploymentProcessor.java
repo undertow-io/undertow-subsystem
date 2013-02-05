@@ -753,13 +753,6 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         if (tldMetaData.getDescriptionGroup() != null) {
             tagLibraryInfo.setInfo(tldMetaData.getDescriptionGroup().getDescription());
         }
-        // Listener
-        if (tldMetaData.getListeners() != null) {
-            for (ListenerMetaData listener : tldMetaData.getListeners()) {
-                tagLibraryInfo.addListener(listener.getListenerClass());
-                addListener(classReflectionIndex, components, d, listener);
-            }
-        }
         // Validator
         if (tldMetaData.getValidator() != null) {
             TagLibraryValidatorInfo tagLibraryValidatorInfo = new TagLibraryValidatorInfo();
