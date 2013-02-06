@@ -21,8 +21,10 @@ public class UndertowExtension implements Extension {
     public static final String SUBSYSTEM_NAME = "undertow";
 
     protected static final PathElement SUBSYSTEM_PATH = PathElement.pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
+    protected static final PathElement AJP_LISTENER_PATH = PathElement.pathElement(Constants.AJP_LISTENER);
     protected static final PathElement HTTP_LISTENER_PATH = PathElement.pathElement(Constants.HTTP_LISTENER);
     protected static final PathElement HTTPS_LISTENER_PATH = PathElement.pathElement(Constants.HTTPS_LISTENER);
+    protected static final PathElement BUFFER_POOL_PATH = PathElement.pathElement(Constants.BUFFER_POOL);
     protected static final PathElement WORKER_PATH = PathElement.pathElement(Constants.WORKER);
     protected static final PathElement HANDLER_CHAIN_PATH = PathElement.pathElement(Constants.HANDLER_CHAIN);
     private static final String RESOURCE_NAME = UndertowExtension.class.getPackage().getName() + ".LocalDescriptions";
@@ -48,9 +50,11 @@ public class UndertowExtension implements Extension {
         final SubsystemRegistration subsystem = context.registerSubsystem(SUBSYSTEM_NAME, 1, 0, 0);
         final ManagementResourceRegistration registration = subsystem.registerSubsystemModel(UndertowRootDefinition.INSTANCE);
         registration.registerOperationHandler(GenericSubsystemDescribeHandler.DEFINITION, GenericSubsystemDescribeHandler.INSTANCE, false);
+        registration.registerSubModel(AJPListenerResourceDefinition.INSTANCE);
         registration.registerSubModel(HttpListenerResourceDefinition.INSTANCE);
         registration.registerSubModel(HttpsListenerResourceDefinition.INSTANCE);
         registration.registerSubModel(WorkerResourceDefinition.INSTANCE);
+        registration.registerSubModel(BufferPoolResourceDefinition.INSTANCE);
         registration.registerSubModel(HandlerChainDefinition.INSTANCE);
         subsystem.registerXMLElementWriter(UndertowSubsystemParser.INSTANCE);
     }

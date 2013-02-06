@@ -14,7 +14,6 @@ import java.util.Map;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
-import com.arjuna.ats.internal.jdbc.drivers.modifiers.list;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.SimpleAttributeDefinition;
@@ -79,19 +78,20 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                 writer.writeEndElement();
             }
         }
-        if (model.hasDefined(Constants.HANDLER_CHAIN)) {
+       /* if (model.hasDefined(Constants.HANDLER_CHAIN)) {
             for (final Property chainProp : model.get(Constants.HANDLER_CHAIN).asPropertyList()) {
                 final ModelNode config = chainProp.getValue();
                 writer.writeStartElement(Constants.HANDLER_CHAIN);
                 writer.writeAttribute(Constants.NAME, chainProp.getName());
                 Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
-                for (final Property handlerProp : config.get(Constants.HANDLER).asPropertyList()){
+                for (final Property handlerProp : config.get(Constants.HANDLER).asPropertyList()) {
                     Handler handler = handlerMap.get(handlerProp.getName());
-                    handler.persist(writer,handlerProp);
+                    handler.persist(writer, handlerProp);
                 }
                 writer.writeEndElement();
             }
-        }
+        }*/
+        BufferPoolResourceDefinition.INSTANCE.persist(writer,model);
         writer.writeEndElement();
     }
 
@@ -121,10 +121,14 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                             parseWorker(reader, address, list);
                             break;
                         }
-                        case Constants.HANDLER_CHAIN: {
-                            parseHandlerChain(reader, address, list);
+                        case Constants.BUFFER_POOL: {
+                            BufferPoolResourceDefinition.INSTANCE.parse(reader,address,list);
                             break;
                         }
+                      /*  case Constants.HANDLER_CHAIN: {
+                            parseHandlerChain(reader, address, list);
+                            break;
+                        }*/
                         default: {
                             throw unexpectedElement(reader);
                         }
@@ -139,6 +143,12 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         ParseUtils.requireNoContent(reader);
 
     }
+
+    static void parseVirtualHost(XMLExtendedStreamReader reader, PathAddress parent, List<ModelNode> list) throws XMLStreamException {
+
+
+    }
+
 
     static void parseWorker(XMLExtendedStreamReader reader, PathAddress parent, List<ModelNode> list) throws XMLStreamException {
         ModelNode worker = Util.createAddOperation(parent);
@@ -196,6 +206,36 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         PathAddress address = PathAddress.pathAddress(parent, PathElement.pathElement(https ? Constants.HTTPS_LISTENER : Constants.HTTP_LISTENER, name));
         connector.get(OP_ADDR).set(address.toModelNode());
         list.add(connector);
+        ParseUtils.requireNoContent(reader);
+    }
+
+    static void parseBufferPool(XMLExtendedStreamReader reader, PathAddress parent, List<ModelNode> list) throws XMLStreamException {
+        String name = null;
+        final ModelNode pool = Util.createAddOperation();
+
+        final int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            requireNoNamespaceAttribute(reader, i);
+            final String value = reader.getAttributeValue(i);
+
+            switch (reader.getAttributeLocalName(i)) {
+                case Constants.BUFFER_SIZE:
+                    BufferPoolResourceDefinition.BUFFER_SIZE.parseAndSetParameter(value, pool, reader);
+                    break;
+                case Constants.BUFFER_PER_SLICE:
+                    BufferPoolResourceDefinition.BUFFER_PER_SLICE.parseAndSetParameter(value, pool, reader);
+                    break;
+                case Constants.NAME:
+                    name = value;
+                    break;
+                default:
+                    throw unexpectedAttribute(reader, i);
+            }
+        }
+
+        PathAddress address = parent.append(Constants.BUFFER_POOL,name);
+        pool.get(OP_ADDR).set(address.toModelNode());
+        list.add(pool);
         ParseUtils.requireNoContent(reader);
     }
 
