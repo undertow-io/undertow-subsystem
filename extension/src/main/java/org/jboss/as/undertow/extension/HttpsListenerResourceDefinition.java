@@ -42,7 +42,7 @@ public class HttpsListenerResourceDefinition extends AbstractListenerResourceDef
             .setValidator(new StringLengthValidator(1))
             .build();
 
-    protected static final SimpleAttributeDefinition[] ATTRIBUTES = {SOCKET_BINDING, SECURITY_REALM};
+    protected static final SimpleAttributeDefinition[] ATTRIBUTES = concat(AbstractListenerResourceDefinition.ATTRIBUTES, new SimpleAttributeDefinition[]{SECURITY_REALM});
 
 
     private HttpsListenerResourceDefinition() {
@@ -50,7 +50,7 @@ public class HttpsListenerResourceDefinition extends AbstractListenerResourceDef
     }
 
     @Override
-    protected SimpleAttributeDefinition[] getAttributes() {
+    public SimpleAttributeDefinition[] getAttributes() {
         return ATTRIBUTES;
     }
 

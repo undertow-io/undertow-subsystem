@@ -54,7 +54,21 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                 writer.writeEndElement();
             }
         }
-        if (model.hasDefined(Constants.HTTP_LISTENER)) {
+
+        BufferPoolResourceDefinition.INSTANCE.persist(writer, model);
+        if (model.hasDefined(Constants.VIRTUAL_HOST)) {
+            for (final Property virtualHost : model.get(Constants.VIRTUAL_HOST).asPropertyList()) {
+                final ModelNode config = virtualHost.getValue();
+                writer.writeStartElement(Constants.VIRTUAL_HOST);
+                writer.writeAttribute(Constants.DEFAULT_HOST, virtualHost.getName());
+                HttpListenerResourceDefinition.INSTANCE.persist(writer,config);
+                HttpsListenerResourceDefinition.INSTANCE.persist(writer,config);
+                AJPListenerResourceDefinition.INSTANCE.persist(writer,config);
+
+                writer.writeEndElement();
+            }
+        }
+       /* if (model.hasDefined(Constants.HTTP_LISTENER)) {
             for (final Property connector : model.get(Constants.HTTP_LISTENER).asPropertyList()) {
                 final ModelNode config = connector.getValue();
                 writer.writeStartElement(Constants.HTTP_LISTENER);
@@ -77,7 +91,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
 
                 writer.writeEndElement();
             }
-        }
+        }*/
        /* if (model.hasDefined(Constants.HANDLER_CHAIN)) {
             for (final Property chainProp : model.get(Constants.HANDLER_CHAIN).asPropertyList()) {
                 final ModelNode config = chainProp.getValue();
@@ -91,7 +105,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                 writer.writeEndElement();
             }
         }*/
-        BufferPoolResourceDefinition.INSTANCE.persist(writer,model);
+
         writer.writeEndElement();
     }
 
@@ -109,20 +123,16 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
             switch (namespace) {
                 case UNDERTOW_1_0: {
                     switch (reader.getLocalName()) {
-                        case Constants.HTTP_LISTENER: {
-                            parseHttpListener(reader, address, false, list);
-                            break;
-                        }
-                        case Constants.HTTPS_LISTENER: {
-                            parseHttpListener(reader, address, true, list);
-                            break;
-                        }
                         case Constants.WORKER: {
                             parseWorker(reader, address, list);
                             break;
                         }
                         case Constants.BUFFER_POOL: {
-                            BufferPoolResourceDefinition.INSTANCE.parse(reader,address,list);
+                            BufferPoolResourceDefinition.INSTANCE.parse(reader, address, list);
+                            break;
+                        }
+                        case Constants.VIRTUAL_HOST: {
+                            parseVirtualHost(reader, address, list);
                             break;
                         }
                       /*  case Constants.HANDLER_CHAIN: {
@@ -145,7 +155,42 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
     }
 
     static void parseVirtualHost(XMLExtendedStreamReader reader, PathAddress parent, List<ModelNode> list) throws XMLStreamException {
+        PathAddress address;
 
+        ParseUtils.requireSingleAttribute(reader, Constants.DEFAULT_HOST);
+        String defaultHost = reader.getAttributeValue(0);
+        address = parent.append(Constants.VIRTUAL_HOST, defaultHost);
+        list.add(Util.createAddOperation(address));
+
+        while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            switch (reader.getLocalName()) {
+                case Constants.HTTP_LISTENER: {
+                    HttpListenerResourceDefinition.INSTANCE.parse(reader, address, list);
+                    //parseHttpListener(reader, address, false, list);
+                    break;
+                }
+                case Constants.HTTPS_LISTENER: {
+                    HttpsListenerResourceDefinition.INSTANCE.parse(reader, address, list);
+                    //parseHttpListener(reader, address, true, list);
+                    break;
+                }
+                case Constants.AJP_LISTENER: {
+                    AJPListenerResourceDefinition.INSTANCE.parse(reader, address, list);
+                    //parseHttpListener(reader, address, true, list);
+                    break;
+                }
+                case Constants.HANDLER: {
+                    parseWorker(reader, address, list);
+                    break;
+                }
+
+                default: {
+                    throw unexpectedElement(reader);
+                }
+            }
+        }
+
+        ParseUtils.requireNoContent(reader);
 
     }
 
@@ -233,7 +278,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
             }
         }
 
-        PathAddress address = parent.append(Constants.BUFFER_POOL,name);
+        PathAddress address = parent.append(Constants.BUFFER_POOL, name);
         pool.get(OP_ADDR).set(address.toModelNode());
         list.add(pool);
         ParseUtils.requireNoContent(reader);

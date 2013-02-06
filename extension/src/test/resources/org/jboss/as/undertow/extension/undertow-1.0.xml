@@ -6,9 +6,9 @@
         <http-listener name="default" socket-binding="http" worker="default" buffer-pool="default"/>
         <ajp-listener name="ajp-connector" socket-binding="ajp"/>
 
-        <handlers>
+        <!--<handlers>
             <simple-error-page/>
-        </handlers>
+        </handlers>-->
 
     </virtual-host>
     <!--

@@ -27,6 +27,7 @@ public class UndertowExtension implements Extension {
     protected static final PathElement BUFFER_POOL_PATH = PathElement.pathElement(Constants.BUFFER_POOL);
     protected static final PathElement WORKER_PATH = PathElement.pathElement(Constants.WORKER);
     protected static final PathElement HANDLER_CHAIN_PATH = PathElement.pathElement(Constants.HANDLER_CHAIN);
+    protected static final PathElement VIRTUAL_PATH = PathElement.pathElement(Constants.VIRTUAL_HOST);
     private static final String RESOURCE_NAME = UndertowExtension.class.getPackage().getName() + ".LocalDescriptions";
 
     public static StandardResourceDescriptionResolver getResolver(final String... keyPrefix) {
@@ -50,12 +51,10 @@ public class UndertowExtension implements Extension {
         final SubsystemRegistration subsystem = context.registerSubsystem(SUBSYSTEM_NAME, 1, 0, 0);
         final ManagementResourceRegistration registration = subsystem.registerSubsystemModel(UndertowRootDefinition.INSTANCE);
         registration.registerOperationHandler(GenericSubsystemDescribeHandler.DEFINITION, GenericSubsystemDescribeHandler.INSTANCE, false);
-        registration.registerSubModel(AJPListenerResourceDefinition.INSTANCE);
-        registration.registerSubModel(HttpListenerResourceDefinition.INSTANCE);
-        registration.registerSubModel(HttpsListenerResourceDefinition.INSTANCE);
         registration.registerSubModel(WorkerResourceDefinition.INSTANCE);
         registration.registerSubModel(BufferPoolResourceDefinition.INSTANCE);
-        registration.registerSubModel(HandlerChainDefinition.INSTANCE);
+        //registration.registerSubModel(HandlerChainDefinition.INSTANCE);
+        registration.registerSubModel(VirtualHostDefinition.INSTANCE);
         subsystem.registerXMLElementWriter(UndertowSubsystemParser.INSTANCE);
     }
 
