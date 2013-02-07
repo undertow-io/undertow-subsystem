@@ -6,9 +6,25 @@
         <http-listener name="default" socket-binding="http" worker="default" buffer-pool="default"/>
         <ajp-listener name="ajp-connector" socket-binding="ajp"/>
 
-        <!--<handlers>
+        <handlers>
             <simple-error-page/>
-        </handlers>-->
+        </handlers>
+
+        <host name="localhost" alias="www.localhost">
+            <handlers>
+                <file-error-page code="404" file="/my/error/page.html"/>
+            </handlers>
+           <!-- <paths>
+                <path name="/app/myData">
+                    <basic-auth security-domain="other"/>
+                    <response-header name="MY_HEADER" value="someValue"/>
+                    <file path="/opt/data" cache-buffer-size="1024" cache-buffers="1024"/>
+                </path>
+                <default>
+                    <servlet name="default"/>
+                </default>
+            </paths>-->
+        </host>
 
     </virtual-host>
     <!--

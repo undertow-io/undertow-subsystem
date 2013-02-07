@@ -12,8 +12,5 @@ public class SimpleErrorPageHandler extends AbstractHandlerResourceDefinition {
         super("simple-error-page");
     }
 
-    //@Override
-    public HttpHandler registerHandler(HttpHandler next) {
-        return new io.undertow.server.handlers.error.SimpleErrorPageHandler(next);
-    }
+
 }

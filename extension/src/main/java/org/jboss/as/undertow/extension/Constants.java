@@ -51,6 +51,7 @@ public interface Constants {
     String STACK_SIZE = "stack-size";
 
     String HANDLER = "handler";
+    String HANDLERS = "handlers";
     String VIRTUAL_HOST = "virtual-host";
     String HOST = "host";
     String CHAIN = "chain";
@@ -60,4 +61,5 @@ public interface Constants {
     String CLASS = "class";
     String PROPERTY = "property";
     String DEFAULT_HOST= "default-host";
+    String ALIAS = "alias";
 }

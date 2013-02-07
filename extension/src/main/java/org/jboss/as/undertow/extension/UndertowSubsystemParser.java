@@ -1,12 +1,11 @@
 package org.jboss.as.undertow.extension;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADDRESS;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.parsing.ParseUtils.requireNoNamespaceAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.requireSingleAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
+import static org.jboss.as.undertow.extension.Constants.NAME;
 
 import java.util.HashSet;
 import java.util.List;
@@ -15,13 +14,11 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.operations.common.Util;
 import org.jboss.as.controller.parsing.ParseUtils;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
 import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.Property;
 import org.jboss.staxmapper.XMLElementReader;
 import org.jboss.staxmapper.XMLElementWriter;
 import org.jboss.staxmapper.XMLExtendedStreamReader;
@@ -43,69 +40,9 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
     public void writeContent(XMLExtendedStreamWriter writer, SubsystemMarshallingContext context) throws XMLStreamException {
         context.startSubsystemElement(Namespace.CURRENT.getUriString(), false);
         ModelNode model = context.getModelNode();
-
-        if (model.hasDefined(Constants.WORKER)) {
-            for (final Property worker : model.get(Constants.WORKER).asPropertyList()) {
-                writer.writeStartElement(Constants.WORKER);
-                writer.writeAttribute(Constants.NAME, worker.getName());
-                for (SimpleAttributeDefinition def : WorkerResourceDefinition.ATTRIBUTES) {
-                    def.marshallAsAttribute(worker.getValue(), false, writer);
-                }
-                writer.writeEndElement();
-            }
-        }
-
+        WorkerResourceDefinition.INSTANCE.persist(writer, model);
         BufferPoolResourceDefinition.INSTANCE.persist(writer, model);
-        if (model.hasDefined(Constants.VIRTUAL_HOST)) {
-            for (final Property virtualHost : model.get(Constants.VIRTUAL_HOST).asPropertyList()) {
-                final ModelNode config = virtualHost.getValue();
-                writer.writeStartElement(Constants.VIRTUAL_HOST);
-                writer.writeAttribute(Constants.DEFAULT_HOST, virtualHost.getName());
-                HttpListenerResourceDefinition.INSTANCE.persist(writer,config);
-                HttpsListenerResourceDefinition.INSTANCE.persist(writer,config);
-                AJPListenerResourceDefinition.INSTANCE.persist(writer,config);
-
-                writer.writeEndElement();
-            }
-        }
-       /* if (model.hasDefined(Constants.HTTP_LISTENER)) {
-            for (final Property connector : model.get(Constants.HTTP_LISTENER).asPropertyList()) {
-                final ModelNode config = connector.getValue();
-                writer.writeStartElement(Constants.HTTP_LISTENER);
-                writer.writeAttribute(Constants.NAME, connector.getName());
-                for (SimpleAttributeDefinition attr : HttpListenerResourceDefinition.ATTRIBUTES) {
-                    attr.marshallAsAttribute(config, false, writer);
-                }
-
-                writer.writeEndElement();
-            }
-        }
-        if (model.hasDefined(Constants.HTTPS_LISTENER)) {
-            for (final Property connector : model.get(Constants.HTTPS_LISTENER).asPropertyList()) {
-                final ModelNode config = connector.getValue();
-                writer.writeStartElement(Constants.HTTPS_LISTENER);
-                writer.writeAttribute(Constants.NAME, connector.getName());
-                for (SimpleAttributeDefinition attr : HttpsListenerResourceDefinition.ATTRIBUTES) {
-                    attr.marshallAsAttribute(config, false, writer);
-                }
-
-                writer.writeEndElement();
-            }
-        }*/
-       /* if (model.hasDefined(Constants.HANDLER_CHAIN)) {
-            for (final Property chainProp : model.get(Constants.HANDLER_CHAIN).asPropertyList()) {
-                final ModelNode config = chainProp.getValue();
-                writer.writeStartElement(Constants.HANDLER_CHAIN);
-                writer.writeAttribute(Constants.NAME, chainProp.getName());
-                Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
-                for (final Property handlerProp : config.get(Constants.HANDLER).asPropertyList()) {
-                    Handler handler = handlerMap.get(handlerProp.getName());
-                    handler.persist(writer, handlerProp);
-                }
-                writer.writeEndElement();
-            }
-        }*/
-
+        VirtualHostHandlerDefinition.INSTANCE.persist(writer, model);
         writer.writeEndElement();
     }
 
@@ -124,7 +61,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                 case UNDERTOW_1_0: {
                     switch (reader.getLocalName()) {
                         case Constants.WORKER: {
-                            parseWorker(reader, address, list);
+                            WorkerResourceDefinition.INSTANCE.parse(reader, address, list);
                             break;
                         }
                         case Constants.BUFFER_POOL: {
@@ -135,10 +72,6 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                             parseVirtualHost(reader, address, list);
                             break;
                         }
-                      /*  case Constants.HANDLER_CHAIN: {
-                            parseHandlerChain(reader, address, list);
-                            break;
-                        }*/
                         default: {
                             throw unexpectedElement(reader);
                         }
@@ -157,7 +90,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
     static void parseVirtualHost(XMLExtendedStreamReader reader, PathAddress parent, List<ModelNode> list) throws XMLStreamException {
         PathAddress address;
 
-        ParseUtils.requireSingleAttribute(reader, Constants.DEFAULT_HOST);
+        requireSingleAttribute(reader, Constants.DEFAULT_HOST);
         String defaultHost = reader.getAttributeValue(0);
         address = parent.append(Constants.VIRTUAL_HOST, defaultHost);
         list.add(Util.createAddOperation(address));
@@ -166,21 +99,22 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
             switch (reader.getLocalName()) {
                 case Constants.HTTP_LISTENER: {
                     HttpListenerResourceDefinition.INSTANCE.parse(reader, address, list);
-                    //parseHttpListener(reader, address, false, list);
                     break;
                 }
                 case Constants.HTTPS_LISTENER: {
                     HttpsListenerResourceDefinition.INSTANCE.parse(reader, address, list);
-                    //parseHttpListener(reader, address, true, list);
                     break;
                 }
                 case Constants.AJP_LISTENER: {
                     AJPListenerResourceDefinition.INSTANCE.parse(reader, address, list);
-                    //parseHttpListener(reader, address, true, list);
                     break;
                 }
-                case Constants.HANDLER: {
-                    parseWorker(reader, address, list);
+                case Constants.HANDLERS: {
+                    parseHandlers(reader, address, list);
+                    break;
+                }
+                case Constants.HOST: {
+                    HostHandlerDefinition.INSTANCE.parse(reader, address, list);
                     break;
                 }
 
@@ -205,7 +139,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
             final SimpleAttributeDefinition ad = WorkerResourceDefinition.ATTRIBUTES_BY_XMLNAME.get(name);
             if (ad != null) {
                 ad.parseAndSetParameter(value, worker, reader);
-            } else if (name.equals(Constants.NAME)) {
+            } else if (name.equals(NAME)) {
                 address = parent.append(Constants.WORKER, value);
             } else {
                 throw unexpectedAttribute(reader, i);
@@ -213,7 +147,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         }
         if (address == null) {
             HashSet<String> missing = new HashSet<>();
-            missing.add(Constants.NAME);
+            missing.add(NAME);
             throw ParseUtils.missingRequired(reader, missing);
         }
         worker.get(ADDRESS).set(address.toModelNode());
@@ -221,70 +155,30 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         ParseUtils.requireNoContent(reader);
     }
 
-    static void parseHttpListener(XMLExtendedStreamReader reader, PathAddress parent, boolean https, List<ModelNode> list) throws XMLStreamException {
-        String name = null;
-        final ModelNode connector = Util.createAddOperation();
 
-        final int count = reader.getAttributeCount();
-        for (int i = 0; i < count; i++) {
-            requireNoNamespaceAttribute(reader, i);
-            final String value = reader.getAttributeValue(i);
+    static void parseHandlers(final XMLExtendedStreamReader reader, PathAddress parentAddress, List<ModelNode> list) throws XMLStreamException {
+        PathAddress address = parentAddress.append(Constants.HANDLER_CHAIN, "default");
+        list.add(Util.createAddOperation(address));
 
-            switch (reader.getAttributeLocalName(i)) {
-                case Constants.SOCKET_BINDING:
-                    HttpListenerResourceDefinition.SOCKET_BINDING.parseAndSetParameter(value, connector, reader);
-                    break;
-                case Constants.SECURITY_REALM:
-                    if (https == false) {
-                        throw unexpectedAttribute(reader, i);
-                    }
-                    HttpsListenerResourceDefinition.SECURITY_REALM.parseAndSetParameter(value, connector, reader);
-                    break;
-                case Constants.NAME:
-                    name = value;
-                    break;
-                default:
-                    throw unexpectedAttribute(reader, i);
+        Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
+        while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String tagName = reader.getLocalName();
+            Handler handler = handlerMap.get(tagName);
+            if (handler != null) {
+                handler.parse(reader, address, list);
+            } else {
+                throw unexpectedElement(reader);
             }
         }
 
-        PathAddress address = PathAddress.pathAddress(parent, PathElement.pathElement(https ? Constants.HTTPS_LISTENER : Constants.HTTP_LISTENER, name));
-        connector.get(OP_ADDR).set(address.toModelNode());
-        list.add(connector);
-        ParseUtils.requireNoContent(reader);
     }
 
-    static void parseBufferPool(XMLExtendedStreamReader reader, PathAddress parent, List<ModelNode> list) throws XMLStreamException {
-        String name = null;
-        final ModelNode pool = Util.createAddOperation();
 
-        final int count = reader.getAttributeCount();
-        for (int i = 0; i < count; i++) {
-            requireNoNamespaceAttribute(reader, i);
-            final String value = reader.getAttributeValue(i);
 
-            switch (reader.getAttributeLocalName(i)) {
-                case Constants.BUFFER_SIZE:
-                    BufferPoolResourceDefinition.BUFFER_SIZE.parseAndSetParameter(value, pool, reader);
-                    break;
-                case Constants.BUFFER_PER_SLICE:
-                    BufferPoolResourceDefinition.BUFFER_PER_SLICE.parseAndSetParameter(value, pool, reader);
-                    break;
-                case Constants.NAME:
-                    name = value;
-                    break;
-                default:
-                    throw unexpectedAttribute(reader, i);
-            }
-        }
 
-        PathAddress address = parent.append(Constants.BUFFER_POOL, name);
-        pool.get(OP_ADDR).set(address.toModelNode());
-        list.add(pool);
-        ParseUtils.requireNoContent(reader);
-    }
 
-    static void parseHandlerChain(final XMLExtendedStreamReader reader, PathAddress parentAddress, List<ModelNode> list) throws XMLStreamException {
+
+    /*static void parseHandlerChain(final XMLExtendedStreamReader reader, PathAddress parentAddress, List<ModelNode> list) throws XMLStreamException {
         requireSingleAttribute(reader, NAME);
         String name = reader.getAttributeValue(null, NAME);
         PathAddress address = parentAddress.append(Constants.HANDLER_CHAIN, name);
@@ -303,6 +197,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
 
     }
 
+*/
 
 }
 
