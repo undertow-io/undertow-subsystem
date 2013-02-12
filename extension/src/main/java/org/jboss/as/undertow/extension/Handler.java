@@ -1,10 +1,8 @@
 package org.jboss.as.undertow.extension;
 
 import java.util.List;
-
 import javax.xml.stream.XMLStreamException;
 
-import io.undertow.server.HttpHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ResourceDefinition;

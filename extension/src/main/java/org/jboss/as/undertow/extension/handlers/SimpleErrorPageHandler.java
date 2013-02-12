@@ -1,6 +1,5 @@
 package org.jboss.as.undertow.extension.handlers;
 
-import io.undertow.server.HttpHandler;
 import org.jboss.as.undertow.extension.AbstractHandlerResourceDefinition;
 
 /**

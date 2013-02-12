@@ -30,9 +30,9 @@ import java.util.Set;
 
 import javax.security.jacc.PolicyContext;
 
+import io.undertow.server.HandlerWrapper;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.blocking.BlockingHttpHandler;
-import io.undertow.servlet.api.HandlerWrapper;
 import io.undertow.servlet.handlers.ServletAttachments;
 import io.undertow.servlet.handlers.ServletPathMatch;
 import org.jboss.as.web.WebLogger;
