@@ -30,6 +30,7 @@ public interface Constants {
     String BUFFER_POOL = "buffer-pool";
     String BUFFER_SIZE = "buffer-size";
     String BUFFER_PER_SLICE = "buffers-per-slice";
+    String SETTING = "setting";
     String HANDLER_FACTORY = "handler-factory";
     String HANDLER_CHAIN = "handler-chain";
     String SECURITY_REALM = "security-realm";
@@ -49,6 +50,9 @@ public interface Constants {
     String WORKER_WRITE_THREADS = "write-threads";
     String THREAD_DAEMON = "thread-daemon";
     String STACK_SIZE = "stack-size";
+    String SERVLET_CONTAINER = "servlet-container";
+    String JSP = "jsp";
+    String JSP_CONFIG = "jsp-config";
 
     String HANDLER = "handler";
     String HANDLERS = "handlers";

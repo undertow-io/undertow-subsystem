@@ -27,9 +27,11 @@ public class  UndertowExtension implements Extension {
     protected static final PathElement HTTP_LISTENER_PATH = PathElement.pathElement(Constants.HTTP_LISTENER);
     protected static final PathElement HTTPS_LISTENER_PATH = PathElement.pathElement(Constants.HTTPS_LISTENER);
     protected static final PathElement WORKER_PATH = PathElement.pathElement(Constants.WORKER);
-    protected static final PathElement HANDLER_CHAIN_PATH = PathElement.pathElement(Constants.HANDLER_CHAIN);
+
     protected static final PathElement HANDLERS_PATH = PathElement.pathElement(Constants.HANDLERS);
+    protected static final PathElement PATH_SERVLET_CONTAINER = PathElement.pathElement(Constants.SERVLET_CONTAINER);
     protected static final PathElement VIRTUAL_HOST_PATH = PathElement.pathElement(Constants.VIRTUAL_HOST);
+    public static final PathElement PATH_JSP = PathElement.pathElement(Constants.SETTING, Constants.JSP);
     private static final String RESOURCE_NAME = UndertowExtension.class.getPackage().getName() + ".LocalDescriptions";
 
     public static StandardResourceDescriptionResolver getResolver(final String... keyPrefix) {
@@ -56,7 +58,10 @@ public class  UndertowExtension implements Extension {
         registration.registerSubModel(WorkerResourceDefinition.INSTANCE);
         registration.registerSubModel(BufferPoolResourceDefinition.INSTANCE);
         registration.registerSubModel(VirtualHostHandlerDefinition.INSTANCE);
-        //        .registerSubModel(HandlerChainDefinition.INSTANCE);
+        registration.registerSubModel(ServletContainerDefinition.INSTANCE);
+
+
+
         subsystem.registerXMLElementWriter(UndertowSubsystemParser.INSTANCE);
     }
 

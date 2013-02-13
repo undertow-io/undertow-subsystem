@@ -14,62 +14,39 @@
             <handlers>
                 <file-error-page code="404" file="/my/error/page.html"/>
             </handlers>
-           <!-- <paths>
-                <path name="/app/myData">
-                    <basic-auth security-domain="other"/>
-                    <response-header name="MY_HEADER" value="someValue"/>
-                    <file path="/opt/data" cache-buffer-size="1024" cache-buffers="1024"/>
-                </path>
-                <default>
-                    <servlet name="default"/>
-                </default>
-            </paths>-->
+            <!-- <paths>
+                 <path name="/app/myData">
+                     <basic-auth security-domain="other"/>
+                     <response-header name="MY_HEADER" value="someValue"/>
+                     <file path="/opt/data" cache-buffer-size="1024" cache-buffers="1024"/>
+                 </path>
+                 <default>
+                     <servlet name="default"/>
+                 </default>
+             </paths>-->
         </host>
 
     </virtual-host>
-    <!--
-        <virtual-host default-host="localhost">
-            <http-listener name="default" socket-binding="http" worker="default" buffer-pool="default"/>
-            <ajp-listener name="ajp-connector" socket-binding="ajp"/>
-
-            <handlers>
-                <simple-error-page/>
-            </handlers>
-
-            <host name="localhost" alias="www.localhost">
-                <handlers>
-                    <file-error-page code="404" file="/my/error/page.html"/>
-                </handlers>
-                <paths>
-                    <path name="/app/myData">
-                        <basic-auth security-domain="other"/>
-                        <response-header name="MY_HEADER" value="someValue"/>
-                        <file path="/opt/data" cache-buffer-size="1024" cache-buffers="1024"/>
-                    </path>
-                    <default>
-                        <servlet name="default"/>
-                    </default>
-                </paths>
-            </host>
-            <host name="www.mysite.com">
-                <handlers>
-                    <basic-auth security-domain="other"/>
-                    <redirect match="/*" replace="/mySiteDeployment"/>
-                    <servlet name="default"/>
-                </handlers>
-            </host>
-            <host name="disalowed-site.com">
-                <handlers>
-                    <response-code code="400"/>
-                </handlers>
-            </host>
-        </virtual-host>
-
-          <servlet-container name="default">
-            <jsp-config>.....</jsp-config>
-        </servlet-container>
-
-        -->
-
+    <servlet-container name="default">
+        <jsp-config development="${prop.development:true}"
+                    disabled="${prop.disabled:false}"
+                    keep-generated="${prop.keep-generated:true}"
+                    trim-spaces="${prop.trim-spaces:true}"
+                    tag-pooling="${prop.tag-pooling:true}"
+                    mapped-file="${prop.mapped-file:true}"
+                    check-interval="${prop.check-interval:20}"
+                    modification-test-interval="${prop.modification-test-interval:1000}"
+                    recompile-on-fail="${prop.recompile-on-fail:true}"
+                    smap="${prop.smap:true}"
+                    dump-smap="${prop.dump-smap:true}"
+                    generate-strings-as-char-arrays="${prop.generate-strings-as-char-arrays:true}"
+                    error-on-use-bean-invalid-class-attribute="${prop.error-on-use-bean-invalid-class-attribute:true}"
+                    scratch-dir="${prop.scratch-dir:/some/dir}"
+                    source-vm="${prop.source-vm:1.7}"
+                    target-vm="${prop.target-vm:1.7}"
+                    java-encoding="${prop.java-encoding:utf-8}"
+                    x-powered-by="${prop.x-powered-by:true}"
+                    display-source-fragment="${prop.display-source-fragment:true}"/>
+    </servlet-container>
 
 </subsystem>

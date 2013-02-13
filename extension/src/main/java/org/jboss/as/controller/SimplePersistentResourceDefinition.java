@@ -45,6 +45,10 @@ public abstract class SimplePersistentResourceDefinition extends SimpleResourceD
         return res;
     }
 
+    public String getXmlElementName() {
+        return getPathElement().getKey();
+    }
+
     public void parse(final XMLExtendedStreamReader reader, PathAddress parentAddress, List<ModelNode> list) throws XMLStreamException {
         boolean needName = getPathElement().isWildcard();
         String name = null;
@@ -66,35 +70,46 @@ public abstract class SimplePersistentResourceDefinition extends SimpleResourceD
                 throw ParseUtils.unexpectedAttribute(reader, i);
             }
         }
-
         PathElement path = needName ? PathElement.pathElement(getPathElement().getKey(), name) : getPathElement();
         PathAddress address = parentAddress.append(path);
         op.get(ADDRESS).set(address.toModelNode());
         list.add(op);
+        parseChildren(reader, address, list);
+    }
+
+    public void parseChildren(final XMLExtendedStreamReader reader, PathAddress parentAddress, List<ModelNode> list) throws XMLStreamException {
         ParseUtils.requireNoContent(reader);
     }
 
 
     public void persist(XMLExtendedStreamWriter writer, ModelNode model) throws XMLStreamException {
-        if (!model.hasDefined(getPathElement().getKey())) {
+        boolean wildcard = getPathElement().isWildcard();
+        model = wildcard ? model.get(getPathElement().getKey()) : model.get(getPathElement().getKeyValuePair());
+        if (!model.isDefined()) {
             return;
         }
-        model = model.get(getPathElement().getKey());
-        writer.writeStartElement(getPathElement().getKey());
-        boolean wildcard = getPathElement().isWildcard();
+
+        writer.writeStartElement(getXmlElementName());
         if (wildcard) {
             for (Property p : model.asPropertyList()) {
                 writer.writeAttribute(NAME, p.getName());
                 for (AttributeDefinition def : getAttributes()) {
                     def.getAttributeMarshaller().marshallAsAttribute(def, p.getValue(), false, writer);
                 }
+                persistChildren(writer, p.getValue());
             }
         } else {
             for (AttributeDefinition def : getAttributes()) {
-                def.getAttributeMarshaller().marshallAsAttribute(def, model.get(def.getName()), false, writer);
+                def.getAttributeMarshaller().marshallAsAttribute(def, model, false, writer);
             }
+            persistChildren(writer, model);
         }
         writer.writeEndElement();
+
+    }
+
+    protected void persistChildren(XMLExtendedStreamWriter writer, ModelNode model) throws XMLStreamException {
+        //
     }
 
 

@@ -106,7 +106,7 @@ public class SecurityContextAssociationHandler implements BlockingHttpHandler {
     }
 
 
-    public static final HandlerWrapper<BlockingHttpHandler> wrapper(final Map<String, Set<String>> principleVsRoleMap, final String contextId) {
+    public static HandlerWrapper<BlockingHttpHandler> wrapper(final Map<String, Set<String>> principleVsRoleMap, final String contextId) {
         return new HandlerWrapper<BlockingHttpHandler>() {
             @Override
             public BlockingHttpHandler wrap(final BlockingHttpHandler handler) {

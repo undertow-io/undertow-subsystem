@@ -41,7 +41,9 @@ public class VirtualHostHandlerDefinition extends SimplePersistentResourceDefini
         registration.registerSubModel(AJPListenerResourceDefinition.INSTANCE);
         registration.registerSubModel(HttpListenerResourceDefinition.INSTANCE);
         registration.registerSubModel(HttpsListenerResourceDefinition.INSTANCE);
-        registration.registerSubModel(HandlerChainDefinition.INSTANCE);
+        for (Handler handler : HandlerFactory.getHandlers()) {
+            registration.registerSubModel(handler);
+        }
         registration.registerSubModel(HostHandlerDefinition.INSTANCE);
     }
 
@@ -73,25 +75,19 @@ public class VirtualHostHandlerDefinition extends SimplePersistentResourceDefini
             HttpListenerResourceDefinition.INSTANCE.persist(writer, config);
             HttpsListenerResourceDefinition.INSTANCE.persist(writer, config);
             AJPListenerResourceDefinition.INSTANCE.persist(writer, config);
-
-            if (config.hasDefined(Constants.HANDLER_CHAIN)) { //todo remove handler_chain
-                for (final Property chainProp : config.get(Constants.HANDLER_CHAIN).asPropertyList()) {
-                    //final ModelNode config = chainProp.getValue();
-                    writer.writeStartElement(Constants.HANDLERS);
-                    //writer.writeAttribute(Constants.NAME, chainProp.getName());
-                    Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
-                    for (final Property handlerProp : chainProp.getValue().get(Constants.HANDLER).asPropertyList()) {
-                        Handler handler = handlerMap.get(handlerProp.getName());
-                        handler.persist(writer, handlerProp);
-                    }
-                    writer.writeEndElement();
+            if (config.hasDefined(Constants.HANDLER)) {
+                writer.writeStartElement(Constants.HANDLERS);
+                Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
+                for (final Property handlerProp : config.get(Constants.HANDLER).asPropertyList()) {
+                    Handler handler = handlerMap.get(handlerProp.getName());
+                    handler.persist(writer, handlerProp);
                 }
+                writer.writeEndElement();
             }
-            HostHandlerDefinition.INSTANCE.persist(writer,config);
 
+            HostHandlerDefinition.INSTANCE.persist(writer, config);
             writer.writeEndElement();
         }
-
     }
 
 
