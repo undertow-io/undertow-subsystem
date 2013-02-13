@@ -16,15 +16,22 @@ import org.jboss.as.controller.registry.ManagementResourceRegistration;
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2012 Red Hat Inc.
  */
-public class UndertowExtension implements Extension {
+public class  UndertowExtension implements Extension {
 
     public static final String SUBSYSTEM_NAME = "undertow";
 
     protected static final PathElement SUBSYSTEM_PATH = PathElement.pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
+    protected static final PathElement AJP_LISTENER_PATH = PathElement.pathElement(Constants.AJP_LISTENER);
+    protected static final PathElement BUFFER_POOL_PATH = PathElement.pathElement(Constants.BUFFER_POOL);
+    protected static final PathElement HOST_PATH = PathElement.pathElement(Constants.HOST);
     protected static final PathElement HTTP_LISTENER_PATH = PathElement.pathElement(Constants.HTTP_LISTENER);
     protected static final PathElement HTTPS_LISTENER_PATH = PathElement.pathElement(Constants.HTTPS_LISTENER);
     protected static final PathElement WORKER_PATH = PathElement.pathElement(Constants.WORKER);
-    protected static final PathElement HANDLER_CHAIN_PATH = PathElement.pathElement(Constants.HANDLER_CHAIN);
+
+    protected static final PathElement HANDLERS_PATH = PathElement.pathElement(Constants.HANDLERS);
+    protected static final PathElement PATH_SERVLET_CONTAINER = PathElement.pathElement(Constants.SERVLET_CONTAINER);
+    protected static final PathElement VIRTUAL_HOST_PATH = PathElement.pathElement(Constants.VIRTUAL_HOST);
+    public static final PathElement PATH_JSP = PathElement.pathElement(Constants.SETTING, Constants.JSP);
     private static final String RESOURCE_NAME = UndertowExtension.class.getPackage().getName() + ".LocalDescriptions";
 
     public static StandardResourceDescriptionResolver getResolver(final String... keyPrefix) {
@@ -48,10 +55,13 @@ public class UndertowExtension implements Extension {
         final SubsystemRegistration subsystem = context.registerSubsystem(SUBSYSTEM_NAME, 1, 0, 0);
         final ManagementResourceRegistration registration = subsystem.registerSubsystemModel(UndertowRootDefinition.INSTANCE);
         registration.registerOperationHandler(GenericSubsystemDescribeHandler.DEFINITION, GenericSubsystemDescribeHandler.INSTANCE, false);
-        registration.registerSubModel(HttpListenerResourceDefinition.INSTANCE);
-        registration.registerSubModel(HttpsListenerResourceDefinition.INSTANCE);
         registration.registerSubModel(WorkerResourceDefinition.INSTANCE);
-        registration.registerSubModel(HandlerChainDefinition.INSTANCE);
+        registration.registerSubModel(BufferPoolResourceDefinition.INSTANCE);
+        registration.registerSubModel(VirtualHostHandlerDefinition.INSTANCE);
+        registration.registerSubModel(ServletContainerDefinition.INSTANCE);
+
+
+
         subsystem.registerXMLElementWriter(UndertowSubsystemParser.INSTANCE);
     }
 

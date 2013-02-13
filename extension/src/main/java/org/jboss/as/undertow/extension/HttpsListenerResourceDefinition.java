@@ -33,31 +33,24 @@ import org.jboss.dmr.ModelType;
  *
  * @author <a href="mailto:darran.lofthouse@jboss.com">Darran Lofthouse</a>
  */
-public class HttpsListenerResourceDefinition extends HttpListenerResourceDefinition {
+public class HttpsListenerResourceDefinition extends AbstractListenerResourceDefinition {
     protected static final HttpsListenerResourceDefinition INSTANCE = new HttpsListenerResourceDefinition();
 
-    protected static final SimpleAttributeDefinition SECURITY_REALM = new SimpleAttributeDefinitionBuilder(
-            Constants.SECURITY_REALM, ModelType.STRING).setAllowNull(false).setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
-            .setValidator(new StringLengthValidator(1)).build();
+    protected static final SimpleAttributeDefinition SECURITY_REALM = new SimpleAttributeDefinitionBuilder(Constants.SECURITY_REALM, ModelType.STRING)
+            .setAllowNull(false)
+            .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
+            .setValidator(new StringLengthValidator(1))
+            .build();
 
-    protected static final SimpleAttributeDefinition[] ATTRIBUTES = initialiseAttributes();
+    protected static final SimpleAttributeDefinition[] ATTRIBUTES = concat(AbstractListenerResourceDefinition.ATTRIBUTES, new SimpleAttributeDefinition[]{SECURITY_REALM});
 
-    private static SimpleAttributeDefinition[] initialiseAttributes() {
-        SimpleAttributeDefinition[] ATTRIBUTES = new SimpleAttributeDefinition[HttpListenerResourceDefinition.ATTRIBUTES.length + 1];
-        System.arraycopy(HttpListenerResourceDefinition.ATTRIBUTES, 0, ATTRIBUTES, 0,
-                HttpListenerResourceDefinition.ATTRIBUTES.length);
-        ATTRIBUTES[ATTRIBUTES.length - 1] = SECURITY_REALM;
-
-        return ATTRIBUTES;
-    }
 
     private HttpsListenerResourceDefinition() {
-        super(UndertowExtension.HTTPS_LISTENER_PATH,
-                UndertowExtension.getResolver(Constants.HTTPS_LISTENER), HttpsListenerAdd.INSTANCE);
+        super(UndertowExtension.HTTPS_LISTENER_PATH, HttpsListenerAdd.INSTANCE);
     }
 
     @Override
-    protected SimpleAttributeDefinition[] getAttributeDefinitions() {
+    public SimpleAttributeDefinition[] getAttributes() {
         return ATTRIBUTES;
     }
 

@@ -1,6 +1,5 @@
 package org.jboss.as.undertow.extension.handlers;
 
-import io.undertow.server.HttpHandler;
 import org.jboss.as.undertow.extension.AbstractHandlerResourceDefinition;
 
 /**
@@ -12,8 +11,5 @@ public class SimpleErrorPageHandler extends AbstractHandlerResourceDefinition {
         super("simple-error-page");
     }
 
-    //@Override
-    public HttpHandler registerHandler(HttpHandler next) {
-        return new io.undertow.server.handlers.error.SimpleErrorPageHandler(next);
-    }
+
 }

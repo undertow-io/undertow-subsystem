@@ -1,6 +1,7 @@
 package org.jboss.as.undertow.extension.handlers;
 
 import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.RequestLimitingHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
@@ -37,6 +38,7 @@ public class ConnectionLimitHandler extends AbstractHandlerResourceDefinition {
 
     //@Override
     public HttpHandler registerHandler(HttpHandler next) {
-        return null;
+         return new RequestLimitingHandler(10000,next);
+        //return null;
     }
 }

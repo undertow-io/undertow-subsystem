@@ -3,99 +3,45 @@
     <buffer-pool name="default" buffer-size="1024" buffers-per-slice="1024"/>
 
 
-    <http-listener name="default" socket-binding="http" worker="default" buffer-pool="default" handler-chain="entry-chain"/>
-    <ajp-listener name="ajp-connector" socket-binding="ajp" handler-chain="entry-chain"/>
+    <virtual-host default-host="localhost">
+        <http-listener name="default" socket-binding="http" worker="default" buffer-pool="default"/>
+        <ajp-listener name="ajp-connector" socket-binding="ajp"/>
 
-    <!--
-    A handler chain definition.
-    Note that this could really be better described as a handler chain factory, as every time this is
-    referenced a new instance of each handler is created.
+        <handlers>
+            <simple-error-page/>
+        </handlers>
 
-    If we just used the same instance each time then this would not work for filtering functionality,
-    where we want to reference the chain in multiple places, but at the end run different handlers.
-
-    -->
-    <handler-chain name="entry-chain">
-        <simple-error-page/>
-        <connection-limit high-water-mark="100" low-water-mark="50"/>
-        <!--
-        note that we only provide support for name based virtual hosts here
-        for interface based virtual hosts you can define another <server> with connectors on the
-        interfaces you are interested in.
-
-        -->
-        <virtual-host>
-            <host name="localhost" chain="localhost-chain"/>
-            <host name="www.mysite.com" chain="mysite-chain"/>
-            <host name="disalowed-site.com">
-                <!--
-                    I am not sure if we want to allow this (nestled handler chains), I don't think it will
-                    map that well to the model
-                -->
+        <host name="localhost" alias="www.localhost">
+            <handlers>
+                <file-error-page code="404" file="/my/error/page.html" />
+            </handlers>
+            <paths>
+                <path name="/app/myData" >
+                    <basic-auth security-domain="other"/>
+                    <response-header name="MY_HEADER" value="someValue"/>
+                    <file path="/opt/data" cache-buffer-size="1024" cache-buffers="1024"/>
+                </path>
+                <default>
+                    <servlet name="default" />
+                </default>
+            </paths>
+        </host>
+        <host name="www.mysite.com" >
+            <handlers>
+                <basic-auth security-domain="other"/>
+                <redirect match="/*" replace="/mySiteDeployment"/>
+                <servlet name="default"/>
+            </handlers>
+        </host>
+        <host name="disalowed-site.com">
+            <handlers>
                 <response-code code="400"/>
-            </host>
-        </virtual-host>
+            </handlers>
+        </host>
+    </virtual-host>
 
-        <!--
-            A custom handler. It can be passed both properties and handler chain references.
-        -->
-        <handler-factory class="com.test.CustomVirtualHostHandler">
-            <properties>
-                <property name="allowWildcardSubdomains" value="true"/>
-            </properties>
-            <chains>
-                <chain name="*.localhost" chain="localhost-chain"/>
-                <chain name="*.mysite.com" chain="mysite-chain"/>
-                <chain name="*.disalowed-site.com">
-                    <!--
-                        I am not sure if we want to allow this (nestled handler chains), I don't think it will
-                        map that well to the model
-                    -->
-                    <response-code code="400"/>
-                </chain>
-            </chains>
-        </handler-factory>
-        <!--
-            delegate to another chain defined elsewhere.
-        -->
-        <chain name="my-default-chain"/>
-    </handler-chain>
-
-
-    <handler-chain name="my-default-chain">
-        <response-header name="MY_HEADER" value="someValue"/>
-        <servlet name="default"/>
-    </handler-chain>
-
-
-    <handler-chain name="localhost-chain">
-        <basic-auth security-domain="other"/>
-
-        <!--
-         If a path handler matches but the result is a non-terminal handler then execution
-         will resume in the chain.
-         -->
-        <paths>
-            <path name="/data/secure/*">
-                <!--
-                    This is basically an embedded chain, so not sure how we are going to represent this
-                -->
-                <auth-required/>
-            </path>
-        </paths>
-
-        <paths>
-            <path name="/data/*">
-                <file path="/opt/data" cache-buffer-size="1024" cache-buffers="1024"/>
-            </path>
-        </paths>
-        <servlet name="default"/>
-    </handler-chain>
-
-    <!--
-    Not sure if we really need the ability to configure different servlet containers,
-    at the moment this will only affect the ServletContext.getContext() call.
-    -->
-    <servlet-container name="default"/>
+    <servlet-container name="default">
+        <jsp-config>.....</jsp-config>
+    </servlet-container>
 
 </subsystem>

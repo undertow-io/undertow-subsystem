@@ -7,7 +7,7 @@ import java.util.Map;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
-import org.jboss.as.controller.SimpleResourceDefinition;
+import org.jboss.as.controller.SimplePersistentResourceDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
 import org.xnio.Options;
@@ -15,7 +15,7 @@ import org.xnio.Options;
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2012 Red Hat Inc.
  */
-public class WorkerResourceDefinition extends SimpleResourceDefinition {
+public class WorkerResourceDefinition extends SimplePersistentResourceDefinition {
 
 
     //The defaults for these come from XnioWorker
@@ -97,5 +97,10 @@ public class WorkerResourceDefinition extends SimpleResourceDefinition {
         for (AttributeDefinition attr : WorkerResourceDefinition.ATTRIBUTES) {
             resourceRegistration.registerReadWriteAttribute(attr, null, new ReloadRequiredWriteAttributeHandler(attr));
         }
+    }
+
+    @Override
+    public AttributeDefinition[] getAttributes() {
+        return ATTRIBUTES;
     }
 }

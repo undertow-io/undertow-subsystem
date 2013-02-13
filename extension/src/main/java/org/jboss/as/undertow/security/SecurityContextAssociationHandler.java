@@ -30,9 +30,9 @@ import java.util.Set;
 
 import javax.security.jacc.PolicyContext;
 
+import io.undertow.server.HandlerWrapper;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.blocking.BlockingHttpHandler;
-import io.undertow.servlet.api.HandlerWrapper;
 import io.undertow.servlet.handlers.ServletAttachments;
 import io.undertow.servlet.handlers.ServletPathMatch;
 import org.jboss.as.web.WebLogger;
@@ -106,7 +106,7 @@ public class SecurityContextAssociationHandler implements BlockingHttpHandler {
     }
 
 
-    public static final HandlerWrapper<BlockingHttpHandler> wrapper(final Map<String, Set<String>> principleVsRoleMap, final String contextId) {
+    public static HandlerWrapper<BlockingHttpHandler> wrapper(final Map<String, Set<String>> principleVsRoleMap, final String contextId) {
         return new HandlerWrapper<BlockingHttpHandler>() {
             @Override
             public BlockingHttpHandler wrap(final BlockingHttpHandler handler) {

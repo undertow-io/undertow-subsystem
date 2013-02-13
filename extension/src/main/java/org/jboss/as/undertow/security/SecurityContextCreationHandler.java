@@ -1,9 +1,9 @@
 package org.jboss.as.undertow.security;
 
+import io.undertow.server.HandlerWrapper;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.HttpHandlers;
-import io.undertow.servlet.api.HandlerWrapper;
 import io.undertow.util.WorkerDispatcher;
 import org.jboss.security.SecurityContext;
 

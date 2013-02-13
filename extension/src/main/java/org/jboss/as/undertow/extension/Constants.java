@@ -22,18 +22,21 @@
 
 package org.jboss.as.undertow.extension;
 
-import org.jboss.as.controller.PropertiesAttributeDefinition;
-import org.jboss.as.controller.SimpleAttributeDefinition;
-
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2012 Red Hat Inc.
  */
 public interface Constants {
-    String HANDLER_FACTORY= "handler-factory";
+    String AJP_LISTENER = "ajp-listener";
+    String BUFFER_POOL = "buffer-pool";
+    String BUFFER_SIZE = "buffer-size";
+    String BUFFER_PER_SLICE = "buffers-per-slice";
+    String SETTING = "setting";
+    String HANDLER_FACTORY = "handler-factory";
     String HANDLER_CHAIN = "handler-chain";
     String SECURITY_REALM = "security-realm";
     String SOCKET_BINDING = "socket-binding";
     String PATH = "path";
+
     String HTTP_LISTENER = "http-listener";
     String HTTPS_LISTENER = "https-listener";
     String NAME = "name";
@@ -47,8 +50,12 @@ public interface Constants {
     String WORKER_WRITE_THREADS = "write-threads";
     String THREAD_DAEMON = "thread-daemon";
     String STACK_SIZE = "stack-size";
+    String SERVLET_CONTAINER = "servlet-container";
+    String JSP = "jsp";
+    String JSP_CONFIG = "jsp-config";
 
     String HANDLER = "handler";
+    String HANDLERS = "handlers";
     String VIRTUAL_HOST = "virtual-host";
     String HOST = "host";
     String CHAIN = "chain";
@@ -57,4 +64,6 @@ public interface Constants {
     String PROPERTIES = "properties";
     String CLASS = "class";
     String PROPERTY = "property";
+    String DEFAULT_HOST= "default-host";
+    String ALIAS = "alias";
 }
