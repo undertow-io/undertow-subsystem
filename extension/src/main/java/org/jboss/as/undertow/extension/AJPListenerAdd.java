@@ -1,6 +1,7 @@
 package org.jboss.as.undertow.extension;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
+import static org.jboss.as.undertow.extension.AbstractListenerResourceDefinition.WORKER;
 import static org.jboss.as.undertow.extension.HttpListenerResourceDefinition.SOCKET_BINDING;
 
 import java.util.List;
@@ -40,12 +41,13 @@ public class AJPListenerAdd extends AbstractAddStepHandler {
         final String name = address.getLastElement().getValue();
 
         final String bindingRef = SOCKET_BINDING.resolveModelAttribute(context, model).asString();
+        final String worker = WORKER.resolveModelAttribute(context, model).asString();
 
         final HttpListenerService service = createService(name);
         final ServiceBuilder<HttpListenerService> serviceBuilder = context.getServiceTarget().addService(constructServiceName(name), service)
-                .addDependency(WebSubsystemServices.XNIO_WORKER.append("default"), XnioWorker.class, service.getWorker())
+                .addDependency(UndertowServices.WORKER.append(worker), XnioWorker.class, service.getWorker())
                 .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding())
-                .addDependency(WebSubsystemServices.CONTAINER.append("default"), UndertowContainerService.class, service.getContainer());
+                .addDependency(UndertowServices.CONTAINER.append("default"), UndertowContainerService.class, service.getContainer());
 
         additionalDependencies(context, serviceBuilder, model, service);
         serviceBuilder.setInitialMode(ServiceController.Mode.ACTIVE);
@@ -57,7 +59,7 @@ public class AJPListenerAdd extends AbstractAddStepHandler {
     }
 
     protected ServiceName constructServiceName(final String name) {
-        return WebSubsystemServices.HTTP_LISTENER.append(name);
+        return UndertowServices.HTTP_LISTENER.append(name);
     }
 
     protected HttpListenerService createService(final String name) {

@@ -1,6 +1,5 @@
 package org.jboss.as.undertow.extension;
 
-import java.util.Map;
 import javax.xml.stream.XMLStreamException;
 
 import io.undertow.server.HttpHandler;
@@ -47,23 +46,6 @@ public class VirtualHostHandlerDefinition extends SimplePersistentResourceDefini
         registration.registerSubModel(HostHandlerDefinition.INSTANCE);
     }
 
-    /*  @Override
-      public void parse(XMLExtendedStreamReader reader, PathAddress parentAddress, List<ModelNode> list) throws XMLStreamException {
-          PathAddress address = parentAddress.append(Constants.HANDLER, getName());
-          list.add(Util.createAddOperation(address));
-          while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-              if (reader.getLocalName().equals(Constants.HOST)) {
-                  String[] attributes = ParseUtils.requireAttributes(reader, Constants.NAME, Constants.CHAIN_REF);
-                  ModelNode op = Util.createAddOperation(address.append(Constants.HOST, attributes[0]));
-                  CHAIN_REF.parseAndSetParameter(attributes[1], op, reader);
-                  list.add(op);
-                  ParseUtils.requireNoContent(reader);
-              } else {
-                  throw unexpectedElement(reader);
-              }
-          }
-      }
-   */
     @Override
     public void persist(XMLExtendedStreamWriter writer, ModelNode model) throws XMLStreamException {
         if (!model.hasDefined(Constants.VIRTUAL_HOST)) { return; }
@@ -75,16 +57,7 @@ public class VirtualHostHandlerDefinition extends SimplePersistentResourceDefini
             HttpListenerResourceDefinition.INSTANCE.persist(writer, config);
             HttpsListenerResourceDefinition.INSTANCE.persist(writer, config);
             AJPListenerResourceDefinition.INSTANCE.persist(writer, config);
-            if (config.hasDefined(Constants.HANDLER)) {
-                writer.writeStartElement(Constants.HANDLERS);
-                Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
-                for (final Property handlerProp : config.get(Constants.HANDLER).asPropertyList()) {
-                    Handler handler = handlerMap.get(handlerProp.getName());
-                    handler.persist(writer, handlerProp);
-                }
-                writer.writeEndElement();
-            }
-
+            HandlerFactory.persistHandlers(writer, config, true);
             HostHandlerDefinition.INSTANCE.persist(writer, config);
             writer.writeEndElement();
         }

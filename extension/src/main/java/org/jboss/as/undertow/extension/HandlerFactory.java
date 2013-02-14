@@ -1,10 +1,19 @@
 package org.jboss.as.undertow.extension;
 
+import static javax.xml.stream.XMLStreamConstants.END_ELEMENT;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import javax.xml.stream.XMLStreamException;
+
+import org.jboss.as.controller.PathAddress;
+import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.Property;
+import org.jboss.staxmapper.XMLExtendedStreamReader;
+import org.jboss.staxmapper.XMLExtendedStreamWriter;
 
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
@@ -35,5 +44,34 @@ public class HandlerFactory {
 
     public static List<Handler> getHandlers() {
         return handlers;
+    }
+
+    public static void parseHandlers(XMLExtendedStreamReader reader, PathAddress parentAddress, List<ModelNode> list) throws XMLStreamException {
+        Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
+        while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String tagName = reader.getLocalName();
+            Handler handler = handlerMap.get(tagName);
+            if (handler != null) {
+                handler.parse(reader, parentAddress, list);
+            } else {
+                throw UndertowMessages.MESSAGES.unknownHandler(tagName, reader.getLocation());
+            }
+        }
+    }
+
+    public static void persistHandlers(XMLExtendedStreamWriter writer, ModelNode model, boolean wrap) throws XMLStreamException {
+        if (model.hasDefined(Constants.HANDLER)) {
+            if (wrap) {
+                writer.writeStartElement(Constants.HANDLERS);
+            }
+            Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
+            for (final Property handlerProp : model.get(Constants.HANDLER).asPropertyList()) {
+                Handler handler = handlerMap.get(handlerProp.getName());
+                handler.persist(writer, handlerProp);
+            }
+            if (wrap) {
+                writer.writeEndElement();
+            }
+        }
     }
 }

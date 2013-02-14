@@ -115,7 +115,7 @@ class UndetowSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
         UndertowContainerService container = new UndertowContainerService();
         final ServiceTarget target = context.getServiceTarget();
-        newControllers.add(target.addService(WebSubsystemServices.CONTAINER.append("default"), container)
+        newControllers.add(target.addService(UndertowServices.CONTAINER.append("default"), container)
                 .setInitialMode(Mode.ON_DEMAND)
                 .install());
     }

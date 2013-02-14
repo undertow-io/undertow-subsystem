@@ -67,10 +67,10 @@
          -->
 
         <version.junit>4.8.2</version.junit>
-        <version.xnio>3.1.0.Beta8</version.xnio>
+        <version.xnio>3.1.0.Beta9</version.xnio>
         <version.org.jboss.logging>3.1.2.GA</version.org.jboss.logging>
-        <version.org.jboss.logmanager>1.4.0.Beta2</version.org.jboss.logmanager>
-        <version.org.jboss.logging.processor>1.1.0.Beta2</version.org.jboss.logging.processor>
+        <version.org.jboss.logmanager>1.4.0.Final</version.org.jboss.logmanager>
+        <version.org.jboss.logging.processor>1.1.0.Final</version.org.jboss.logging.processor>
         <version.jboss.as>8.0.0.Alpha1-SNAPSHOT</version.jboss.as>
         <version.io.undertow>1.0.0.Alpha1-SNAPSHOT</version.io.undertow>
         <version.io.undertow.jastow>1.0.0.Alpha1</version.io.undertow.jastow>
@@ -85,8 +85,8 @@
 
         <jboss.home>${env.JBOSS_HOME}</jboss.home>
         <version.javax.annotations>1.0.0.Final</version.javax.annotations>
-        <version.arquillian>1.0.2.Final</version.arquillian>
-        <version.org.jboss.shrinkwrap.descriptors>2.0.0-alpha-3</version.org.jboss.shrinkwrap.descriptors>
+        <version.arquillian>1.0.3.Final</version.arquillian>
+        <version.org.jboss.shrinkwrap.descriptors>2.0.0-alpha-4</version.org.jboss.shrinkwrap.descriptors>
     </properties>
 
     <modules>

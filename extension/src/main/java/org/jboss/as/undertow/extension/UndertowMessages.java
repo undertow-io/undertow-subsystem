@@ -25,11 +25,14 @@ package org.jboss.as.undertow.extension;
 import static org.jboss.logging.Logger.Level.INFO;
 
 import java.net.InetSocketAddress;
+import javax.xml.stream.Location;
+import javax.xml.stream.XMLStreamException;
 
+import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
-import org.jboss.logging.Messages;
+import org.jboss.logging.annotations.Param;
 
 /**
  * This module is using message IDs in the range 17300 - 17699.
@@ -39,9 +42,6 @@ import org.jboss.logging.Messages;
  * See <a href="http://community.jboss.org/docs/DOC-16810">http://community.jboss.org/docs/DOC-16810</a> for the full
  * list of currently reserved JBAS message id blocks.
  * <p/>
-
- *
-
  */
 @MessageBundle(projectCode = "JBAS")
 public interface UndertowMessages {
@@ -63,4 +63,6 @@ public interface UndertowMessages {
     String listenerStarted(String name, InetSocketAddress address);
 
 
+    @Message(id = 14789, value = "Unknown handler '%s' encountered")
+    XMLStreamException unknownHandler(String name, @Param Location location);
 }

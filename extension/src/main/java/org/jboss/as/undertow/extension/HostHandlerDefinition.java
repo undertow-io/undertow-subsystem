@@ -4,7 +4,6 @@ import static javax.xml.stream.XMLStreamConstants.END_ELEMENT;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
 
 import java.util.List;
-import java.util.Map;
 import javax.xml.stream.XMLStreamException;
 
 import org.jboss.as.controller.AbstractAddStepHandler;
@@ -68,6 +67,7 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
         for (Handler handler : HandlerFactory.getHandlers()) {
             resourceRegistration.registerSubModel(handler);
         }
+        resourceRegistration.registerSubModel(PathsHandlerDefinition.INSTANCE);
     }
 
     public void parse(XMLExtendedStreamReader reader, PathAddress parentAddress, List<ModelNode> list) throws XMLStreamException {
@@ -80,19 +80,14 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
             ALIAS.parseAndAddParameterElement(alias, op, reader);
         }
         list.add(op);
-        Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             switch (reader.getLocalName()) {
                 case Constants.HANDLERS: {
-                    while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-                        String tagName = reader.getLocalName();
-                        Handler handler = handlerMap.get(tagName);
-                        if (handler != null) {
-                            handler.parse(reader, address, list);
-                        } else {
-                            throw unexpectedElement(reader);
-                        }
-                    }
+                    HandlerFactory.parseHandlers(reader, address, list);
+                    break;
+                }
+                case Constants.PATHS: {
+                    PathsHandlerDefinition.INSTANCE.parse(reader, address, list);
                     break;
                 }
                 default: {
@@ -100,6 +95,7 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
                 }
             }
         }
+        ParseUtils.requireNoContent(reader);
     }
 
 
@@ -111,7 +107,7 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
             writer.writeStartElement(Constants.HOST);
             ModelNode host = hostProp.getValue();
             writer.writeAttribute(Constants.NAME, hostProp.getName());
-            StringBuffer aliases = new StringBuffer();
+            StringBuilder aliases = new StringBuilder();
             for (ModelNode p : host.get(ALIAS.getName()).asList()) {
                 aliases.append(p.asString()).append(", ");
             }
@@ -119,16 +115,8 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
                 aliases.setLength(aliases.length() - 2);
             }
             writer.writeAttribute(Constants.ALIAS, aliases.toString());
-
-            if (host.hasDefined(Constants.HANDLER)) {
-                writer.writeStartElement(Constants.HANDLERS);
-                Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
-                for (final Property handlerProp : host.get(Constants.HANDLER).asPropertyList()) {
-                    Handler handler = handlerMap.get(handlerProp.getName());
-                    handler.persist(writer, handlerProp);
-                }
-                writer.writeEndElement();
-            }
+            HandlerFactory.persistHandlers(writer, host, true);
+            PathsHandlerDefinition.INSTANCE.persist(writer, host);
             writer.writeEndElement();
         }
 

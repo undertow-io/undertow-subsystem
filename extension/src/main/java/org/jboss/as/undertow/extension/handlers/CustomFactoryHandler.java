@@ -35,6 +35,7 @@ import org.jboss.staxmapper.XMLExtendedStreamWriter;
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
  */
+@Deprecated
 public class CustomFactoryHandler extends AbstractHandlerResourceDefinition {
     public static final SimpleAttributeDefinition MODULE = new SimpleAttributeDefinitionBuilder(ModelDescriptionConstants.MODULE, ModelType.STRING, false)
             .setValidator(new StringLengthValidator(1)).build();

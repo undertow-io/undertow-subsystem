@@ -64,6 +64,7 @@ public interface Constants {
     String PROPERTIES = "properties";
     String CLASS = "class";
     String PROPERTY = "property";
+    String PATHS = "paths";
     String DEFAULT_HOST= "default-host";
     String ALIAS = "alias";
 }

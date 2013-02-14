@@ -22,6 +22,10 @@
 
 package org.jboss.as.undertow.deployment;
 
+import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.DENY;
+import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.PERMIT;
+import static org.jboss.as.web.WebMessages.MESSAGES;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,7 +37,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
@@ -83,7 +86,7 @@ import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.SetupAction;
 import org.jboss.as.server.deployment.reflect.DeploymentClassIndex;
 import org.jboss.as.undertow.extension.UndertowContainerService;
-import org.jboss.as.undertow.extension.WebSubsystemServices;
+import org.jboss.as.undertow.extension.UndertowServices;
 import org.jboss.as.undertow.security.SecurityContextAssociationHandler;
 import org.jboss.as.undertow.security.SecurityContextCreationHandler;
 import org.jboss.as.web.deployment.ServletContextAttribute;
@@ -130,10 +133,6 @@ import org.jboss.msc.service.ServiceTarget;
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.SecurityUtil;
 import org.jboss.vfs.VirtualFile;
-
-import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.DENY;
-import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.PERMIT;
-import static org.jboss.as.web.WebMessages.MESSAGES;
 
 public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
@@ -235,10 +234,10 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 .unprefixSecurityDomain(metaDataSecurityDomain);
 
         try {
-            final ServiceName deploymentServiceName = ServiceName.JBOSS.append("undertow", deploymentInfo.getContextPath());
+            final ServiceName deploymentServiceName = UndertowServices.UNDERTOW.append(deploymentInfo.getContextPath());
             UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer);
             final ServiceBuilder<UndertowDeploymentService> builder = serviceTarget.addService(deploymentServiceName, service)
-                    .addDependency(WebSubsystemServices.CONTAINER.append(defaultContainer), UndertowContainerService.class, service.getContainer())
+                    .addDependency(UndertowServices.CONTAINER.append(defaultContainer), UndertowContainerService.class, service.getContainer())
                     .addDependency(SecurityDomainService.SERVICE_NAME.append(securityDomain), SecurityDomainContext.class, service.getSecurityDomainContextValue());
 
             deploymentUnit.addToAttachmentList(Attachments.DEPLOYMENT_COMPLETE_SERVICES, deploymentServiceName);
@@ -462,8 +461,8 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                             }
                         }
                     }
-                    if(servlet.getSecurityRoleRefs() != null) {
-                        for(final SecurityRoleRefMetaData ref : servlet.getSecurityRoleRefs()) {
+                    if (servlet.getSecurityRoleRefs() != null) {
+                        for (final SecurityRoleRefMetaData ref : servlet.getSecurityRoleRefs()) {
                             s.addSecurityRoleRef(ref.getRoleName(), ref.getRoleLink());
                         }
                     }
@@ -565,31 +564,31 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 }
             }
 
-            if(mergedMetaData.getSecurityConstraints() != null) {
-                for(SecurityConstraintMetaData constraint : mergedMetaData.getSecurityConstraints()) {
+            if (mergedMetaData.getSecurityConstraints() != null) {
+                for (SecurityConstraintMetaData constraint : mergedMetaData.getSecurityConstraints()) {
                     SecurityConstraint securityConstraint = new SecurityConstraint()
                             .setTransportGuaranteeType(transportGuaranteeType(constraint.getTransportGuarantee()))
                             .addRolesAllowed(constraint.getRoleNames());
 
-                    if(constraint.getAuthConstraint() == null) {
+                    if (constraint.getAuthConstraint() == null) {
                         //no auth constraint means we permit the empty roles
                         securityConstraint.setEmptyRoleSemantic(PERMIT);
                     }
 
-                    if(constraint.getResourceCollections() != null) {
-                        for(final WebResourceCollectionMetaData resourceCollection : constraint.getResourceCollections()) {
+                    if (constraint.getResourceCollections() != null) {
+                        for (final WebResourceCollectionMetaData resourceCollection : constraint.getResourceCollections()) {
                             securityConstraint.addWebResourceCollection(new WebResourceCollection()
-                            .addHttpMethods(resourceCollection.getHttpMethods())
-                            .addHttpMethodOmissions(resourceCollection.getHttpMethodOmissions())
-                            .addUrlPatterns(resourceCollection.getUrlPatterns()));
+                                    .addHttpMethods(resourceCollection.getHttpMethods())
+                                    .addHttpMethodOmissions(resourceCollection.getHttpMethodOmissions())
+                                    .addUrlPatterns(resourceCollection.getUrlPatterns()));
                         }
                     }
                     d.addSecurityConstraint(securityConstraint);
                 }
             }
             final LoginConfigMetaData loginConfig = mergedMetaData.getLoginConfig();
-            if(loginConfig != null) {
-                if(loginConfig.getFormLoginConfig() != null) {
+            if (loginConfig != null) {
+                if (loginConfig.getFormLoginConfig() != null) {
                     d.setLoginConfig(new LoginConfig(loginConfig.getAuthMethod(), loginConfig.getRealmName(), loginConfig.getFormLoginConfig().getLoginPage(), loginConfig.getFormLoginConfig().getErrorPage()));
                 } else {
                     d.setLoginConfig(new LoginConfig(loginConfig.getAuthMethod(), loginConfig.getRealmName()));
@@ -598,7 +597,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
             d.addSecurityRoles(mergedMetaData.getSecurityRoleNames());
 
-            if(mergedMetaData.getSecurityDomain() != null) {
+            if (mergedMetaData.getSecurityDomain() != null) {
 
                 String contextId = deploymentUnit.getName();
                 if (deploymentUnit.getParent() != null) {
@@ -609,9 +608,9 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
             }
 
-            if(mergedMetaData.getPrincipalVersusRolesMap() != null) {
-                for(Map.Entry<String, Set<String>> entry : mergedMetaData.getPrincipalVersusRolesMap().entrySet()) {
-                    for(String role : entry.getValue()){
+            if (mergedMetaData.getPrincipalVersusRolesMap() != null) {
+                for (Map.Entry<String, Set<String>> entry : mergedMetaData.getPrincipalVersusRolesMap().entrySet()) {
+                    for (String role : entry.getValue()) {
                         d.addPrincipleVsRoleMapping(entry.getKey(), role);
                     }
                 }
@@ -637,7 +636,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
     }
 
     private io.undertow.servlet.api.TransportGuaranteeType transportGuaranteeType(final TransportGuaranteeType type) {
-        if(type == null) {
+        if (type == null) {
             return io.undertow.servlet.api.TransportGuaranteeType.NONE;
         }
         switch (type) {
@@ -744,10 +743,9 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
         TagLibraryInfo tagLibraryInfo = new TagLibraryInfo();
         tagLibraryInfo.setTlibversion(tldMetaData.getTlibVersion());
-        if (tldMetaData.getJspVersion() == null)
-            tagLibraryInfo.setJspversion(tldMetaData.getVersion());
-        else
+        if (tldMetaData.getJspVersion() == null) { tagLibraryInfo.setJspversion(tldMetaData.getVersion()); } else {
             tagLibraryInfo.setJspversion(tldMetaData.getJspVersion());
+        }
         tagLibraryInfo.setShortname(tldMetaData.getShortName());
         tagLibraryInfo.setUri(tldMetaData.getUri());
         if (tldMetaData.getDescriptionGroup() != null) {
@@ -771,8 +769,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 tagInfo.setTagName(tagMetaData.getName());
                 tagInfo.setTagClassName(tagMetaData.getTagClass());
                 tagInfo.setTagExtraInfo(tagMetaData.getTeiClass());
-                if (tagMetaData.getBodyContent() != null)
-                    tagInfo.setBodyContent(tagMetaData.getBodyContent().toString());
+                if (tagMetaData.getBodyContent() != null) { tagInfo.setBodyContent(tagMetaData.getBodyContent().toString()); }
                 tagInfo.setDynamicAttributes(tagMetaData.getDynamicAttributes());
                 // Description group
                 if (tagMetaData.getDescriptionGroup() != null) {
@@ -794,8 +791,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                         tagVariableInfo.setNameFromAttribute(variableMetaData.getNameFromAttribute());
                         tagVariableInfo.setClassName(variableMetaData.getVariableClass());
                         tagVariableInfo.setDeclare(variableMetaData.getDeclare());
-                        if (variableMetaData.getScope() != null)
-                            tagVariableInfo.setScope(variableMetaData.getScope().toString());
+                        if (variableMetaData.getScope() != null) { tagVariableInfo.setScope(variableMetaData.getScope().toString()); }
                         tagInfo.addTagVariableInfo(tagVariableInfo);
                     }
                 }
@@ -847,20 +843,20 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         }
 
         if (jarPath == null && relativeLocation == null) {
-            if(!ret.containsKey(tagLibraryInfo.getUri())) {
+            if (!ret.containsKey(tagLibraryInfo.getUri())) {
                 ret.put(tagLibraryInfo.getUri(), tagLibraryInfo);
             }
         } else if (jarPath == null) {
             tagLibraryInfo.setLocation("");
             tagLibraryInfo.setPath(relativeLocation);
-            if(!ret.containsKey(tagLibraryInfo.getUri())) {
+            if (!ret.containsKey(tagLibraryInfo.getUri())) {
                 ret.put(tagLibraryInfo.getUri(), tagLibraryInfo);
             }
             ret.put(relativeLocation, tagLibraryInfo);
         } else {
             tagLibraryInfo.setLocation(relativeLocation);
             tagLibraryInfo.setPath(jarPath);
-            if(!ret.containsKey(tagLibraryInfo.getUri())) {
+            if (!ret.containsKey(tagLibraryInfo.getUri())) {
                 ret.put(tagLibraryInfo.getUri(), tagLibraryInfo);
             }
             if (jarPath.equals("META-INF/taglib.tld")) {

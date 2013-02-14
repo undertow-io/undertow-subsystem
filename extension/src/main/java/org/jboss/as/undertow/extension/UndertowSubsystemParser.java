@@ -4,7 +4,6 @@ import static org.jboss.as.controller.parsing.ParseUtils.requireSingleAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
 
 import java.util.List;
-import java.util.Map;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
@@ -107,7 +106,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                     break;
                 }
                 case Constants.HANDLERS: {
-                    parseHandlers(reader, address, list);
+                    HandlerFactory.parseHandlers(reader, address, list);
                     break;
                 }
                 case Constants.HOST: {
@@ -120,21 +119,5 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
             }
         }
     }
-
-    static void parseHandlers(final XMLExtendedStreamReader reader, PathAddress address, List<ModelNode> list) throws XMLStreamException {
-
-        Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
-        while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-            String tagName = reader.getLocalName();
-            Handler handler = handlerMap.get(tagName);
-            if (handler != null) {
-                handler.parse(reader, address, list);
-            } else {
-                throw unexpectedElement(reader);
-            }
-        }
-
-    }
-
 }
 

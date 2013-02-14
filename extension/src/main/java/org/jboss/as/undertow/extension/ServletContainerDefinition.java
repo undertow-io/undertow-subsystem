@@ -52,7 +52,7 @@ public class ServletContainerDefinition extends SimplePersistentResourceDefiniti
     }
 
     @Override
-    protected void persistChildren(XMLExtendedStreamWriter writer, ModelNode model) throws XMLStreamException {
+    public void persistChildren(XMLExtendedStreamWriter writer, ModelNode model) throws XMLStreamException {
         JSPDefinition.INSTANCE.persist(writer, model);
     }
 }

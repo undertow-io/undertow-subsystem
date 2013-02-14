@@ -43,9 +43,9 @@ public class HttpListenerAdd extends AbstractAddStepHandler {
 
         final HttpListenerService service = createService(name);
         final ServiceBuilder<HttpListenerService> serviceBuilder = context.getServiceTarget().addService(constructServiceName(name), service)
-                .addDependency(WebSubsystemServices.XNIO_WORKER.append("default"), XnioWorker.class, service.getWorker())
+                .addDependency(UndertowServices.WORKER.append("default"), XnioWorker.class, service.getWorker())
                 .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding())
-                .addDependency(WebSubsystemServices.CONTAINER.append("default"), UndertowContainerService.class, service.getContainer());
+                .addDependency(UndertowServices.CONTAINER.append("default"), UndertowContainerService.class, service.getContainer());
 
         additionalDependencies(context, serviceBuilder, model, service);
         serviceBuilder.setInitialMode(ServiceController.Mode.ACTIVE);
@@ -57,7 +57,7 @@ public class HttpListenerAdd extends AbstractAddStepHandler {
     }
 
     protected ServiceName constructServiceName(final String name) {
-        return WebSubsystemServices.HTTP_LISTENER.append(name);
+        return UndertowServices.HTTP_LISTENER.append(name);
     }
 
     protected HttpListenerService createService(final String name) {

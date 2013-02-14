@@ -3,4 +3,7 @@
 org.jboss.as.undertow.extension.handlers.ConnectionLimitHandler
 org.jboss.as.undertow.extension.handlers.SimpleErrorPageHandler
 org.jboss.as.undertow.extension.handlers.FileErrorPageHandler
-org.jboss.as.undertow.extension.handlers.CustomFactoryHandler
+#org.jboss.as.undertow.extension.handlers.CustomFactoryHandler
+org.jboss.as.undertow.extension.handlers.BasicAuthHandler
+org.jboss.as.undertow.extension.handlers.FileHandler
+org.jboss.as.undertow.extension.handlers.ResponseHeaderHandler
