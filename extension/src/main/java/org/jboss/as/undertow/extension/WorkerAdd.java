@@ -37,11 +37,13 @@ public class WorkerAdd extends AbstractAddStepHandler {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
         final PathAddress address = PathAddress.pathAddress(operation.get(OP_ADDR));
         final String name = address.getLastElement().getValue();
 
         final OptionMap.Builder builder = OptionMap.builder();
+
         for (OptionAttributeDefinition attr : WorkerResourceDefinition.ATTRIBUTES) {
             Option option = attr.getOption();
             ModelNode value = attr.resolveModelAttribute(context, model);
@@ -53,7 +55,7 @@ public class WorkerAdd extends AbstractAddStepHandler {
                 builder.set(option, value.asBoolean());
             }
         }
-        builder.set(Options.WORKER_NAME, "Undertow");
+        builder.set(Options.WORKER_NAME, name);
 
         final WorkerService workerService = new WorkerService(builder.getMap());
         final ServiceBuilder<XnioWorker> serviceBuilder = context.getServiceTarget().

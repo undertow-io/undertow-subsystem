@@ -64,13 +64,6 @@ class UndetowSubsystemAdd extends AbstractBoottimeAddStepHandler {
                                 ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
             throws OperationFailedException {
 
-        //TODO: where should we put this, this does not seem the correct place for it
-        try {
-            Class.forName("org.apache.jasper.compiler.JspRuntimeContext", true, this.getClass().getClassLoader());
-        } catch (ClassNotFoundException e) {
-            UndertowLogger.ROOT_LOGGER.couldNotInitJsp(e);
-        }
-
         context.addStep(new AbstractDeploymentChainStep() {
             @Override
             protected void execute(DeploymentProcessorTarget processorTarget) {
@@ -113,7 +106,7 @@ class UndetowSubsystemAdd extends AbstractBoottimeAddStepHandler {
             }
         }, OperationContext.Stage.RUNTIME);
 
-        UndertowContainerService container = new UndertowContainerService();
+        ServletContainerService container = new ServletContainerService();
         final ServiceTarget target = context.getServiceTarget();
         newControllers.add(target.addService(UndertowServices.CONTAINER.append("default"), container)
                 .setInitialMode(Mode.ON_DEMAND)

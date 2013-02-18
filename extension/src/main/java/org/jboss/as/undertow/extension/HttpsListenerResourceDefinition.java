@@ -46,7 +46,7 @@ public class HttpsListenerResourceDefinition extends AbstractListenerResourceDef
 
 
     private HttpsListenerResourceDefinition() {
-        super(UndertowExtension.HTTPS_LISTENER_PATH, HttpsListenerAdd.INSTANCE);
+        super(UndertowExtension.HTTPS_LISTENER_PATH);
     }
 
     @Override
@@ -54,4 +54,8 @@ public class HttpsListenerResourceDefinition extends AbstractListenerResourceDef
         return ATTRIBUTES;
     }
 
+    @Override
+    protected AbstractListenerAdd getAddHandler() {
+        return new HttpsListenerAdd(this);
+    }
 }

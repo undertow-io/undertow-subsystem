@@ -1,16 +1,27 @@
 package org.jboss.as.undertow.extension;
 
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
+
+import java.nio.ByteBuffer;
+import java.util.List;
+
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
+import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.SimplePersistentResourceDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
+import org.jboss.msc.service.ServiceBuilder;
+import org.jboss.msc.service.ServiceController;
+import org.xnio.Pool;
 
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
@@ -63,6 +74,26 @@ public class BufferPoolResourceDefinition extends SimplePersistentResourceDefini
             for (AttributeDefinition attr : BufferPoolResourceDefinition.ATTRIBUTES) {
                 attr.validateAndSet(operation, model);
             }
+        }
+
+        @Override
+        protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
+            final PathAddress address = PathAddress.pathAddress(operation.get(OP_ADDR));
+            final String name = address.getLastElement().getValue();
+            int bufferSize = BUFFER_SIZE.resolveModelAttribute(context, model).asInt();
+            int bufferPerSlice = BUFFER_PER_SLICE.resolveModelAttribute(context, model).asInt();
+
+            final BufferPoolService service = new BufferPoolService(bufferSize, bufferPerSlice);
+            final ServiceBuilder<Pool<ByteBuffer>> serviceBuilder = context.getServiceTarget().addService(UndertowServices.BUFFER_POOL.append(name), service);
+
+            serviceBuilder.setInitialMode(ServiceController.Mode.ACTIVE);
+
+            final ServiceController<Pool<ByteBuffer>> serviceController = serviceBuilder.install();
+            if (newControllers != null) {
+                newControllers.add(serviceController);
+            }
+
+
         }
     }
 }

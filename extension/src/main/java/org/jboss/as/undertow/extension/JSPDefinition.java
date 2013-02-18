@@ -23,13 +23,16 @@
 package org.jboss.as.undertow.extension;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.jboss.as.controller.AbstractAddStepHandler;
+import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
+import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.SimplePersistentResourceDefinition;
@@ -40,6 +43,7 @@ import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.web.Constants;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
+import org.jboss.msc.service.ServiceController;
 
 /**
  * @author Tomaz Cerar
@@ -236,11 +240,20 @@ class JSPDefinition extends SimplePersistentResourceDefinition {
         }
     }
 
-    private static class JSPAdd extends AbstractAddStepHandler {
+    private static class JSPAdd extends AbstractBoottimeAddStepHandler {
         @Override
         protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
             for (AttributeDefinition def : ATTRIBUTES) {
                 def.validateAndSet(operation, model);
+            }
+        }
+
+        @Override
+        protected void performBoottime(OperationContext context, ModelNode operation, ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
+            try {
+                Class.forName("org.apache.jasper.compiler.JspRuntimeContext", true, this.getClass().getClassLoader());
+            } catch (ClassNotFoundException e) {
+                UndertowLogger.ROOT_LOGGER.couldNotInitJsp(e);
             }
         }
     }

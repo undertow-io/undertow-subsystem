@@ -85,7 +85,7 @@ import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.SetupAction;
 import org.jboss.as.server.deployment.reflect.DeploymentClassIndex;
-import org.jboss.as.undertow.extension.UndertowContainerService;
+import org.jboss.as.undertow.extension.ServletContainerService;
 import org.jboss.as.undertow.extension.UndertowServices;
 import org.jboss.as.undertow.security.SecurityContextAssociationHandler;
 import org.jboss.as.undertow.security.SecurityContextCreationHandler;
@@ -237,7 +237,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             final ServiceName deploymentServiceName = UndertowServices.UNDERTOW.append(deploymentInfo.getContextPath());
             UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer);
             final ServiceBuilder<UndertowDeploymentService> builder = serviceTarget.addService(deploymentServiceName, service)
-                    .addDependency(UndertowServices.CONTAINER.append(defaultContainer), UndertowContainerService.class, service.getContainer())
+                    .addDependency(UndertowServices.CONTAINER.append(defaultContainer), ServletContainerService.class, service.getContainer())
                     .addDependency(SecurityDomainService.SERVICE_NAME.append(securityDomain), SecurityDomainContext.class, service.getSecurityDomainContextValue());
 
             deploymentUnit.addToAttachmentList(Attachments.DEPLOYMENT_COMPLETE_SERVICES, deploymentServiceName);

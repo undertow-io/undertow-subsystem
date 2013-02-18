@@ -26,7 +26,6 @@ import static org.xnio.SslClientAuthMode.REQUESTED;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-
 import javax.net.ssl.SSLContext;
 
 import org.jboss.as.domain.management.AuthenticationMechanism;
@@ -59,8 +58,8 @@ public class HttpsListenerService extends HttpListenerService {
     }
 
     @Override
-    protected void startListening(final XnioWorker worker, InetSocketAddress socketAddress,
-                                  final ChannelListener acceptListener) throws IOException {
+    protected void startListening(XnioWorker worker, InetSocketAddress socketAddress, ChannelListener acceptListener)
+            throws IOException {
         SSLContext sslContext = securityRealm.getValue().getSSLContext();
         Builder builder = OptionMap.builder().addAll(SERVER_OPTIONS);
         if (securityRealm.getValue().getSupportedAuthenticationMechanisms().contains(AuthenticationMechanism.CLIENT_CERT)) {

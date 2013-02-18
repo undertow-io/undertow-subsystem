@@ -8,8 +8,11 @@ public class HttpListenerResourceDefinition extends AbstractListenerResourceDefi
 
 
     private HttpListenerResourceDefinition() {
-        super(UndertowExtension.HTTP_LISTENER_PATH, HttpListenerAdd.INSTANCE);
+        super(UndertowExtension.HTTP_LISTENER_PATH);
     }
 
-
+    @Override
+    protected AbstractListenerAdd getAddHandler() {
+        return new HttpListenerAdd(this);
+    }
 }

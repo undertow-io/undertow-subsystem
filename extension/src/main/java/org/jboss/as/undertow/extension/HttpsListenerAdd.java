@@ -25,7 +25,6 @@ import static org.jboss.as.undertow.extension.HttpsListenerResourceDefinition.SE
 
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.domain.management.SecurityRealm;
 import org.jboss.as.domain.management.security.SecurityRealmService;
 import org.jboss.dmr.ModelNode;
@@ -38,16 +37,9 @@ import org.jboss.msc.service.ServiceName;
  * @author <a href="mailto:darran.lofthouse@jboss.com">Darran Lofthouse</a>
  */
 public class HttpsListenerAdd extends HttpListenerAdd {
-    static final HttpsListenerAdd INSTANCE = new HttpsListenerAdd();
 
-    HttpsListenerAdd() {
-    }
-
-    @Override
-    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-        for (SimpleAttributeDefinition attr : HttpsListenerResourceDefinition.ATTRIBUTES) {
-            attr.validateAndSet(operation, model);
-        }
+    HttpsListenerAdd(HttpsListenerResourceDefinition def) {
+        super(def);
     }
 
     @Override
@@ -64,11 +56,8 @@ public class HttpsListenerAdd extends HttpListenerAdd {
     protected void additionalDependencies(OperationContext context, ServiceBuilder<HttpListenerService> serviceBuilder, ModelNode model, HttpListenerService service) throws OperationFailedException {
         final String securityRealm = SECURITY_REALM.resolveModelAttribute(context, model).asString();
 
-        serviceBuilder.addDependency(SecurityRealmService.BASE_SERVICE_NAME.append(securityRealm), SecurityRealm.class, ((HttpsListenerService)service).getSecurityRealm());
+        serviceBuilder.addDependency(SecurityRealmService.BASE_SERVICE_NAME.append(securityRealm), SecurityRealm.class, ((HttpsListenerService) service).getSecurityRealm());
     }
-
-
-
 
 
 }

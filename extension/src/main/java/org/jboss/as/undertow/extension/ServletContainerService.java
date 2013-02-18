@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpOpenListener;
-import io.undertow.server.HttpTransferEncodingHandler;
 import io.undertow.server.handlers.CanonicalPathHandler;
 import io.undertow.server.handlers.CookieHandler;
 import io.undertow.server.handlers.PathHandler;
@@ -36,7 +35,6 @@ import io.undertow.server.handlers.error.SimpleErrorPageHandler;
 import io.undertow.server.handlers.form.FormEncodedDataHandler;
 import io.undertow.server.handlers.form.MultiPartHandler;
 import io.undertow.servlet.api.ServletContainer;
-
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
@@ -53,7 +51,7 @@ import org.xnio.channels.ConnectedStreamChannel;
  *
  * @author <a href="mailto:darran.lofthouse@jboss.com">Darran Lofthouse</a>
  */
-public class UndertowContainerService implements Service<UndertowContainerService> {
+public class ServletContainerService implements Service<ServletContainerService> {
 
     private volatile HttpOpenListener openListener;
     private volatile ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener;
@@ -78,8 +76,7 @@ public class UndertowContainerService implements Service<UndertowContainerServic
         final CookieHandler cookie = new CookieHandler();
         cookie.setNext(new SimpleErrorPageHandler(multiPartHandler));
         CanonicalPathHandler canonicalPathHandler = new CanonicalPathHandler(cookie);
-        final HttpTransferEncodingHandler transferEncodingHandler = new HttpTransferEncodingHandler(canonicalPathHandler);
-        openListener.setRootHandler(transferEncodingHandler);
+        openListener.setRootHandler(canonicalPathHandler);
 
         servletContainer = ServletContainer.Factory.newInstance();
     }
@@ -88,7 +85,7 @@ public class UndertowContainerService implements Service<UndertowContainerServic
 
     }
 
-    public UndertowContainerService getValue() throws IllegalStateException, IllegalArgumentException {
+    public ServletContainerService getValue() throws IllegalStateException, IllegalArgumentException {
         return this;
     }
 

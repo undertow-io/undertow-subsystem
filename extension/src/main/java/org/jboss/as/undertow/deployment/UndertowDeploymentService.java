@@ -30,7 +30,7 @@ import io.undertow.servlet.api.ConfidentialPortManager;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import org.jboss.as.security.plugins.SecurityDomainContext;
-import org.jboss.as.undertow.extension.UndertowContainerService;
+import org.jboss.as.undertow.extension.ServletContainerService;
 import org.jboss.as.undertow.security.IdentityManagerImpl;
 import org.jboss.as.web.deployment.WebInjectionContainer;
 import org.jboss.msc.service.Service;
@@ -45,7 +45,7 @@ import org.jboss.msc.value.InjectedValue;
 public class UndertowDeploymentService implements Service<UndertowDeploymentService> {
 
     private final DeploymentInfo deploymentInfo;
-    private final InjectedValue<UndertowContainerService> container = new InjectedValue<UndertowContainerService>();
+    private final InjectedValue<ServletContainerService> container = new InjectedValue<>();
     private final WebInjectionContainer webInjectionContainer;
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
     private volatile DeploymentManager deploymentManager;
@@ -91,7 +91,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
         return this;
     }
 
-    public InjectedValue<UndertowContainerService> getContainer() {
+    public InjectedValue<ServletContainerService> getContainer() {
         return container;
     }
 

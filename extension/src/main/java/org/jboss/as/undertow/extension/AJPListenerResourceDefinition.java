@@ -8,8 +8,11 @@ public class AJPListenerResourceDefinition extends AbstractListenerResourceDefin
 
 
     private AJPListenerResourceDefinition() {
-        super(UndertowExtension.AJP_LISTENER_PATH, HttpListenerAdd.INSTANCE);
+        super(UndertowExtension.AJP_LISTENER_PATH);
     }
 
-
+    @Override
+    protected AbstractListenerAdd getAddHandler() {
+        return new AJPListenerAdd(this);
+    }
 }

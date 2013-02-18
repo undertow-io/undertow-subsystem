@@ -12,6 +12,7 @@ import org.jboss.as.controller.SimplePersistentResourceDefinition;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
+import org.jboss.as.controller.registry.OperationEntry;
 import org.jboss.dmr.ModelType;
 
 /**
@@ -38,8 +39,9 @@ abstract class AbstractListenerResourceDefinition extends SimplePersistentResour
 
     protected static SimpleAttributeDefinition[] ATTRIBUTES = {SOCKET_BINDING, WORKER, BUFFER_POOL};
 
-    public AbstractListenerResourceDefinition(PathElement pathElement, OperationStepHandler addHandler) {
-        super(pathElement, UndertowExtension.getResolver(pathElement.getKey()), addHandler, ReloadRequiredRemoveStepHandler.INSTANCE);
+
+    public AbstractListenerResourceDefinition(PathElement pathElement) {
+        super(pathElement, UndertowExtension.getResolver(pathElement.getKey()), null, ReloadRequiredRemoveStepHandler.INSTANCE);
     }
 
     static <T> T[] concat(T[] first, T[] second) {
@@ -52,6 +54,13 @@ abstract class AbstractListenerResourceDefinition extends SimplePersistentResour
         return ATTRIBUTES;
     }
 
+    @Override
+    public void registerOperations(ManagementResourceRegistration resourceRegistration) {
+        super.registerOperations(resourceRegistration);
+        super.registerAddOperation(resourceRegistration, getAddHandler(), OperationEntry.Flag.RESTART_NONE);
+    }
+
+    protected abstract AbstractListenerAdd getAddHandler();
 
     @Override
     public void registerAttributes(ManagementResourceRegistration resourceRegistration) {

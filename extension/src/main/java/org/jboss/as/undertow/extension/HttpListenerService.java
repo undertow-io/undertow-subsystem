@@ -25,12 +25,9 @@ package org.jboss.as.undertow.extension;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.jboss.as.network.SocketBinding;
-import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
-import org.jboss.msc.value.InjectedValue;
 import org.xnio.ChannelListener;
 import org.xnio.IoUtils;
 import org.xnio.OptionMap;
@@ -42,17 +39,12 @@ import org.xnio.channels.ConnectedStreamChannel;
 /**
  * @author Stuart Douglas
  */
-public class HttpListenerService implements Service<HttpListenerService> {
-
-    protected final InjectedValue<UndertowContainerService> container = new InjectedValue<UndertowContainerService>();
-    private final InjectedValue<XnioWorker> worker = new InjectedValue<XnioWorker>();
-    private final InjectedValue<SocketBinding> binding = new InjectedValue<SocketBinding>();
-
+public class HttpListenerService extends AbstractListenerService<HttpListenerService> {
     protected static final OptionMap SERVER_OPTIONS = OptionMap.builder()
-                                                     .set(Options.WORKER_ACCEPT_THREADS, 3)
-                                                     .set(Options.TCP_NODELAY, true)
-                                                     .set(Options.REUSE_ADDRESSES, true)
-                                                     .getMap();
+            .set(Options.WORKER_ACCEPT_THREADS, 3)
+            .set(Options.TCP_NODELAY, true)
+            .set(Options.REUSE_ADDRESSES, true)
+            .getMap();
 
     private volatile AcceptingChannel<? extends ConnectedStreamChannel> server;
 
@@ -71,8 +63,9 @@ public class HttpListenerService implements Service<HttpListenerService> {
         stopListening();
     }
 
-    protected void startListening(final XnioWorker worker, final InetSocketAddress socketAddress,
-                                  final ChannelListener acceptListener) throws IOException {
+
+    protected void startListening(XnioWorker worker, InetSocketAddress socketAddress, ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener)
+            throws IOException {
         server = worker.createStreamServer(socketAddress, acceptListener, SERVER_OPTIONS);
         server.resumeAccepts();
 
@@ -87,17 +80,5 @@ public class HttpListenerService implements Service<HttpListenerService> {
     @Override
     public HttpListenerService getValue() throws IllegalStateException, IllegalArgumentException {
         return this;
-    }
-
-    public InjectedValue<XnioWorker> getWorker() {
-        return worker;
-    }
-
-    public InjectedValue<SocketBinding> getBinding() {
-        return binding;
-    }
-
-    public InjectedValue<UndertowContainerService> getContainer() {
-        return container;
     }
 }

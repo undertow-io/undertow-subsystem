@@ -22,8 +22,11 @@ public final class UndertowServices {
     /**
      * The base name for jboss.web connector services.
      */
+    public static final ServiceName AJP_LISTENER = UNDERTOW.append("ajp-listener");
     public static final ServiceName HTTP_LISTENER = UNDERTOW.append("http-listener");
     public static final ServiceName HTTPS_LISTENER = UNDERTOW.append("https-listener");
+
+    public static final ServiceName BUFFER_POOL = UNDERTOW.append("buffer-pool");
 
     /**
      * The base name for jboss.web deployments.
