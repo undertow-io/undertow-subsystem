@@ -25,7 +25,7 @@ public class BufferPoolService implements Service<Pool<ByteBuffer>> {
 
     @Override
     public void start(StartContext context) throws StartException {
-        bufferPool = new ByteBufferSlicePool(bufferSize, buffersPerSlice);
+        bufferPool = new ByteBufferSlicePool(bufferSize, buffersPerSlice * bufferSize);
     }
 
     @Override
