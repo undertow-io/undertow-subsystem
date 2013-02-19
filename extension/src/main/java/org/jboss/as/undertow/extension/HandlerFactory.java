@@ -12,6 +12,9 @@ import javax.xml.stream.XMLStreamException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
+import org.jboss.modules.Module;
+import org.jboss.modules.ModuleIdentifier;
+import org.jboss.modules.ModuleLoadException;
 import org.jboss.staxmapper.XMLExtendedStreamReader;
 import org.jboss.staxmapper.XMLExtendedStreamWriter;
 
@@ -27,14 +30,25 @@ public class HandlerFactory {
     }
 
     private static void loadRegisteredHandlers() {
-        ServiceLoader<Handler> loader = ServiceLoader.load(Handler.class);
 
-        //todo use module loader
-        //final Module module = Module.getCallerModule();
-        //for (final Handler handler : module.loadService(Handler.class)) {
-        for (final Handler handler : loader) {
-            handlers.add(handler);
-            handlerMap.put(handler.getName(), handler);
+
+        try {
+            final Module module = Module.getBootModuleLoader().loadModule(ModuleIdentifier.create("org.jboss.as.undertow", "main"));
+            if (module != null) {
+                for (final Handler handler : module.loadService(Handler.class)) {
+                    handlers.add(handler);
+                    handlerMap.put(handler.getName(), handler);
+                }
+            }
+        } catch (ModuleLoadException e) {
+            e.printStackTrace();
+        }
+        if (handlers.isEmpty()) {
+            ServiceLoader<Handler> loader = ServiceLoader.load(Handler.class);
+            for (final Handler handler : loader) {
+                handlers.add(handler);
+                handlerMap.put(handler.getName(), handler);
+            }
         }
     }
 

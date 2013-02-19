@@ -18,6 +18,7 @@ import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
+import org.xnio.Pool;
 import org.xnio.XnioWorker;
 
 /**
@@ -55,7 +56,8 @@ abstract class AbstractListenerAdd extends AbstractAddStepHandler {
     protected void addDefaultDependencies(ServiceBuilder<? extends AbstractListenerService> serviceBuilder, AbstractListenerService service) {
         serviceBuilder.addDependency(UndertowServices.WORKER.append(workerName), XnioWorker.class, service.getWorker())
                 .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding())
-                .addDependency(UndertowServices.CONTAINER.append("default"), ServletContainerService.class, service.getContainer());
+                .addDependency(UndertowServices.CONTAINER.append("default"), ServletContainerService.class, service.getContainer())
+                .addDependency(UndertowServices.BUFFER_POOL.append(bufferPoolName), Pool.class, service.getBufferPool());
 
     }
 

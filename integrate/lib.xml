@@ -25,7 +25,7 @@
     <property name="src.dir" value="src"/>
     <property name="module.repo.src.dir" value="${src.dir}/main/resources/modules"/>
     <property name="output.dir" value="target/undertow-release"/>
-    <property name="module.repo.output.dir" value="${output.dir}/modules"/>
+    <property name="module.repo.output.dir" value="${output.dir}/modules/system/layers/base"/>
     <property name="module.xml" value="module.xml"/>
 
     <property name="bundle.repo.output.dir" value="${output.dir}/bundles"/>

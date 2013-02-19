@@ -22,8 +22,6 @@
 
 package org.jboss.as.undertow.extension;
 
-import java.nio.ByteBuffer;
-
 import org.jboss.as.network.SocketBinding;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.value.InjectedValue;
@@ -40,7 +38,7 @@ public abstract class AbstractListenerService<T> implements Service<T> {
     protected final InjectedValue<ServletContainerService> container = new InjectedValue<>();
     protected final InjectedValue<XnioWorker> worker = new InjectedValue<>();
     protected final InjectedValue<SocketBinding> binding = new InjectedValue<>();
-    protected final InjectedValue<Pool<ByteBuffer>> bufferPool = new InjectedValue<>();
+    protected final InjectedValue<Pool> bufferPool = new InjectedValue<>();
 
     OptionMap serverOptions = OptionMap.builder()
             .set(Options.WORKER_ACCEPT_THREADS, Runtime.getRuntime().availableProcessors())
@@ -61,10 +59,8 @@ public abstract class AbstractListenerService<T> implements Service<T> {
         return container;
     }
 
-    protected Pool<ByteBuffer> getBuffers() {
-        //Pool<ByteBuffer> buffers = new ByteBufferSlicePool(directBuffers ? BufferAllocator.DIRECT_BYTE_BUFFER_ALLOCATOR : BufferAllocator.BYTE_BUFFER_ALLOCATOR, bufferSize, bufferSize * buffersPerRegion);
-        //return new ByteBufferSlicePool(BufferAllocator.DIRECT_BYTE_BUFFER_ALLOCATOR, 1024, 1024 * 1024);
-        return bufferPool.getValue();
+    public InjectedValue<Pool> getBufferPool() {
+        return bufferPool;
     }
 
     protected int getBufferSize() {

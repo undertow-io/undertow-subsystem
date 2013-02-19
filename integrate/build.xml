@@ -68,9 +68,9 @@
 
     <target name="all" depends="base, modules, as-integrate"/>
 
-    <target name="as-integrate" depends="modules" description="Integrate undertow into existing AS7 installation">
+    <target name="as-integrate" depends="modules" description="Integrate undertow into existing AS8 installation">
         <echo message="jboss dir is: ${jboss.dir}"/>
-        <fail unless="jboss.dir" description="Jboss AS7 must be defined" message="property jboss.dir must be set"/>
+        <fail unless="jboss.dir" description="Jboss AS8 must be defined" message="property jboss.dir must be set"/>
 
         <copy todir="${jboss.dir}" verbose="true">
             <fileset dir="${output.dir}"/>

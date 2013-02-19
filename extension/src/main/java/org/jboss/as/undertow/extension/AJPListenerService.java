@@ -18,7 +18,7 @@ public class AJPListenerService extends AbstractListenerService<AJPListenerServi
     @Override
     public void start(StartContext context) throws StartException {
         try {
-            AjpOpenListener openListener = new AjpOpenListener(getBuffers(), getBufferSize());
+            AjpOpenListener openListener = new AjpOpenListener(getBufferPool().getValue(), getBufferSize());
             //openListener.setRootHandler(rootHandler);
             ChannelListener<AcceptingChannel<ConnectedStreamChannel>> acceptListener = ChannelListeners.openListenerAdapter(openListener);
             AcceptingChannel<? extends ConnectedStreamChannel> server = worker.getValue().createStreamServer(binding.getValue().getSocketAddress(), acceptListener, serverOptions);
