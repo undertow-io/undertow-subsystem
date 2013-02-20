@@ -32,7 +32,8 @@ import io.undertow.servlet.api.DeploymentManager;
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.undertow.extension.ServletContainerService;
 import org.jboss.as.undertow.security.IdentityManagerImpl;
-import org.jboss.as.web.deployment.WebInjectionContainer;
+import org.jboss.as.web.common.StartupContext;
+import org.jboss.as.web.common.WebInjectionContainer;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
@@ -60,7 +61,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
 
         deploymentInfo.setIdentityManager(new IdentityManagerImpl(securityDomainContextValue.getValue(), deploymentInfo.getPrincipleVsRoleMapping()));
         deploymentInfo.setConfidentialPortManager(getConfidentialPortManager());
-        WebInjectionContainer.setCurrentInjectionContainer(webInjectionContainer);
+        StartupContext.setInjectionContainer(webInjectionContainer);
         try {
             deploymentManager = container.getValue().getServletContainer().addDeployment(deploymentInfo);
             deploymentManager.deploy();
@@ -71,7 +72,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
                 throw new StartException(e);
             }
         } finally {
-            WebInjectionContainer.setCurrentInjectionContainer(null);
+            StartupContext.setInjectionContainer(null);
         }
     }
 

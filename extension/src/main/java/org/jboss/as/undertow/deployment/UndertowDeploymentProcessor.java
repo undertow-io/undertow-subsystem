@@ -22,21 +22,17 @@
 
 package org.jboss.as.undertow.deployment;
 
-import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.DENY;
-import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.PERMIT;
-import static org.jboss.as.web.WebMessages.MESSAGES;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
@@ -74,6 +70,7 @@ import org.apache.jasper.deploy.TagVariableInfo;
 import org.apache.jasper.servlet.JspServlet;
 import org.jboss.annotation.javaee.Icon;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.ee.component.ComponentRegistry;
 import org.jboss.as.ee.component.EEModuleDescription;
 import org.jboss.as.naming.ManagedReference;
 import org.jboss.as.security.plugins.SecurityDomainContext;
@@ -89,11 +86,10 @@ import org.jboss.as.undertow.extension.ServletContainerService;
 import org.jboss.as.undertow.extension.UndertowServices;
 import org.jboss.as.undertow.security.SecurityContextAssociationHandler;
 import org.jboss.as.undertow.security.SecurityContextCreationHandler;
-import org.jboss.as.web.deployment.ServletContextAttribute;
-import org.jboss.as.web.deployment.WarMetaData;
-import org.jboss.as.web.deployment.WebAttachments;
-import org.jboss.as.web.deployment.WebInjectionContainer;
-import org.jboss.as.web.deployment.component.ComponentInstantiator;
+import org.jboss.as.web.common.ServletContextAttribute;
+import org.jboss.as.web.common.WarMetaData;
+import org.jboss.as.web.common.WebComponentDescription;
+import org.jboss.as.web.common.WebInjectionContainer;
 import org.jboss.dmr.ModelNode;
 import org.jboss.metadata.ear.jboss.JBossAppMetaData;
 import org.jboss.metadata.ear.spec.EarMetaData;
@@ -128,17 +124,20 @@ import org.jboss.modules.Module;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController.Mode;
 import org.jboss.msc.service.ServiceName;
-import org.jboss.msc.service.ServiceRegistryException;
 import org.jboss.msc.service.ServiceTarget;
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.SecurityUtil;
 import org.jboss.vfs.VirtualFile;
 
-public class WarDeploymentProcessor implements DeploymentUnitProcessor {
+import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.DENY;
+import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.PERMIT;
+import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
+
+public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
 
     private final String defaultContainer;
 
-    public WarDeploymentProcessor(final String defaultContainer) {
+    public UndertowDeploymentProcessor(final String defaultContainer) {
         this.defaultContainer = defaultContainer;
     }
 
@@ -181,43 +180,37 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         final VirtualFile deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT).getRoot();
         final Module module = deploymentUnit.getAttachment(Attachments.MODULE);
         if (module == null) {
-            throw new DeploymentUnitProcessingException(MESSAGES.failedToResolveModule(deploymentRoot));
+            throw new DeploymentUnitProcessingException(MESSAGES.failedToResolveModule(deploymentUnit));
         }
         final DeploymentClassIndex deploymentClassIndex = deploymentUnit.getAttachment(Attachments.CLASS_INDEX);
         final JBossWebMetaData metaData = warMetaData.getMergedJBossWebMetaData();
         final List<SetupAction> setupActions = deploymentUnit.getAttachmentList(org.jboss.as.ee.component.Attachments.WEB_SETUP_ACTIONS);
-        Map<String, ComponentInstantiator> components = deploymentUnit.getAttachment(WebAttachments.WEB_COMPONENT_INSTANTIATORS);
 
         ScisMetaData scisMetaData = deploymentUnit.getAttachment(ScisMetaData.ATTACHMENT_KEY);
 
-        final WebInjectionContainer injectionContainer = new WebInjectionContainer(module.getClassLoader());
-
+        final Set<ServiceName> dependentComponents = new HashSet<ServiceName>();
         // see AS7-2077
         // basically we want to ignore components that have failed for whatever reason
         // if they are important they will be picked up when the web deployment actually starts
-        if (components != null) {
-            final Set<ServiceName> failed = deploymentUnit.getAttachment(org.jboss.as.ee.component.Attachments.FAILED_COMPONENTS);
-            Iterator<Map.Entry<String, ComponentInstantiator>> it = components.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, ComponentInstantiator> entry = it.next();
-                boolean skip = false;
-                for (final ServiceName serviceName : entry.getValue().getServiceNames()) {
-                    if (failed.contains(serviceName)) {
-                        skip = true;
-                        break;
-                    }
-                }
-                if (skip) {
-                    it.remove();
-                } else {
-                    injectionContainer.addInstantiator(entry.getKey(), entry.getValue());
-                }
+        final List<ServiceName> components = deploymentUnit.getAttachmentList(WebComponentDescription.WEB_COMPONENTS);
+        final Set<ServiceName> failed = deploymentUnit.getAttachment(org.jboss.as.ee.component.Attachments.FAILED_COMPONENTS);
+        for (final ServiceName component : components) {
+            boolean skip = false;
+            if (!failed.contains(component)) {
+                dependentComponents.add(component);
             }
-        } else {
-            components = new HashMap<String, ComponentInstantiator>();
         }
 
-        DeploymentInfo deploymentInfo = createServletConfig(metaData, deploymentUnit, module, deploymentClassIndex, injectionContainer, components, scisMetaData, deploymentRoot);
+        ComponentRegistry componentRegistry = deploymentUnit.getAttachment(org.jboss.as.ee.component.Attachments.COMPONENT_REGISTRY);
+        if (componentRegistry == null) {
+            //we do this to avoid lots of other null checks
+            //this will only happen if the EE subsystem is not installed
+            componentRegistry = new ComponentRegistry(null);
+        }
+
+        final WebInjectionContainer injectionContainer = new WebInjectionContainer(module.getClassLoader(), componentRegistry);
+
+        DeploymentInfo deploymentInfo = createServletConfig(metaData, deploymentUnit, module, deploymentClassIndex, injectionContainer, componentRegistry, scisMetaData, deploymentRoot);
 
         final String pathName = pathNameOfDeployment(deploymentUnit, metaData);
         deploymentInfo.setContextPath(pathName);
@@ -233,18 +226,15 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         String securityDomain = metaDataSecurityDomain == null ? SecurityConstants.DEFAULT_APPLICATION_POLICY : SecurityUtil
                 .unprefixSecurityDomain(metaDataSecurityDomain);
 
-        try {
             final ServiceName deploymentServiceName = UndertowServices.UNDERTOW.append(deploymentInfo.getContextPath());
             UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer);
             final ServiceBuilder<UndertowDeploymentService> builder = serviceTarget.addService(deploymentServiceName, service)
+                    .addDependencies(dependentComponents)
                     .addDependency(UndertowServices.CONTAINER.append(defaultContainer), ServletContainerService.class, service.getContainer())
                     .addDependency(SecurityDomainService.SERVICE_NAME.append(securityDomain), SecurityDomainContext.class, service.getSecurityDomainContextValue());
 
             deploymentUnit.addToAttachmentList(Attachments.DEPLOYMENT_COMPLETE_SERVICES, deploymentServiceName);
 
-            for (Map.Entry<String, ComponentInstantiator> entry : components.entrySet()) {
-                builder.addDependencies(entry.getValue().getServiceNames());
-            }
             // add any dependencies required by the setup action
             for (final SetupAction action : setupActions) {
                 builder.addDependencies(action.dependencies());
@@ -286,9 +276,6 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             builder.install();
             // }
 
-        } catch (ServiceRegistryException e) {
-            throw new DeploymentUnitProcessingException(MESSAGES.failedToAddWebDeployment(), e);
-        }
 
         // Process the web related mgmt information
         //final ModelNode node = deploymentUnit.getDeploymentSubsystemModel("web");
@@ -333,7 +320,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
     }
 
-    private DeploymentInfo createServletConfig(final JBossWebMetaData mergedMetaData, final DeploymentUnit deploymentUnit, final Module module, final DeploymentClassIndex classReflectionIndex, final WebInjectionContainer webInjectionContainer, final Map<String, ComponentInstantiator> components, final ScisMetaData scisMetaData, final VirtualFile deploymentRoot) throws DeploymentUnitProcessingException {
+    private DeploymentInfo createServletConfig(final JBossWebMetaData mergedMetaData, final DeploymentUnit deploymentUnit, final Module module, final DeploymentClassIndex classReflectionIndex, final WebInjectionContainer injectionContainer, final ComponentRegistry componentRegistry, final ScisMetaData scisMetaData, final VirtualFile deploymentRoot) throws DeploymentUnitProcessingException {
         try {
             mergedMetaData.resolveAnnotations();
             final DeploymentInfo d = new DeploymentInfo();
@@ -357,10 +344,10 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 is22OrOlder = false;
             }
 
-            HashMap<String, TagLibraryInfo> tldInfo = createTldsInfo(deploymentUnit, classReflectionIndex, components, d);
+            HashMap<String, TagLibraryInfo> tldInfo = createTldsInfo(deploymentUnit, classReflectionIndex, componentRegistry, d);
             HashMap<String, JspPropertyGroup> propertyGroups = createJspConfig(mergedMetaData);
 
-            JspServletBuilder.setupDeployment(d, propertyGroups, tldInfo, new UndertowJSPInstanceManager(webInjectionContainer));
+            JspServletBuilder.setupDeployment(d, propertyGroups, tldInfo, new UndertowJSPInstanceManager(injectionContainer));
             d.setJspConfigDescriptor(new JspConfigDescriptorImpl(tldInfo.values(), propertyGroups.values()));
             d.setDefaultServletConfig(new DefaultServletConfig(true, Collections.<String>emptySet()));
 
@@ -403,18 +390,20 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
             if (mergedMetaData.getServlets() != null) {
                 for (final JBossServletMetaData servlet : mergedMetaData.getServlets()) {
                     final ServletInfo s;
-                    final ComponentInstantiator creator = components.get(servlet.getServletClass());
 
                     if (servlet.getJspFile() != null) {
                         //TODO: real JSP support
                         s = new ServletInfo(servlet.getName(), JspServlet.class);
                         s.addHandlerChainWrapper(new JspFileWrapper(servlet.getJspFile()));
-                    } else if (creator != null) {
-                        //TODO: fix this once we have web-common
-                        InstanceFactory<Servlet> factory = createInstanceFactory(creator);
-                        s = new ServletInfo(servlet.getName(), (Class<? extends Servlet>) classReflectionIndex.classIndex(servlet.getServletClass()).getModuleClass(), factory);
-                    } else {
-                        s = new ServletInfo(servlet.getName(), (Class<? extends Servlet>) classReflectionIndex.classIndex(servlet.getServletClass()).getModuleClass());
+                    } else  {
+                        Class<? extends Servlet> servletClass = (Class<? extends Servlet>) classReflectionIndex.classIndex(servlet.getServletClass()).getModuleClass();
+                        ComponentRegistry.ComponentManagedReferenceFactory creator = componentRegistry.getComponentsByClass().get(servletClass);
+                        if(creator != null) {
+                            InstanceFactory<Servlet> factory = createInstanceFactory(creator);
+                            s = new ServletInfo(servlet.getName(), servletClass, factory);
+                        } else {
+                            s = new ServletInfo(servlet.getName(), servletClass);
+                        }
                     }
                     s.setAsyncSupported(servlet.isAsyncSupported())
                             .setJspFile(servlet.getJspFile())
@@ -473,13 +462,14 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
             if (mergedMetaData.getFilters() != null) {
                 for (final FilterMetaData filter : mergedMetaData.getFilters()) {
-                    ComponentInstantiator creator = components.get(filter.getFilterClass());
+                    Class<? extends Filter> filterClass = (Class<? extends Filter>) classReflectionIndex.classIndex(filter.getFilterClass()).getModuleClass();
+                    ComponentRegistry.ComponentManagedReferenceFactory creator = componentRegistry.getComponentsByClass().get(filterClass);
                     FilterInfo f;
                     if (creator != null) {
                         InstanceFactory<Filter> instanceFactory = createInstanceFactory(creator);
-                        f = new FilterInfo(filter.getName(), (Class<? extends Filter>) classReflectionIndex.classIndex(filter.getFilterClass()).getModuleClass(), instanceFactory);
+                        f = new FilterInfo(filter.getName(), filterClass, instanceFactory);
                     } else {
-                        f = new FilterInfo(filter.getName(), (Class<? extends Filter>) classReflectionIndex.classIndex(filter.getFilterClass()).getModuleClass());
+                        f = new FilterInfo(filter.getName(), filterClass);
                     }
                     f.setAsyncSupported(filter.isAsyncSupported());
                     d.addFilter(f);
@@ -529,7 +519,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
 
             if (mergedMetaData.getListeners() != null) {
                 for (ListenerMetaData listener : mergedMetaData.getListeners()) {
-                    addListener(classReflectionIndex, components, d, listener);
+                    addListener(classReflectionIndex, componentRegistry, d, listener);
                 }
 
             }
@@ -705,7 +695,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         return ret;
     }
 
-    private HashMap<String, TagLibraryInfo> createTldsInfo(final DeploymentUnit deploymentUnit, final DeploymentClassIndex classReflectionIndex, final Map<String, ComponentInstantiator> components, final DeploymentInfo d) throws ClassNotFoundException {
+    private HashMap<String, TagLibraryInfo> createTldsInfo(final DeploymentUnit deploymentUnit, final DeploymentClassIndex classReflectionIndex, final ComponentRegistry components, final DeploymentInfo d) throws ClassNotFoundException {
 
         TldsMetaData tldsMetaData = deploymentUnit.getAttachment(TldsMetaData.ATTACHMENT_KEY);
         final HashMap<String, TagLibraryInfo> ret = new HashMap<String, TagLibraryInfo>();
@@ -727,7 +717,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         return ret;
     }
 
-    private TagLibraryInfo createTldInfo(final String location, final TldMetaData tldMetaData, final HashMap<String, TagLibraryInfo> ret, final DeploymentClassIndex classReflectionIndex, final Map<String, ComponentInstantiator> components, final DeploymentInfo d) throws ClassNotFoundException {
+    private TagLibraryInfo createTldInfo(final String location, final TldMetaData tldMetaData, final HashMap<String, TagLibraryInfo> ret, final DeploymentClassIndex classReflectionIndex, final ComponentRegistry components, final DeploymentInfo d) throws ClassNotFoundException {
         String relativeLocation = location;
         String jarPath = null;
         if (relativeLocation != null && relativeLocation.startsWith("/WEB-INF/lib/")) {
@@ -866,19 +856,21 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         return tagLibraryInfo;
     }
 
-    private void addListener(final DeploymentClassIndex classReflectionIndex, final Map<String, ComponentInstantiator> components, final DeploymentInfo d, final ListenerMetaData listener) throws ClassNotFoundException {
-        ComponentInstantiator creator = components.get(listener.getListenerClass());
+    private void addListener(final DeploymentClassIndex classReflectionIndex, final ComponentRegistry components, final DeploymentInfo d, final ListenerMetaData listener) throws ClassNotFoundException {
+
         ListenerInfo l;
+        final Class<? extends EventListener> listenerClass = (Class<? extends EventListener>) classReflectionIndex.classIndex(listener.getListenerClass()).getModuleClass();
+        ComponentRegistry.ComponentManagedReferenceFactory creator = components.getComponentsByClass().get(listenerClass);
         if (creator != null) {
             InstanceFactory<EventListener> factory = createInstanceFactory(creator);
-            l = new ListenerInfo((Class<? extends EventListener>) classReflectionIndex.classIndex(listener.getListenerClass()).getModuleClass(), factory);
+            l = new ListenerInfo(listenerClass, factory);
         } else {
-            l = new ListenerInfo((Class<? extends EventListener>) classReflectionIndex.classIndex(listener.getListenerClass()).getModuleClass());
+            l = new ListenerInfo(listenerClass);
         }
         d.addListener(l);
     }
 
-    private <T> InstanceFactory<T> createInstanceFactory(final ComponentInstantiator creator) {
+    private <T> InstanceFactory<T> createInstanceFactory(final ComponentRegistry.ComponentManagedReferenceFactory creator) {
         return new InstanceFactory<T>() {
             @Override
             public InstanceHandle<T> createInstance() throws InstantiationException {

@@ -47,7 +47,7 @@
         <module name="org.jboss.as.threads"/>
 
         <!-- tempotary, once web-common has been split out this should not be needed-->
-        <module name="org.jboss.as.web"/>
+        <module name="org.jboss.as.web-common"/>
         <module name="org.jboss.invocation"/>
         <module name="org.jboss.marshalling"/>
         <module name="org.jboss.metadata"/>

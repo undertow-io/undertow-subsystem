@@ -12,7 +12,7 @@ import io.undertow.security.idm.Credential;
 import io.undertow.security.idm.IdentityManager;
 import io.undertow.security.idm.PasswordCredential;
 import org.jboss.as.security.plugins.SecurityDomainContext;
-import org.jboss.as.web.WebLogger;
+import org.jboss.as.undertow.extension.UndertowLogger;
 import org.jboss.security.AuthenticationManager;
 import org.jboss.security.AuthorizationManager;
 import org.jboss.security.SecurityContext;
@@ -75,7 +75,7 @@ public class IdentityManagerImpl implements IdentityManager {
         try {
             boolean isValid = authenticationManager.isValid(incomingPrincipal, credentials, subject);
             if (isValid) {
-                WebLogger.WEB_SECURITY_LOGGER.tracef("User: " + incomingPrincipal + " is authenticated");
+                UndertowLogger.ROOT_LOGGER.tracef("User: " + incomingPrincipal + " is authenticated");
                 if (sc == null)
                     throw new IllegalStateException("No SecurityContext found!");
                 sc.getUtil().createSubjectInfo(incomingPrincipal, credentials, subject);
