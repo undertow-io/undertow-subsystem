@@ -32,8 +32,6 @@ import org.jboss.as.web.WebExtension;
 import org.jboss.dmr.ModelNode;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.msc.service.ServiceController;
-import org.jboss.msc.service.ServiceController.Mode;
-import org.jboss.msc.service.ServiceTarget;
 
 
 /**
@@ -106,10 +104,5 @@ class UndetowSubsystemAdd extends AbstractBoottimeAddStepHandler {
             }
         }, OperationContext.Stage.RUNTIME);
 
-        ServletContainerService container = new ServletContainerService();
-        final ServiceTarget target = context.getServiceTarget();
-        newControllers.add(target.addService(UndertowServices.CONTAINER.append("default"), container)
-                .setInitialMode(Mode.ON_DEMAND)
-                .install());
     }
 }

@@ -25,10 +25,17 @@ package org.jboss.as.undertow.extension;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import io.undertow.server.HttpOpenListener;
+import io.undertow.server.handlers.CanonicalPathHandler;
+import io.undertow.server.handlers.CookieHandler;
+import io.undertow.server.handlers.error.SimpleErrorPageHandler;
+import io.undertow.server.handlers.form.FormEncodedDataHandler;
+import io.undertow.server.handlers.form.MultiPartHandler;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.xnio.ChannelListener;
+import org.xnio.ChannelListeners;
 import org.xnio.IoUtils;
 import org.xnio.OptionMap;
 import org.xnio.Options;
@@ -46,13 +53,25 @@ public class HttpListenerService extends AbstractListenerService<HttpListenerSer
             .set(Options.REUSE_ADDRESSES, true)
             .getMap();
 
+    private volatile HttpOpenListener openListener;
+    private volatile ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener;
     private volatile AcceptingChannel<? extends ConnectedStreamChannel> server;
 
     @Override
     public void start(final StartContext startContext) throws StartException {
         try {
             final InetSocketAddress socketAddress = binding.getValue().getSocketAddress();
-            startListening(worker.getValue(), socketAddress, container.getValue().getAcceptListener());
+            openListener = new HttpOpenListener(getBufferPool().getValue(), getBufferSize());
+            acceptListener = ChannelListeners.openListenerAdapter(openListener);
+            FormEncodedDataHandler formEncodedDataHandler = new FormEncodedDataHandler();
+            formEncodedDataHandler.setNext(container.getValue().getPathHandler());
+            MultiPartHandler multiPartHandler = new MultiPartHandler();
+            multiPartHandler.setNext(formEncodedDataHandler);
+            final CookieHandler cookie = new CookieHandler();
+            cookie.setNext(new SimpleErrorPageHandler(multiPartHandler));
+            CanonicalPathHandler canonicalPathHandler = new CanonicalPathHandler(cookie);
+            openListener.setRootHandler(canonicalPathHandler);
+            startListening(worker.getValue(), socketAddress, acceptListener);
         } catch (IOException e) {
             throw new StartException("Could not start http listener", e);
         }
@@ -81,4 +100,5 @@ public class HttpListenerService extends AbstractListenerService<HttpListenerSer
     public HttpListenerService getValue() throws IllegalStateException, IllegalArgumentException {
         return this;
     }
+
 }

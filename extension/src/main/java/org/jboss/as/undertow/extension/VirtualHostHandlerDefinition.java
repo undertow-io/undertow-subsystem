@@ -2,8 +2,6 @@ package org.jboss.as.undertow.extension;
 
 import javax.xml.stream.XMLStreamException;
 
-import io.undertow.server.HttpHandler;
-import io.undertow.server.handlers.NameVirtualHostHandler;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationFailedException;
@@ -21,12 +19,7 @@ public class VirtualHostHandlerDefinition extends SimplePersistentResourceDefini
     static final VirtualHostHandlerDefinition INSTANCE = new VirtualHostHandlerDefinition();
 
     public VirtualHostHandlerDefinition() {
-        super(UndertowExtension.VIRTUAL_HOST_PATH, UndertowExtension.getResolver(Constants.VIRTUAL_HOST), new AbstractAddStepHandler() {
-            @Override
-            protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-
-            }
-        }, ReloadRequiredRemoveStepHandler.INSTANCE);
+        super(UndertowExtension.VIRTUAL_HOST_PATH, UndertowExtension.getResolver(Constants.VIRTUAL_HOST), new VirtualHostAdd(), ReloadRequiredRemoveStepHandler.INSTANCE);
     }
 
     @Override
@@ -63,8 +56,10 @@ public class VirtualHostHandlerDefinition extends SimplePersistentResourceDefini
         }
     }
 
+    private static class VirtualHostAdd extends AbstractAddStepHandler {
+        @Override
+        protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
 
-    public HttpHandler registerHandler(HttpHandler next) {
-        return new NameVirtualHostHandler();//todo
+        }
     }
 }

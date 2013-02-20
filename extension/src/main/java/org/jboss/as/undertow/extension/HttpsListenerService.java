@@ -60,6 +60,7 @@ public class HttpsListenerService extends HttpListenerService {
     @Override
     protected void startListening(XnioWorker worker, InetSocketAddress socketAddress, ChannelListener acceptListener)
             throws IOException {
+
         SSLContext sslContext = securityRealm.getValue().getSSLContext();
         Builder builder = OptionMap.builder().addAll(SERVER_OPTIONS);
         if (securityRealm.getValue().getSupportedAuthenticationMechanisms().contains(AuthenticationMechanism.CLIENT_CERT)) {

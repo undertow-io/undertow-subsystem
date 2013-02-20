@@ -89,29 +89,29 @@
             <security-realm name="ManagementRealm">
                 <authentication>
                     <local default-user="$local"/>
-                    <properties path="mgmt-users.properties" relative-to="jboss.server.config.dir" />
+                    <properties path="mgmt-users.properties" relative-to="jboss.server.config.dir"/>
                 </authentication>
             </security-realm>
             <security-realm name="ApplicationRealm">
-                 <authentication>
-                    <local default-user="$local" allowed-users="*"/>
-                     <properties path="application-users.properties" relative-to="jboss.server.config.dir"/>
-                 </authentication>
-            </security-realm>
-            <security-realm name="cts" >
                 <authentication>
                     <local default-user="$local" allowed-users="*"/>
-                    <properties path="./security/cts-users.properties" relative-to="jboss.server.config.dir" plain-text="true" />
+                    <properties path="application-users.properties" relative-to="jboss.server.config.dir"/>
+                </authentication>
+            </security-realm>
+            <security-realm name="cts">
+                <authentication>
+                    <local default-user="$local" allowed-users="*"/>
+                    <properties path="./security/cts-users.properties" relative-to="jboss.server.config.dir" plain-text="true"/>
                 </authentication>
             </security-realm>
         </security-realms>
         <management-interfaces>
-           <native-interface security-realm="ManagementRealm">
-               <socket-binding native="management-native"/>
-           </native-interface>
-           <http-interface security-realm="ManagementRealm">
-               <socket-binding http="management-http"/>
-           </http-interface>
+            <native-interface security-realm="ManagementRealm">
+                <socket-binding native="management-native"/>
+            </native-interface>
+            <http-interface security-realm="ManagementRealm">
+                <socket-binding http="management-http"/>
+            </http-interface>
         </management-interfaces>
     </management>
 
@@ -131,9 +131,9 @@
                 <file relative-to="jboss.server.log.dir" path="server.log"/>
                 <append value="false"/>
             </file-handler>
-             <logger category="io.undertow.request">
-                 <level name="DEBUG"/>
-             </logger>
+            <logger category="io.undertow.request">
+                <level name="DEBUG"/>
+            </logger>
             <logger category="com.arjuna">
                 <level name="WARN"/>
             </logger>
@@ -208,9 +208,9 @@
                         <password>cts1</password>
                     </security>
                     <validation>
-                       <validate-on-match>false</validate-on-match>
-                       <background-validation>false</background-validation>
-                       <use-fast-fail>false</use-fast-fail>
+                        <validate-on-match>false</validate-on-match>
+                        <background-validation>false</background-validation>
+                        <use-fast-fail>false</use-fast-fail>
                     </validation>
                 </datasource>
                 <datasource jndi-name="java:/jdbc/DB_no_tx" enabled="true" use-java-context="false" jta="false" pool-name="cts-derby-notx-pool">
@@ -223,9 +223,9 @@
                         <password>cts1</password>
                     </security>
                     <validation>
-                       <validate-on-match>false</validate-on-match>
-                       <background-validation>false</background-validation>
-                       <use-fast-fail>false</use-fast-fail>
+                        <validate-on-match>false</validate-on-match>
+                        <background-validation>false</background-validation>
+                        <use-fast-fail>false</use-fast-fail>
                     </validation>
                 </datasource>
                 <datasource jndi-name="java:/jdbc/DBTimer" enabled="true" use-java-context="false" pool-name="cts-timer-pool">
@@ -238,9 +238,9 @@
                         <password>cts1</password>
                     </security>
                     <validation>
-                       <validate-on-match>false</validate-on-match>
-                       <background-validation>false</background-validation>
-                       <use-fast-fail>false</use-fast-fail>
+                        <validate-on-match>false</validate-on-match>
+                        <background-validation>false</background-validation>
+                        <use-fast-fail>false</use-fast-fail>
                     </validation>
                 </datasource>
                 <xa-datasource jndi-name="java:/JavadbXA" pool-name="cts-derbyEmbedded-pool">
@@ -258,32 +258,32 @@
                         <xa-datasource-class>org.h2.jdbcx.JdbcDataSource</xa-datasource-class>
                     </driver>
                     <driver name="derby" module="org.apache.derby.client">
-                       <xa-datasource-class>org.apache.derby.jdbc.ClientXADataSource</xa-datasource-class>
+                        <xa-datasource-class>org.apache.derby.jdbc.ClientXADataSource</xa-datasource-class>
                     </driver>
                     <driver name="derbyEmbedded" module="org.apache.derby.embedded">
-                       <xa-datasource-class>org.apache.derby.jdbc.EmbeddedXADataSource</xa-datasource-class>
+                        <xa-datasource-class>org.apache.derby.jdbc.EmbeddedXADataSource</xa-datasource-class>
                     </driver>
                 </drivers>
             </datasources>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:deployment-scanner:1.1">
-            <deployment-scanner scan-interval="5000" relative-to="jboss.server.base.dir" path="deployments" auto-deploy-zipped="false" />
+            <deployment-scanner scan-interval="5000" relative-to="jboss.server.base.dir" path="deployments" auto-deploy-zipped="false"/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:ee:1.1">
             <global-modules>
-                <module name="org.apache.derby.client" slot="main" />
-                <module name="org.apache.derby.embedded" slot="main" />
-                <module name="com.sun.ts" slot="main" />
+                <module name="org.apache.derby.client" slot="main"/>
+                <module name="org.apache.derby.embedded" slot="main"/>
+                <module name="com.sun.ts" slot="main"/>
             </global-modules>
             <spec-descriptor-property-replacement>false</spec-descriptor-property-replacement>
         </subsystem>
-        <subsystem xmlns="urn:jboss:domain:ejb3:1.3" >
+        <subsystem xmlns="urn:jboss:domain:ejb3:1.3">
             <!-- Session bean configurations -->
             <session-bean>
                 <stateless>
                     <bean-instance-pool-ref pool-name="slsb-strict-max-pool"/>
                 </stateless>
-                <stateful cache-ref="simple" default-access-timeout="300000" />
+                <stateful cache-ref="simple" default-access-timeout="300000"/>
                 <singleton default-access-timeout="300000"/>
             </session-bean>
             <!-- Default MDB configurations -->
@@ -308,18 +308,18 @@
             <passivation-stores>
                 <file-passivation-store name="file"/>
             </passivation-stores>
-            <async thread-pool-name="default" />
-            <timer-service thread-pool-name="default" >
+            <async thread-pool-name="default"/>
+            <timer-service thread-pool-name="default">
                 <data-store path="timer-service-data" relative-to="jboss.server.data.dir"/>
             </timer-service>
-            <remote connector-ref="remoting-connector" thread-pool-name="default" />
+            <remote connector-ref="remoting-connector" thread-pool-name="default"/>
             <thread-pools>
                 <thread-pool name="default">
                     <max-threads count="10"/>
                     <keepalive-time time="100" unit="milliseconds"/>
                 </thread-pool>
             </thread-pools>
-            <iiop enable-by-default="false" use-qualified-name="false" />
+            <iiop enable-by-default="false" use-qualified-name="false"/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:infinispan:1.3" default-cache-container="hibernate">
             <cache-container name="hibernate" default-cache="local-query">
@@ -347,15 +347,15 @@
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:jaxr:1.1">
             <connection-factory jndi-name="java:/eis/JAXR"/>
-                <properties>
-                    <property name="javax.xml.registry.lifeCycleManagerURL" value="http://localhost:8080/juddi/publish"/>
-                    <property name="javax.xml.registry.queryManagerURL" value="http://localhost:8080/juddi/query"/>
-                </properties>
+            <properties>
+                <property name="javax.xml.registry.lifeCycleManagerURL" value="http://localhost:8080/juddi/publish"/>
+                <property name="javax.xml.registry.queryManagerURL" value="http://localhost:8080/juddi/query"/>
+            </properties>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:jaxrs:1.0"/>
         <subsystem xmlns="urn:jboss:domain:jca:1.1">
             <archive-validation enabled="false"/>
-            <bean-validation enabled="true" />
+            <bean-validation enabled="true"/>
             <default-workmanager>
                 <short-running-threads>
                     <core-threads count="50"/>
@@ -383,556 +383,556 @@
         <subsystem xmlns="urn:jboss:domain:jsf:1.0"/>
         <subsystem xmlns="urn:jboss:domain:jsr77:1.0"/>
         <subsystem xmlns="urn:jboss:domain:mail:1.0">
-           <mail-session jndi-name="java:/mail/Session" from="no-reply@redhat.com" >
+            <mail-session jndi-name="java:/mail/Session" from="no-reply@redhat.com">
                 <smtp-server outbound-socket-binding-ref="mail-smtp">
                     <login name="nobody" password="password"/>
                 </smtp-server>
-           </mail-session>
+            </mail-session>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:messaging:1.2">
-           <hornetq-server>
-            <!-- disable messaging persistence -->
-            <persistence-enabled>true</persistence-enabled>
-            <shared-store>false</shared-store>
-            <!-- Default journal file size is 10Mb, reduced here to 100k for faster first boot -->
-            <journal-file-size>102400</journal-file-size>
-            <journal-min-files>2</journal-min-files>
-            <security-domain>messaging</security-domain>
+            <hornetq-server>
+                <!-- disable messaging persistence -->
+                <persistence-enabled>true</persistence-enabled>
+                <shared-store>false</shared-store>
+                <!-- Default journal file size is 10Mb, reduced here to 100k for faster first boot -->
+                <journal-file-size>102400</journal-file-size>
+                <journal-min-files>2</journal-min-files>
+                <security-domain>messaging</security-domain>
 
-            <connectors>
-               <netty-connector name="netty" socket-binding="messaging" />
-               <netty-connector name="netty-throughput" socket-binding="messaging-throughput">
-                  <param key="batch-delay" value="50"/>
-               </netty-connector>
-               <in-vm-connector name="in-vm" server-id="0" />
-            </connectors>
+                <connectors>
+                    <netty-connector name="netty" socket-binding="messaging"/>
+                    <netty-connector name="netty-throughput" socket-binding="messaging-throughput">
+                        <param key="batch-delay" value="50"/>
+                    </netty-connector>
+                    <in-vm-connector name="in-vm" server-id="0"/>
+                </connectors>
 
-            <acceptors>
-               <netty-acceptor name="netty" socket-binding="messaging" />
-               <netty-acceptor name="netty-throughput" socket-binding="messaging-throughput">
-                  <param key="batch-delay" value="50"/>
-                  <param key="direct-deliver" value="false"/>
-               </netty-acceptor>
-               <in-vm-acceptor name="in-vm" server-id="0" />
-            </acceptors>
+                <acceptors>
+                    <netty-acceptor name="netty" socket-binding="messaging"/>
+                    <netty-acceptor name="netty-throughput" socket-binding="messaging-throughput">
+                        <param key="batch-delay" value="50"/>
+                        <param key="direct-deliver" value="false"/>
+                    </netty-acceptor>
+                    <in-vm-acceptor name="in-vm" server-id="0"/>
+                </acceptors>
 
-            <security-settings>
-               <security-setting match="#">
-                   <permission type="createDurableQueue" roles="guest"/>
-                   <permission type="deleteDurableQueue" roles="guest"/>
-                   <permission type="createNonDurableQueue" roles="guest"/>
-                   <permission type="deleteNonDurableQueue" roles="guest"/>
-                    <permission type="consume" roles="guest"/>
-                    <permission type="send" roles="guest"/>
-                   <permission type="manage" roles="guest"/>
-               </security-setting>
-            </security-settings>
+                <security-settings>
+                    <security-setting match="#">
+                        <permission type="createDurableQueue" roles="guest"/>
+                        <permission type="deleteDurableQueue" roles="guest"/>
+                        <permission type="createNonDurableQueue" roles="guest"/>
+                        <permission type="deleteNonDurableQueue" roles="guest"/>
+                        <permission type="consume" roles="guest"/>
+                        <permission type="send" roles="guest"/>
+                        <permission type="manage" roles="guest"/>
+                    </security-setting>
+                </security-settings>
 
-            <address-settings>
-               <!--default for catch all-->
-               <address-setting match="#">
-                  <dead-letter-address>jms.queue.DLQ</dead-letter-address>
-                  <expiry-address>jms.queue.ExpiryQueue</expiry-address>
-                  <redelivery-delay>0</redelivery-delay>
-                  <max-size-bytes>10485760</max-size-bytes>
-                  <message-counter-history-day-limit>10</message-counter-history-day-limit>
-                  <address-full-policy>BLOCK</address-full-policy>
-               </address-setting>
-            </address-settings>
+                <address-settings>
+                    <!--default for catch all-->
+                    <address-setting match="#">
+                        <dead-letter-address>jms.queue.DLQ</dead-letter-address>
+                        <expiry-address>jms.queue.ExpiryQueue</expiry-address>
+                        <redelivery-delay>0</redelivery-delay>
+                        <max-size-bytes>10485760</max-size-bytes>
+                        <message-counter-history-day-limit>10</message-counter-history-day-limit>
+                        <address-full-policy>BLOCK</address-full-policy>
+                    </address-setting>
+                </address-settings>
 
-            <!--JMS Stuff-->
-           <jms-connection-factories>
-              <connection-factory name="InVmConnectionFactory">
-                 <connectors>
-                    <connector-ref connector-name="in-vm"/>
-                 </connectors>
-                 <entries>
-                    <entry name="java:/ConnectionFactory"/>
-                 </entries>
-              </connection-factory>
-              <connection-factory name="RemoteConnectionFactory">
-                 <connectors>
-                    <connector-ref connector-name="netty"/>
-                 </connectors>
-                 <entries>
-                    <entry name="RemoteConnectionFactory"/>
-                 </entries>
-              </connection-factory>
-              <pooled-connection-factory name="DURABLE_SUB_CONNECTION_FACTORY">
-                 <transaction mode="xa"/>
-                 <connectors>
-                    <connector-ref connector-name="netty"/>
-                 </connectors>
-                 <entries>
-                    <entry name="jms/DURABLE_SUB_CONNECTION_FACTORY"/>
-                 </entries>
-                 <client-id>cts</client-id>
-              </pooled-connection-factory>
-              <connection-factory name="MDBTACCESSTEST_FACTORY">
-                 <connectors>
-                    <connector-ref connector-name="netty"/>
-                 </connectors>
-                 <entries>
-                    <entry name="jms/MDBTACCESSTEST_FACTORY"/>
-                 </entries>
-                 <client-id>cts1</client-id>
-              </connection-factory>
-              <connection-factory name="DURABLE_BMT_CONNECTION_FACTORY">
-                 <connectors>
-                    <connector-ref connector-name="netty"/>
-                 </connectors>
-                 <entries>
-                    <entry name="jms/DURABLE_BMT_CONNECTION_FACTORY"/>
-                 </entries>
-                 <client-id>cts2</client-id>
-              </connection-factory>
-              <connection-factory name="DURABLE_CMT_CONNECTION_FACTORY">
-                 <connectors>
-                    <connector-ref connector-name="netty"/>
-                 </connectors>
-                 <entries>
-                    <entry name="jms/DURABLE_CMT_CONNECTION_FACTORY"/>
-                 </entries>
-                 <client-id>cts3</client-id>
-              </connection-factory>
-              <connection-factory name="DURABLE_BMT_XCONNECTION_FACTORY">
-                 <connectors>
-                    <connector-ref connector-name="netty"/>
-                 </connectors>
-                 <entries>
-                    <entry name="jms/DURABLE_BMT_XCONNECTION_FACTORY"/>
-                 </entries>
-                 <client-id>cts4</client-id>
-              </connection-factory>
-              <connection-factory name="DURABLE_CMT_XCONNECTION_FACTORY">
-                 <connectors>
-                    <connector-ref connector-name="netty"/>
-                 </connectors>
-                 <entries>
-                    <entry name="jms/DURABLE_CMT_XCONNECTION_FACTORY"/>
-                 </entries>
-                 <client-id>cts5</client-id>
-              </connection-factory>
-              <connection-factory name="DURABLE_CMT_TXNS_XCONNECTION_FACTORY">
-                 <connectors>
-                    <connector-ref connector-name="netty"/>
-                 </connectors>
-                 <entries>
-                    <entry name="jms/DURABLE_CMT_TXNS_XCONNECTION_FACTORY"/>
-                 </entries>
-                 <client-id>cts6</client-id>
-              </connection-factory>
-              <pooled-connection-factory name="ConnectionFactory">
-                 <transaction mode="xa"/>
-                 <connectors>
-                    <connector-ref connector-name="netty"/>
-                 </connectors>
-                 <entries>
-                    <entry name="jms/ConnectionFactory"/>
-                 </entries>
-              </pooled-connection-factory>
-              <pooled-connection-factory name="TopicConnectionFactory">
-                 <transaction mode="xa"/>
-                 <connectors>
-                    <connector-ref connector-name="netty"/>
-                 </connectors>
-                 <entries>
-                    <entry name="jms/TopicConnectionFactory"/>
-                 </entries>
-              </pooled-connection-factory>
+                <!--JMS Stuff-->
+                <jms-connection-factories>
+                    <connection-factory name="InVmConnectionFactory">
+                        <connectors>
+                            <connector-ref connector-name="in-vm"/>
+                        </connectors>
+                        <entries>
+                            <entry name="java:/ConnectionFactory"/>
+                        </entries>
+                    </connection-factory>
+                    <connection-factory name="RemoteConnectionFactory">
+                        <connectors>
+                            <connector-ref connector-name="netty"/>
+                        </connectors>
+                        <entries>
+                            <entry name="RemoteConnectionFactory"/>
+                        </entries>
+                    </connection-factory>
+                    <pooled-connection-factory name="DURABLE_SUB_CONNECTION_FACTORY">
+                        <transaction mode="xa"/>
+                        <connectors>
+                            <connector-ref connector-name="netty"/>
+                        </connectors>
+                        <entries>
+                            <entry name="jms/DURABLE_SUB_CONNECTION_FACTORY"/>
+                        </entries>
+                        <client-id>cts</client-id>
+                    </pooled-connection-factory>
+                    <connection-factory name="MDBTACCESSTEST_FACTORY">
+                        <connectors>
+                            <connector-ref connector-name="netty"/>
+                        </connectors>
+                        <entries>
+                            <entry name="jms/MDBTACCESSTEST_FACTORY"/>
+                        </entries>
+                        <client-id>cts1</client-id>
+                    </connection-factory>
+                    <connection-factory name="DURABLE_BMT_CONNECTION_FACTORY">
+                        <connectors>
+                            <connector-ref connector-name="netty"/>
+                        </connectors>
+                        <entries>
+                            <entry name="jms/DURABLE_BMT_CONNECTION_FACTORY"/>
+                        </entries>
+                        <client-id>cts2</client-id>
+                    </connection-factory>
+                    <connection-factory name="DURABLE_CMT_CONNECTION_FACTORY">
+                        <connectors>
+                            <connector-ref connector-name="netty"/>
+                        </connectors>
+                        <entries>
+                            <entry name="jms/DURABLE_CMT_CONNECTION_FACTORY"/>
+                        </entries>
+                        <client-id>cts3</client-id>
+                    </connection-factory>
+                    <connection-factory name="DURABLE_BMT_XCONNECTION_FACTORY">
+                        <connectors>
+                            <connector-ref connector-name="netty"/>
+                        </connectors>
+                        <entries>
+                            <entry name="jms/DURABLE_BMT_XCONNECTION_FACTORY"/>
+                        </entries>
+                        <client-id>cts4</client-id>
+                    </connection-factory>
+                    <connection-factory name="DURABLE_CMT_XCONNECTION_FACTORY">
+                        <connectors>
+                            <connector-ref connector-name="netty"/>
+                        </connectors>
+                        <entries>
+                            <entry name="jms/DURABLE_CMT_XCONNECTION_FACTORY"/>
+                        </entries>
+                        <client-id>cts5</client-id>
+                    </connection-factory>
+                    <connection-factory name="DURABLE_CMT_TXNS_XCONNECTION_FACTORY">
+                        <connectors>
+                            <connector-ref connector-name="netty"/>
+                        </connectors>
+                        <entries>
+                            <entry name="jms/DURABLE_CMT_TXNS_XCONNECTION_FACTORY"/>
+                        </entries>
+                        <client-id>cts6</client-id>
+                    </connection-factory>
+                    <pooled-connection-factory name="ConnectionFactory">
+                        <transaction mode="xa"/>
+                        <connectors>
+                            <connector-ref connector-name="netty"/>
+                        </connectors>
+                        <entries>
+                            <entry name="jms/ConnectionFactory"/>
+                        </entries>
+                    </pooled-connection-factory>
+                    <pooled-connection-factory name="TopicConnectionFactory">
+                        <transaction mode="xa"/>
+                        <connectors>
+                            <connector-ref connector-name="netty"/>
+                        </connectors>
+                        <entries>
+                            <entry name="jms/TopicConnectionFactory"/>
+                        </entries>
+                    </pooled-connection-factory>
 
-              <!-- There seems to be issues creating more than one pooled connection factory ATM-->
-              <!-- This one is used in the EJB tx tests, if others need to be transactional we may-->
-              <!-- have to alias them -->
-              <pooled-connection-factory name="hornetq-ra">
-                 <transaction mode="xa"/>
-                 <connectors>
-                    <connector-ref connector-name="in-vm"/>
-                 </connectors>
-                 <entries>
-                    <entry name="jms/QueueConnectionFactory"/>
-                 </entries>
-                  <client-id>cts7</client-id>
-              </pooled-connection-factory>
-           </jms-connection-factories>
-           <jms-destinations>
-                <jms-queue name="testQueue">
-                   <entry name="queue/test"/>
-                </jms-queue>
-                <jms-queue name="MDB_QUEUE">
-                    <entry name="MDB_QUEUE"/>
-                </jms-queue>
-                <jms-queue name="MDB_QUEUE_REPLY">
-                    <entry name="MDB_QUEUE_REPLY"/>
-                </jms-queue>
-                <jms-queue name="MY_QUEUE">
-                    <entry name="MY_QUEUE"/>
-                </jms-queue>
-                <jms-queue name="MY_QUEUE2">
-                    <entry name="MY_QUEUE2"/>
-                </jms-queue>
-                <jms-queue name="Q2">
-                    <entry name="Q2"/>
-                </jms-queue>
-                <jms-queue name="QUEUE_BMT">
-                    <entry name="QUEUE_BMT"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_bb_localaccess_mdbqaccesstest_MDB_QUEUE">
-                    <entry name="ejb_ee_bb_localaccess_mdbqaccesstest_MDB_QUEUE"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejblink_casesensT_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_casesensT_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejblink_casesens_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_casesens_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejblink_casesens_TestBean">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_casesens_TestBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejblink_scopeT_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_scopeT_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejblink_scope_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_scope_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejblink_scope_TestBean">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_scope_TestBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejblink_singleT_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_singleT_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejblink_single_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_single_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejblink_single_TestBean">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_single_TestBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejblink_single_TestBeanBMT">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_single_TestBeanBMT"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejbref_casesensT_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_casesensT_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejbref_casesens_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_casesens_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejbref_casesens_TestBean">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_casesens_TestBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejbref_scopeT_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_scopeT_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejbref_scope_Cyrano">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_scope_Cyrano"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejbref_scope_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_scope_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejbref_scope_Romeo">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_scope_Romeo"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejbref_scope_Tristan">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_scope_Tristan"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejbref_singleT_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_singleT_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejbref_single_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_single_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejbref_single_TestBean">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_single_TestBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_ejbref_single_TestBeanBMT">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_single_TestBeanBMT"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_casesensT_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_enventry_casesensT_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_casesens_CaseBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_casesens_CaseBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_casesens_CaseBeanBMT">
-                    <entry name="ejb_ee_deploy_mdb_enventry_casesens_CaseBeanBMT"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_casesens_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_enventry_casesens_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_scopeT_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_enventry_scopeT_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_scope_Bean1_MultiJar">
-                    <entry name="ejb_ee_deploy_mdb_enventry_scope_Bean1_MultiJar"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_scope_Bean1_SameJar">
-                    <entry name="ejb_ee_deploy_mdb_enventry_scope_Bean1_SameJar"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_scope_Bean2_SameJar">
-                    <entry name="ejb_ee_deploy_mdb_enventry_scope_Bean2_SameJar"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_scope_Bean2_MultiJar">
-                    <entry name="ejb_ee_deploy_mdb_enventry_scope_Bean2_MultiJar"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_scope_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_enventry_scope_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_singleT_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_enventry_singleT_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_single_AllBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_single_AllBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_single_AllBeanBMT">
-                    <entry name="ejb_ee_deploy_mdb_enventry_single_AllBeanBMT"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_single_BooleanBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_single_BooleanBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_single_ByteBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_single_ByteBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_single_DoubleBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_single_DoubleBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_single_FloatBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_single_FloatBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_single_IntegerBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_single_IntegerBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_single_LongBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_single_LongBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_single_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_enventry_single_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_single_ShortBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_single_ShortBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_enventry_single_StringBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_single_StringBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_resref_singleT_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_resref_singleT_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_resref_single_ReplyQueue">
-                    <entry name="ejb_ee_deploy_mdb_resref_single_ReplyQueue"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_deploy_mdb_resref_single_TestBean">
-                    <entry name="ejb_ee_deploy_mdb_resref_single_TestBean"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_sec_stateful_mdb_MDB_QUEUE">
-                    <entry name="ejb_ee_sec_stateful_mdb_MDB_QUEUE"/>
-                </jms-queue>
-                <jms-queue name="ejb_ee_timer_mdb_MsgBean">
-                    <entry name="ejb_ee_timer_mdb_MsgBean"/>
-                </jms-queue>
-                <jms-queue name="fooQ">
-                    <entry name="fooQ"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_exceptQ_MDB_QUEUETXNS_CMT">
-                    <entry name="jms_ee_mdb_mdb_exceptQ_MDB_QUEUETXNS_CMT"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_exceptQ_MDB_QUEUE_BMT">
-                    <entry name="jms_ee_mdb_mdb_exceptQ_MDB_QUEUE_BMT"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_exceptQ_MDB_QUEUE_CMT">
-                    <entry name="jms_ee_mdb_mdb_exceptQ_MDB_QUEUE_CMT"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_exceptT_MDB_QUEUETXNS_CMT">
-                    <entry name="jms_ee_mdb_mdb_exceptT_MDB_QUEUETXNS_CMT"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_exceptT_MDB_QUEUE_BMT">
-                    <entry name="jms_ee_mdb_mdb_exceptT_MDB_QUEUE_BMT"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_exceptT_MDB_QUEUE_CMT">
-                    <entry name="jms_ee_mdb_mdb_exceptT_MDB_QUEUE_CMT"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_msgHdrQ_MDB_QUEUE">
-                    <entry name="jms_ee_mdb_mdb_msgHdrQ_MDB_QUEUE"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_msgPropsQ_MDB_QUEUE">
-                    <entry name="jms_ee_mdb_mdb_msgPropsQ_MDB_QUEUE"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_msgTypesQ1_MDB_QUEUE">
-                    <entry name="jms_ee_mdb_mdb_msgTypesQ1_MDB_QUEUE"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_msgTypesQ2_MDB_QUEUE">
-                    <entry name="jms_ee_mdb_mdb_msgTypesQ2_MDB_QUEUE"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_msgTypesQ3_MDB_QUEUE">
-                    <entry name="jms_ee_mdb_mdb_msgTypesQ3_MDB_QUEUE"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_rec_MDB_QUEUE">
-                    <entry name="jms_ee_mdb_mdb_rec_MDB_QUEUE"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_sndToQueue_MDB_QUEUE">
-                    <entry name="jms_ee_mdb_mdb_sndToQueue_MDB_QUEUE"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_sndQ_MDB_QUEUE">
-                    <entry name="jms_ee_mdb_mdb_sndQ_MDB_QUEUE"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_mdb_synchrec_MDB_QUEUE">
-                    <entry name="jms_ee_mdb_mdb_synchrec_MDB_QUEUE"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_xa_MDB_QUEUE_BMT">
-                    <entry name="jms_ee_mdb_xa_MDB_QUEUE_BMT"/>
-                </jms-queue>
-                <jms-queue name="jms_ee_mdb_xa_MDB_QUEUE_CMT">
-                    <entry name="jms_ee_mdb_xa_MDB_QUEUE_CMT"/>
-                </jms-queue>
-                <jms-queue name="ejb_sec_mdb_MDB_QUEUE_BMT">
-                    <entry name="ejb_sec_mdb_MDB_QUEUE_BMT"/>
-                </jms-queue>
-                <jms-queue name="ejb_sec_mdb_MDB_QUEUE_CMT">
-                    <entry name="ejb_sec_mdb_MDB_QUEUE_CMT"/>
-                </jms-queue>
-                <jms-queue name="testQ0">
-                    <entry name="testQ0"/>
-                </jms-queue>
-                <jms-queue name="testQ1">
-                    <entry name="testQ1"/>
-                </jms-queue>
-                <jms-queue name="testQ2">
-                    <entry name="testQ2"/>
-                </jms-queue>
-                <jms-queue name="testQueue2">
-                    <entry name="testQueue2"/>
-                </jms-queue>
-                <jms-topic name="MY_TOPIC" >
-                    <entry name="MY_TOPIC"/>
-                </jms-topic>
-                <jms-topic name="MY_TOPIC1">
-                    <entry name="MY_TOPIC1"/>
-                </jms-topic>
-                <jms-topic name="TOPIC_BMT">
-                    <entry name="TOPIC_BMT"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_bb_localaccess_mdbtaccesstest_MDB_TOPIC">
-                    <entry name="ejb_ee_bb_localaccess_mdbtaccesstest_MDB_TOPIC"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_ejblink_casesensT_TestBean">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_casesensT_TestBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_ejblink_scopeT_TestBean">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_scopeT_TestBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_ejblink_singleT_TestBean">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_singleT_TestBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_ejblink_singleT_TestBeanBMT">
-                    <entry name="ejb_ee_deploy_mdb_ejblink_singleT_TestBeanBMT"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_ejbref_casesensT_TestBean">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_casesensT_TestBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_ejbref_scopeT_Cyrano">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_scopeT_Cyrano"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_ejbref_scopeT_Romeo">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_scopeT_Romeo"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_ejbref_scopeT_Tristan">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_scopeT_Tristan"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_ejbref_singleT_TestBean">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_singleT_TestBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_ejbref_singleT_TestBeanBMT">
-                    <entry name="ejb_ee_deploy_mdb_ejbref_singleT_TestBeanBMT"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_casesensT_CaseBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_casesensT_CaseBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_casesensT_CaseBeanBMT">
-                    <entry name="ejb_ee_deploy_mdb_enventry_casesensT_CaseBeanBMT"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_scopeT_Bean1_MultiJar">
-                    <entry name="ejb_ee_deploy_mdb_enventry_scopeT_Bean1_MultiJar"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_scopeT_Bean1_SameJar">
-                    <entry name="ejb_ee_deploy_mdb_enventry_scopeT_Bean1_SameJar"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_scopeT_Bean2_MultiJar">
-                    <entry name="ejb_ee_deploy_mdb_enventry_scopeT_Bean2_MultiJar"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_scopeT_Bean2_SameJar">
-                    <entry name="ejb_ee_deploy_mdb_enventry_scopeT_Bean2_SameJar"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_AllBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_singleT_AllBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_AllBeanBMT">
-                    <entry name="ejb_ee_deploy_mdb_enventry_singleT_AllBeanBMT"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_BooleanBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_singleT_BooleanBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_ByteBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_singleT_ByteBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_DoubleBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_singleT_DoubleBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_FloatBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_singleT_FloatBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_IntegerBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_singleT_IntegerBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_LongBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_singleT_LongBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_ShortBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_singleT_ShortBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_StringBean">
-                    <entry name="ejb_ee_deploy_mdb_enventry_singleT_StringBean"/>
-                </jms-topic>
-                <jms-topic name="ejb_ee_deploy_mdb_resref_singleT_TestBean">
-                    <entry name="ejb_ee_deploy_mdb_resref_singleT_TestBean"/>
-                </jms-topic>
-                <jms-topic name="jms_ee_mdb_mdb_exceptT_MDB_DURABLETXNS_CMT">
-                    <entry name="jms_ee_mdb_mdb_exceptT_MDB_DURABLETXNS_CMT"/>
-                </jms-topic>
-                <jms-topic name="jms_ee_mdb_mdb_exceptT_MDB_DURABLE_BMT">
-                    <entry name="jms_ee_mdb_mdb_exceptT_MDB_DURABLE_BMT"/>
-                </jms-topic>
-                <jms-topic name="jms_ee_mdb_mdb_exceptT_MDB_DURABLE_CMT">
-                    <entry name="jms_ee_mdb_mdb_exceptT_MDB_DURABLE_CMT"/>
-                </jms-topic>
-                <jms-topic name="jms_ee_mdb_mdb_msgHdrT_MDB_TOPIC">
-                    <entry name="jms_ee_mdb_mdb_msgHdrT_MDB_TOPIC"/>
-                </jms-topic>
-                <jms-topic name="jms_ee_mdb_mdb_msgPropsT_MDB_TOPIC">
-                    <entry name="jms_ee_mdb_mdb_msgPropsT_MDB_TOPIC"/>
-                </jms-topic>
-                <jms-topic name="jms_ee_mdb_mdb_msgTypesT1_MDB_TOPIC">
-                    <entry name="jms_ee_mdb_mdb_msgTypesT1_MDB_TOPIC"/>
-                </jms-topic>
-                <jms-topic name="jms_ee_mdb_mdb_msgTypesT2_MDB_TOPIC">
-                    <entry name="jms_ee_mdb_mdb_msgTypesT2_MDB_TOPIC"/>
-                </jms-topic>
-                <jms-topic name="jms_ee_mdb_mdb_msgTypesT3_MDB_TOPIC">
-                    <entry name="jms_ee_mdb_mdb_msgTypesT3_MDB_TOPIC"/>
-                </jms-topic>
-                <jms-topic name="jms_ee_mdb_mdb_rec_MDB_TOPIC">
-                    <entry name="jms_ee_mdb_mdb_rec_MDB_TOPIC"/>
-                </jms-topic>
-                <jms-topic name="jms_ee_mdb_mdb_sndToTopic_MDB_TOPIC">
-                    <entry name="jms_ee_mdb_mdb_sndToTopic_MDB_TOPIC"/>
-                </jms-topic>
-                <jms-topic name="jms_ee_mdb_mdb_sndToTopic_MDB_TOPIC_REPLY">
-                    <entry name="jms_ee_mdb_mdb_sndToTopic_MDB_TOPIC_REPLY"/>
-                </jms-topic>
-                <jms-topic name="jms_ee_mdb_xa_MDB_DURABLE_BMT">
-                    <entry name="jms_ee_mdb_xa_MDB_DURABLE_BMT"/>
-                </jms-topic>
-                <jms-topic name="jms_ee_mdb_xa_MDB_DURABLE_CMT">
-                    <entry name="jms_ee_mdb_xa_MDB_DURABLE_CMT"/>
-                </jms-topic>
-           </jms-destinations>
-           </hornetq-server>
+                    <!-- There seems to be issues creating more than one pooled connection factory ATM-->
+                    <!-- This one is used in the EJB tx tests, if others need to be transactional we may-->
+                    <!-- have to alias them -->
+                    <pooled-connection-factory name="hornetq-ra">
+                        <transaction mode="xa"/>
+                        <connectors>
+                            <connector-ref connector-name="in-vm"/>
+                        </connectors>
+                        <entries>
+                            <entry name="jms/QueueConnectionFactory"/>
+                        </entries>
+                        <client-id>cts7</client-id>
+                    </pooled-connection-factory>
+                </jms-connection-factories>
+                <jms-destinations>
+                    <jms-queue name="testQueue">
+                        <entry name="queue/test"/>
+                    </jms-queue>
+                    <jms-queue name="MDB_QUEUE">
+                        <entry name="MDB_QUEUE"/>
+                    </jms-queue>
+                    <jms-queue name="MDB_QUEUE_REPLY">
+                        <entry name="MDB_QUEUE_REPLY"/>
+                    </jms-queue>
+                    <jms-queue name="MY_QUEUE">
+                        <entry name="MY_QUEUE"/>
+                    </jms-queue>
+                    <jms-queue name="MY_QUEUE2">
+                        <entry name="MY_QUEUE2"/>
+                    </jms-queue>
+                    <jms-queue name="Q2">
+                        <entry name="Q2"/>
+                    </jms-queue>
+                    <jms-queue name="QUEUE_BMT">
+                        <entry name="QUEUE_BMT"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_bb_localaccess_mdbqaccesstest_MDB_QUEUE">
+                        <entry name="ejb_ee_bb_localaccess_mdbqaccesstest_MDB_QUEUE"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejblink_casesensT_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_casesensT_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejblink_casesens_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_casesens_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejblink_casesens_TestBean">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_casesens_TestBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejblink_scopeT_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_scopeT_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejblink_scope_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_scope_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejblink_scope_TestBean">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_scope_TestBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejblink_singleT_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_singleT_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejblink_single_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_single_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejblink_single_TestBean">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_single_TestBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejblink_single_TestBeanBMT">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_single_TestBeanBMT"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejbref_casesensT_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_casesensT_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejbref_casesens_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_casesens_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejbref_casesens_TestBean">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_casesens_TestBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejbref_scopeT_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_scopeT_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejbref_scope_Cyrano">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_scope_Cyrano"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejbref_scope_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_scope_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejbref_scope_Romeo">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_scope_Romeo"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejbref_scope_Tristan">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_scope_Tristan"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejbref_singleT_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_singleT_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejbref_single_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_single_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejbref_single_TestBean">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_single_TestBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_ejbref_single_TestBeanBMT">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_single_TestBeanBMT"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_casesensT_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_enventry_casesensT_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_casesens_CaseBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_casesens_CaseBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_casesens_CaseBeanBMT">
+                        <entry name="ejb_ee_deploy_mdb_enventry_casesens_CaseBeanBMT"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_casesens_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_enventry_casesens_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_scopeT_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_enventry_scopeT_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_scope_Bean1_MultiJar">
+                        <entry name="ejb_ee_deploy_mdb_enventry_scope_Bean1_MultiJar"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_scope_Bean1_SameJar">
+                        <entry name="ejb_ee_deploy_mdb_enventry_scope_Bean1_SameJar"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_scope_Bean2_SameJar">
+                        <entry name="ejb_ee_deploy_mdb_enventry_scope_Bean2_SameJar"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_scope_Bean2_MultiJar">
+                        <entry name="ejb_ee_deploy_mdb_enventry_scope_Bean2_MultiJar"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_scope_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_enventry_scope_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_singleT_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_enventry_singleT_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_single_AllBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_single_AllBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_single_AllBeanBMT">
+                        <entry name="ejb_ee_deploy_mdb_enventry_single_AllBeanBMT"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_single_BooleanBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_single_BooleanBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_single_ByteBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_single_ByteBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_single_DoubleBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_single_DoubleBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_single_FloatBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_single_FloatBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_single_IntegerBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_single_IntegerBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_single_LongBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_single_LongBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_single_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_enventry_single_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_single_ShortBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_single_ShortBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_enventry_single_StringBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_single_StringBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_resref_singleT_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_resref_singleT_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_resref_single_ReplyQueue">
+                        <entry name="ejb_ee_deploy_mdb_resref_single_ReplyQueue"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_deploy_mdb_resref_single_TestBean">
+                        <entry name="ejb_ee_deploy_mdb_resref_single_TestBean"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_sec_stateful_mdb_MDB_QUEUE">
+                        <entry name="ejb_ee_sec_stateful_mdb_MDB_QUEUE"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_ee_timer_mdb_MsgBean">
+                        <entry name="ejb_ee_timer_mdb_MsgBean"/>
+                    </jms-queue>
+                    <jms-queue name="fooQ">
+                        <entry name="fooQ"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_exceptQ_MDB_QUEUETXNS_CMT">
+                        <entry name="jms_ee_mdb_mdb_exceptQ_MDB_QUEUETXNS_CMT"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_exceptQ_MDB_QUEUE_BMT">
+                        <entry name="jms_ee_mdb_mdb_exceptQ_MDB_QUEUE_BMT"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_exceptQ_MDB_QUEUE_CMT">
+                        <entry name="jms_ee_mdb_mdb_exceptQ_MDB_QUEUE_CMT"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_exceptT_MDB_QUEUETXNS_CMT">
+                        <entry name="jms_ee_mdb_mdb_exceptT_MDB_QUEUETXNS_CMT"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_exceptT_MDB_QUEUE_BMT">
+                        <entry name="jms_ee_mdb_mdb_exceptT_MDB_QUEUE_BMT"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_exceptT_MDB_QUEUE_CMT">
+                        <entry name="jms_ee_mdb_mdb_exceptT_MDB_QUEUE_CMT"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_msgHdrQ_MDB_QUEUE">
+                        <entry name="jms_ee_mdb_mdb_msgHdrQ_MDB_QUEUE"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_msgPropsQ_MDB_QUEUE">
+                        <entry name="jms_ee_mdb_mdb_msgPropsQ_MDB_QUEUE"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_msgTypesQ1_MDB_QUEUE">
+                        <entry name="jms_ee_mdb_mdb_msgTypesQ1_MDB_QUEUE"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_msgTypesQ2_MDB_QUEUE">
+                        <entry name="jms_ee_mdb_mdb_msgTypesQ2_MDB_QUEUE"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_msgTypesQ3_MDB_QUEUE">
+                        <entry name="jms_ee_mdb_mdb_msgTypesQ3_MDB_QUEUE"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_rec_MDB_QUEUE">
+                        <entry name="jms_ee_mdb_mdb_rec_MDB_QUEUE"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_sndToQueue_MDB_QUEUE">
+                        <entry name="jms_ee_mdb_mdb_sndToQueue_MDB_QUEUE"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_sndQ_MDB_QUEUE">
+                        <entry name="jms_ee_mdb_mdb_sndQ_MDB_QUEUE"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_mdb_synchrec_MDB_QUEUE">
+                        <entry name="jms_ee_mdb_mdb_synchrec_MDB_QUEUE"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_xa_MDB_QUEUE_BMT">
+                        <entry name="jms_ee_mdb_xa_MDB_QUEUE_BMT"/>
+                    </jms-queue>
+                    <jms-queue name="jms_ee_mdb_xa_MDB_QUEUE_CMT">
+                        <entry name="jms_ee_mdb_xa_MDB_QUEUE_CMT"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_sec_mdb_MDB_QUEUE_BMT">
+                        <entry name="ejb_sec_mdb_MDB_QUEUE_BMT"/>
+                    </jms-queue>
+                    <jms-queue name="ejb_sec_mdb_MDB_QUEUE_CMT">
+                        <entry name="ejb_sec_mdb_MDB_QUEUE_CMT"/>
+                    </jms-queue>
+                    <jms-queue name="testQ0">
+                        <entry name="testQ0"/>
+                    </jms-queue>
+                    <jms-queue name="testQ1">
+                        <entry name="testQ1"/>
+                    </jms-queue>
+                    <jms-queue name="testQ2">
+                        <entry name="testQ2"/>
+                    </jms-queue>
+                    <jms-queue name="testQueue2">
+                        <entry name="testQueue2"/>
+                    </jms-queue>
+                    <jms-topic name="MY_TOPIC">
+                        <entry name="MY_TOPIC"/>
+                    </jms-topic>
+                    <jms-topic name="MY_TOPIC1">
+                        <entry name="MY_TOPIC1"/>
+                    </jms-topic>
+                    <jms-topic name="TOPIC_BMT">
+                        <entry name="TOPIC_BMT"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_bb_localaccess_mdbtaccesstest_MDB_TOPIC">
+                        <entry name="ejb_ee_bb_localaccess_mdbtaccesstest_MDB_TOPIC"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_ejblink_casesensT_TestBean">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_casesensT_TestBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_ejblink_scopeT_TestBean">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_scopeT_TestBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_ejblink_singleT_TestBean">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_singleT_TestBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_ejblink_singleT_TestBeanBMT">
+                        <entry name="ejb_ee_deploy_mdb_ejblink_singleT_TestBeanBMT"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_ejbref_casesensT_TestBean">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_casesensT_TestBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_ejbref_scopeT_Cyrano">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_scopeT_Cyrano"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_ejbref_scopeT_Romeo">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_scopeT_Romeo"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_ejbref_scopeT_Tristan">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_scopeT_Tristan"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_ejbref_singleT_TestBean">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_singleT_TestBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_ejbref_singleT_TestBeanBMT">
+                        <entry name="ejb_ee_deploy_mdb_ejbref_singleT_TestBeanBMT"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_casesensT_CaseBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_casesensT_CaseBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_casesensT_CaseBeanBMT">
+                        <entry name="ejb_ee_deploy_mdb_enventry_casesensT_CaseBeanBMT"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_scopeT_Bean1_MultiJar">
+                        <entry name="ejb_ee_deploy_mdb_enventry_scopeT_Bean1_MultiJar"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_scopeT_Bean1_SameJar">
+                        <entry name="ejb_ee_deploy_mdb_enventry_scopeT_Bean1_SameJar"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_scopeT_Bean2_MultiJar">
+                        <entry name="ejb_ee_deploy_mdb_enventry_scopeT_Bean2_MultiJar"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_scopeT_Bean2_SameJar">
+                        <entry name="ejb_ee_deploy_mdb_enventry_scopeT_Bean2_SameJar"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_AllBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_singleT_AllBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_AllBeanBMT">
+                        <entry name="ejb_ee_deploy_mdb_enventry_singleT_AllBeanBMT"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_BooleanBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_singleT_BooleanBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_ByteBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_singleT_ByteBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_DoubleBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_singleT_DoubleBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_FloatBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_singleT_FloatBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_IntegerBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_singleT_IntegerBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_LongBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_singleT_LongBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_ShortBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_singleT_ShortBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_enventry_singleT_StringBean">
+                        <entry name="ejb_ee_deploy_mdb_enventry_singleT_StringBean"/>
+                    </jms-topic>
+                    <jms-topic name="ejb_ee_deploy_mdb_resref_singleT_TestBean">
+                        <entry name="ejb_ee_deploy_mdb_resref_singleT_TestBean"/>
+                    </jms-topic>
+                    <jms-topic name="jms_ee_mdb_mdb_exceptT_MDB_DURABLETXNS_CMT">
+                        <entry name="jms_ee_mdb_mdb_exceptT_MDB_DURABLETXNS_CMT"/>
+                    </jms-topic>
+                    <jms-topic name="jms_ee_mdb_mdb_exceptT_MDB_DURABLE_BMT">
+                        <entry name="jms_ee_mdb_mdb_exceptT_MDB_DURABLE_BMT"/>
+                    </jms-topic>
+                    <jms-topic name="jms_ee_mdb_mdb_exceptT_MDB_DURABLE_CMT">
+                        <entry name="jms_ee_mdb_mdb_exceptT_MDB_DURABLE_CMT"/>
+                    </jms-topic>
+                    <jms-topic name="jms_ee_mdb_mdb_msgHdrT_MDB_TOPIC">
+                        <entry name="jms_ee_mdb_mdb_msgHdrT_MDB_TOPIC"/>
+                    </jms-topic>
+                    <jms-topic name="jms_ee_mdb_mdb_msgPropsT_MDB_TOPIC">
+                        <entry name="jms_ee_mdb_mdb_msgPropsT_MDB_TOPIC"/>
+                    </jms-topic>
+                    <jms-topic name="jms_ee_mdb_mdb_msgTypesT1_MDB_TOPIC">
+                        <entry name="jms_ee_mdb_mdb_msgTypesT1_MDB_TOPIC"/>
+                    </jms-topic>
+                    <jms-topic name="jms_ee_mdb_mdb_msgTypesT2_MDB_TOPIC">
+                        <entry name="jms_ee_mdb_mdb_msgTypesT2_MDB_TOPIC"/>
+                    </jms-topic>
+                    <jms-topic name="jms_ee_mdb_mdb_msgTypesT3_MDB_TOPIC">
+                        <entry name="jms_ee_mdb_mdb_msgTypesT3_MDB_TOPIC"/>
+                    </jms-topic>
+                    <jms-topic name="jms_ee_mdb_mdb_rec_MDB_TOPIC">
+                        <entry name="jms_ee_mdb_mdb_rec_MDB_TOPIC"/>
+                    </jms-topic>
+                    <jms-topic name="jms_ee_mdb_mdb_sndToTopic_MDB_TOPIC">
+                        <entry name="jms_ee_mdb_mdb_sndToTopic_MDB_TOPIC"/>
+                    </jms-topic>
+                    <jms-topic name="jms_ee_mdb_mdb_sndToTopic_MDB_TOPIC_REPLY">
+                        <entry name="jms_ee_mdb_mdb_sndToTopic_MDB_TOPIC_REPLY"/>
+                    </jms-topic>
+                    <jms-topic name="jms_ee_mdb_xa_MDB_DURABLE_BMT">
+                        <entry name="jms_ee_mdb_xa_MDB_DURABLE_BMT"/>
+                    </jms-topic>
+                    <jms-topic name="jms_ee_mdb_xa_MDB_DURABLE_CMT">
+                        <entry name="jms_ee_mdb_xa_MDB_DURABLE_CMT"/>
+                    </jms-topic>
+                </jms-destinations>
+            </hornetq-server>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:naming:1.2">
             <bindings>
@@ -956,69 +956,69 @@
                 <capability name="org.jboss.as.osgi.configadmin" startlevel="1"/>
             </capabilities>
         </subsystem>
-        <subsystem xmlns="urn:jboss:domain:pojo:1.0" />
+        <subsystem xmlns="urn:jboss:domain:pojo:1.0"/>
         <subsystem xmlns="urn:jboss:domain:remoting:1.1">
             <connector name="remoting-connector" socket-binding="remoting" security-realm="cts"/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:resource-adapters:1.0">
             <resource-adapters>
-               <resource-adapter >
-                  <archive>whitebox-tx.rar</archive>
-                  <connection-definitions>
-                       <connection-definition jndi-name="java:/eis/whitebox-tx"
-                                              class-name="com.sun.ts.tests.common.connector.whitebox.LocalTxManagedConnectionFactory"
-                                              pool-name="wb-tx-connection">
-                       </connection-definition>
-                   </connection-definitions>
-                </resource-adapter>
-                <resource-adapter >
-                   <archive>whitebox-notx.rar</archive>
-                   <connection-definitions>
-                       <connection-definition jndi-name="java:/eis/whitebox-notx"
-                                              class-name="com.sun.ts.tests.common.connector.whitebox.NoTxManagedConnectionFactory"
-                                              pool-name="wb-notx-connection">
-                       </connection-definition>
+                <resource-adapter>
+                    <archive>whitebox-tx.rar</archive>
+                    <connection-definitions>
+                        <connection-definition jndi-name="java:/eis/whitebox-tx"
+                                               class-name="com.sun.ts.tests.common.connector.whitebox.LocalTxManagedConnectionFactory"
+                                               pool-name="wb-tx-connection">
+                        </connection-definition>
                     </connection-definitions>
                 </resource-adapter>
-                <resource-adapter >
-                   <archive>whitebox-xa.rar</archive>
-                   <connection-definitions>
-                       <connection-definition jndi-name="java:/eis/whitebox-xa"
-                                              class-name="com.sun.ts.tests.common.connector.whitebox.XAManagedConnectionFactory"
-                                              pool-name="wb-xa-connection">
-                         <recovery no-recovery="true"/>
-                       </connection-definition>
-                   </connection-definitions>
+                <resource-adapter>
+                    <archive>whitebox-notx.rar</archive>
+                    <connection-definitions>
+                        <connection-definition jndi-name="java:/eis/whitebox-notx"
+                                               class-name="com.sun.ts.tests.common.connector.whitebox.NoTxManagedConnectionFactory"
+                                               pool-name="wb-notx-connection">
+                        </connection-definition>
+                    </connection-definitions>
                 </resource-adapter>
-                <resource-adapter >
-                   <archive>whitebox-tx-param.rar</archive>
-                   <connection-definitions>
-                       <connection-definition jndi-name="java:/eis/whitebox-tx-param"
-                                              class-name="com.sun.ts.tests.common.connector.whitebox.LocalTxManagedConnectionFactory"
-                                              pool-name="wb-txparam-connection">
-                       </connection-definition>
-                   </connection-definitions>
+                <resource-adapter>
+                    <archive>whitebox-xa.rar</archive>
+                    <connection-definitions>
+                        <connection-definition jndi-name="java:/eis/whitebox-xa"
+                                               class-name="com.sun.ts.tests.common.connector.whitebox.XAManagedConnectionFactory"
+                                               pool-name="wb-xa-connection">
+                            <recovery no-recovery="true"/>
+                        </connection-definition>
+                    </connection-definitions>
                 </resource-adapter>
-               <resource-adapter >
-                   <archive>whitebox-notx-param.rar</archive>
-                   <connection-definitions>
-                       <connection-definition jndi-name="java:/eis/whitebox-notx-param"
-                                              class-name="com.sun.ts.tests.common.connector.whitebox.NoTxManagedConnectionFactory"
-                                              pool-name="wb-notxparam-connection">
-                       </connection-definition>
-                   </connection-definitions>
+                <resource-adapter>
+                    <archive>whitebox-tx-param.rar</archive>
+                    <connection-definitions>
+                        <connection-definition jndi-name="java:/eis/whitebox-tx-param"
+                                               class-name="com.sun.ts.tests.common.connector.whitebox.LocalTxManagedConnectionFactory"
+                                               pool-name="wb-txparam-connection">
+                        </connection-definition>
+                    </connection-definitions>
                 </resource-adapter>
-                <resource-adapter >
-                   <archive>whitebox-xa-param.rar</archive>
-                   <connection-definitions>
-                       <connection-definition jndi-name="java:/eis/whitebox-xa-param"
-                                              class-name="com.sun.ts.tests.common.connector.whitebox.XAManagedConnectionFactory"
-                                              pool-name="wb-xaparam-connection">
-                         <recovery no-recovery="true"/>
-                       </connection-definition>
-                   </connection-definitions>
-                 </resource-adapter>
-                 <resource-adapter >
+                <resource-adapter>
+                    <archive>whitebox-notx-param.rar</archive>
+                    <connection-definitions>
+                        <connection-definition jndi-name="java:/eis/whitebox-notx-param"
+                                               class-name="com.sun.ts.tests.common.connector.whitebox.NoTxManagedConnectionFactory"
+                                               pool-name="wb-notxparam-connection">
+                        </connection-definition>
+                    </connection-definitions>
+                </resource-adapter>
+                <resource-adapter>
+                    <archive>whitebox-xa-param.rar</archive>
+                    <connection-definitions>
+                        <connection-definition jndi-name="java:/eis/whitebox-xa-param"
+                                               class-name="com.sun.ts.tests.common.connector.whitebox.XAManagedConnectionFactory"
+                                               pool-name="wb-xaparam-connection">
+                            <recovery no-recovery="true"/>
+                        </connection-definition>
+                    </connection-definitions>
+                </resource-adapter>
+                <resource-adapter>
                     <archive>whitebox-anno_no_md.rar</archive>
                     <connection-definitions>
                         <connection-definition jndi-name="java:/eis/whitebox-anno_no_md"
@@ -1026,8 +1026,8 @@
                                                pool-name="wb-anno-connection">
                         </connection-definition>
                     </connection-definitions>
-                 </resource-adapter>
-                 <resource-adapter >
+                </resource-adapter>
+                <resource-adapter>
                     <archive>whitebox-ibanno_no_md.rar</archive>
                     <connection-definitions>
                         <connection-definition jndi-name="java:/eis/whitebox-ibanno_no_md"
@@ -1035,8 +1035,8 @@
                                                pool-name="wb-ibanno-connection">
                         </connection-definition>
                     </connection-definitions>
-                 </resource-adapter>
-                 <resource-adapter >
+                </resource-adapter>
+                <resource-adapter>
                     <archive>whitebox-mixedmode.rar</archive>
                     <connection-definitions>
                         <connection-definition jndi-name="java:/eis/whitebox-mixedmode"
@@ -1044,8 +1044,8 @@
                                                pool-name="wb-mixed-connection">
                         </connection-definition>
                     </connection-definitions>
-                 </resource-adapter>
-                 <resource-adapter >
+                </resource-adapter>
+                <resource-adapter>
                     <archive>whitebox-multianno.rar</archive>
                     <connection-definitions>
                         <connection-definition jndi-name="java:/eis/whitebox-multianno"
@@ -1053,8 +1053,8 @@
                                                pool-name="wb-manno-connection">
                         </connection-definition>
                     </connection-definitions>
-                 </resource-adapter>
-                 <resource-adapter >
+                </resource-adapter>
+                <resource-adapter>
                     <archive>whitebox-mdcomplete.rar</archive>
                     <connection-definitions>
                         <connection-definition jndi-name="java:/eis/whitebox-mdcomplete"
@@ -1062,8 +1062,8 @@
                                                pool-name="wb-md-connection">
                         </connection-definition>
                     </connection-definitions>
-                 </resource-adapter>
-                 <resource-adapter >
+                </resource-adapter>
+                <resource-adapter>
                     <archive>old-dd-whitebox-tx.rar</archive>
                     <connection-definitions>
                         <connection-definition jndi-name="java:/eis/oldwhitebox-tx"
@@ -1071,9 +1071,9 @@
                                                pool-name="oldwb-tx-connection">
                         </connection-definition>
                     </connection-definitions>
-                 </resource-adapter>
+                </resource-adapter>
 
-                 <resource-adapter >
+                <resource-adapter>
                     <archive>old-dd-whitebox-notx.rar</archive>
                     <connection-definitions>
                         <connection-definition jndi-name="java:/eis/oldwhitebox-notx"
@@ -1081,18 +1081,18 @@
                                                pool-name="oldwb-notx-connection">
                         </connection-definition>
                     </connection-definitions>
-                 </resource-adapter>
-                 <resource-adapter >
+                </resource-adapter>
+                <resource-adapter>
                     <archive>old-dd-whitebox-xa.rar</archive>
                     <connection-definitions>
                         <connection-definition jndi-name="java:/eis/oldwhitebox-xa"
                                                class-name="com.sun.ts.tests.common.connector.whitebox.XAMCF"
                                                pool-name="oldwb-xa-connection">
-                          <recovery no-recovery="true"/>
+                            <recovery no-recovery="true"/>
                         </connection-definition>
                     </connection-definitions>
-                 </resource-adapter>
-                 <resource-adapter >
+                </resource-adapter>
+                <resource-adapter>
                     <archive>old-dd-whitebox-tx-param.rar</archive>
                     <connection-definitions>
                         <connection-definition jndi-name="java:/eis/oldwhitebox-tx-param"
@@ -1100,8 +1100,8 @@
                                                pool-name="oldwb-txparam-connection">
                         </connection-definition>
                     </connection-definitions>
-                 </resource-adapter>
-                 <resource-adapter >
+                </resource-adapter>
+                <resource-adapter>
                     <archive>old-dd-whitebox-notx-param.rar</archive>
                     <connection-definitions>
                         <connection-definition jndi-name="java:/eis/oldwhitebox-notx-param"
@@ -1109,132 +1109,132 @@
                                                pool-name="oldwb-notxparam-connection">
                         </connection-definition>
                     </connection-definitions>
-                 </resource-adapter>
-                <resource-adapter >
+                </resource-adapter>
+                <resource-adapter>
                     <archive>old-dd-whitebox-xa-param.rar</archive>
                     <connection-definitions>
                         <connection-definition jndi-name="java:/eis/oldwhitebox-xa-param"
                                                class-name="com.sun.ts.tests.common.connector.whitebox.XAMCF"
                                                pool-name="oldwb-xa-param-connection">
-                          <recovery no-recovery="true"/>
+                            <recovery no-recovery="true"/>
                         </connection-definition>
                     </connection-definitions>
                 </resource-adapter>
-                <resource-adapter >
-                   <archive>JDBCwhitebox-notx-param.rar</archive>
-                   <transaction-support>NoTransaction</transaction-support>
-                   <connection-definitions>
-                       <connection-definition class-name="com.sun.ts.tests.common.connector.JDBCwhitebox.whitebox.NoTxManagedConnectionFactory"
-                                              enabled="true"
-                                              jndi-name="java:/eis/JDBCwhitebox-notx-param"
-                                              pool-name="jdbcwb-notxparam-connection">
-                       <config-property name="RAName">NoTxResourceAdapter</config-property>
-                       <config-property name="ConnectionURL">jdbc:derby:/tmp/DerbyDB;create=true;user=cts1;password=cts1</config-property>
-                       <config-property name="DriverName">org.apache.derby.jdbc.EmbeddedDriver</config-property>
-                       <pool></pool>
-                      <security>
-                        <security-domain>cts-configured-identity</security-domain>
-                      </security>
-                    </connection-definition>
-                  </connection-definitions>
+                <resource-adapter>
+                    <archive>JDBCwhitebox-notx-param.rar</archive>
+                    <transaction-support>NoTransaction</transaction-support>
+                    <connection-definitions>
+                        <connection-definition class-name="com.sun.ts.tests.common.connector.JDBCwhitebox.whitebox.NoTxManagedConnectionFactory"
+                                               enabled="true"
+                                               jndi-name="java:/eis/JDBCwhitebox-notx-param"
+                                               pool-name="jdbcwb-notxparam-connection">
+                            <config-property name="RAName">NoTxResourceAdapter</config-property>
+                            <config-property name="ConnectionURL">jdbc:derby:/tmp/DerbyDB;create=true;user=cts1;password=cts1</config-property>
+                            <config-property name="DriverName">org.apache.derby.jdbc.EmbeddedDriver</config-property>
+                            <pool></pool>
+                            <security>
+                                <security-domain>cts-configured-identity</security-domain>
+                            </security>
+                        </connection-definition>
+                    </connection-definitions>
                 </resource-adapter>
-                <resource-adapter >
-                <archive>JDBCwhitebox-notx.rar</archive>
-                <transaction-support>NoTransaction</transaction-support>
-                <connection-definitions>
-                    <connection-definition class-name="com.sun.ts.tests.common.connector.JDBCwhitebox.whitebox.NoTxManagedConnectionFactory"
-                                           enabled="true"
-                                           jndi-name="java:/eis/JDBCwhitebox-notx"
-                                           pool-name="jdbcwb-notx-connection">
-                    <config-property name="RAName">NoTxResourceAdapter</config-property>
-                    <config-property name="ConnectionURL">jdbc:derby:/tmp/DerbyDB;create=true;user=cts1;password=cts1</config-property>
-                    <config-property name="DriverName">org.apache.derby.jdbc.EmbeddedDriver</config-property>
-                    <pool></pool>
-                   <security>
-                     <security-domain>cts-configured-identity</security-domain>
-                   </security>
-                 </connection-definition>
-                </connection-definitions>
-              </resource-adapter>
-              <resource-adapter >
-              <archive>JDBCwhitebox-tx-param.rar</archive>
-              <transaction-support>LocalTransaction</transaction-support>
-              <connection-definitions>
-                  <connection-definition class-name="com.sun.ts.tests.common.connector.JDBCwhitebox.whitebox.LocalTxManagedConnectionFactory"
-                                         enabled="true"
-                                         jndi-name="java:/eis/JDBCwhitebox-tx-param"
-                                         pool-name="jdbcwb-txparam-connection">
-                   <config-property name="RAName">LocalTxResourceAdapter</config-property>
-                   <config-property name="ConnectionURL">jdbc:derby:/tmp/DerbyDB;create=true;user=cts1;password=cts1</config-property>
-                   <config-property name="DriverName">org.apache.derby.jdbc.EmbeddedDriver</config-property>
-                   <pool></pool>
-                   <security>
-                     <security-domain>cts-configured-identity</security-domain>
-                   </security>
-                 </connection-definition>
-               </connection-definitions>
-             </resource-adapter>
-             <resource-adapter >
-             <archive>JDBCwhitebox-tx.rar</archive>
-             <transaction-support>LocalTransaction</transaction-support>
-             <connection-definitions>
-                 <connection-definition class-name="com.sun.ts.tests.common.connector.JDBCwhitebox.whitebox.LocalTxManagedConnectionFactory"
-                                    enabled="true"
-                                    jndi-name="java:/eis/JDBCwhitebox-tx"
-                                    pool-name="jdbcwb-tx-connection"
-                                    use-ccm="true"
-                                    use-java-context="false">
-                 <config-property name="RAName">LocalTxResourceAdapter</config-property>
-                 <config-property name="ConnectionURL">jdbc:derby:/tmp/DerbyDB;create=true;user=cts1;password=cts1</config-property>
-                 <config-property name="DriverName">org.apache.derby.jdbc.EmbeddedDriver</config-property>
-                 <pool></pool>
-                 <security>
-                    <security-domain>cts-configured-identity</security-domain>
-                 </security>
-                 </connection-definition>
-               </connection-definitions>
-             </resource-adapter>
-             <resource-adapter >
-             <archive>JDBCwhitebox-xa-param.rar</archive>
-             <transaction-support>XATransaction</transaction-support>
-             <connection-definitions>
-                 <connection-definition class-name="com.sun.ts.tests.common.connector.JDBCwhitebox.whitebox.JdbcManagedConnectionFactory"
-                                    enabled="true"
-                                    jndi-name="java:/eis/JDBCwhitebox-xa-param"
-                                    pool-name="jdbcwb-xaparam-connection"
-                                    use-ccm="true"
-                                    use-java-context="false">
-                 <config-property name="XADataSourceName">org.apache.derby.jdbc.EmbeddedXADataSource</config-property>
-                 <config-property name="XAProps">user=cts1:password=cts1:DatabaseName=/tmp/DerbyDB:createDatabase=create</config-property>
-                 <xa-pool></xa-pool>
-               <security>
-                 <security-domain>cts-configured-identity</security-domain>
-               </security>
-                 <recovery no-recovery="true"/>
-               </connection-definition>
-             </connection-definitions>
-             </resource-adapter>
-             <resource-adapter >
-             <archive>JDBCwhitebox-xa.rar</archive>
-             <transaction-support>XATransaction</transaction-support>
-             <connection-definitions>
-                 <connection-definition class-name="com.sun.ts.tests.common.connector.JDBCwhitebox.whitebox.JdbcManagedConnectionFactory"
-                                        enabled="true"
-                                        jndi-name="java:/eis/JDBCwhitebox-xa"
-                                        pool-name="jdbcwb-xa-connection"
-                                        use-ccm="true"
-                                        use-java-context="false">
-                   <config-property name="XADataSourceName">org.apache.derby.jdbc.EmbeddedXADataSource</config-property>
-                   <config-property name="XAProps">user=cts1:password=cts1:DatabaseName=/tmp/DerbyDB:createDatabase=create</config-property>
-                   <xa-pool></xa-pool>
-                  <security>
-                     <security-domain>cts-configured-identity</security-domain>
-                  </security>
-                   <recovery no-recovery="true"/>
-                </connection-definition>
-              </connection-definitions>
-             </resource-adapter>
-          </resource-adapters>
+                <resource-adapter>
+                    <archive>JDBCwhitebox-notx.rar</archive>
+                    <transaction-support>NoTransaction</transaction-support>
+                    <connection-definitions>
+                        <connection-definition class-name="com.sun.ts.tests.common.connector.JDBCwhitebox.whitebox.NoTxManagedConnectionFactory"
+                                               enabled="true"
+                                               jndi-name="java:/eis/JDBCwhitebox-notx"
+                                               pool-name="jdbcwb-notx-connection">
+                            <config-property name="RAName">NoTxResourceAdapter</config-property>
+                            <config-property name="ConnectionURL">jdbc:derby:/tmp/DerbyDB;create=true;user=cts1;password=cts1</config-property>
+                            <config-property name="DriverName">org.apache.derby.jdbc.EmbeddedDriver</config-property>
+                            <pool></pool>
+                            <security>
+                                <security-domain>cts-configured-identity</security-domain>
+                            </security>
+                        </connection-definition>
+                    </connection-definitions>
+                </resource-adapter>
+                <resource-adapter>
+                    <archive>JDBCwhitebox-tx-param.rar</archive>
+                    <transaction-support>LocalTransaction</transaction-support>
+                    <connection-definitions>
+                        <connection-definition class-name="com.sun.ts.tests.common.connector.JDBCwhitebox.whitebox.LocalTxManagedConnectionFactory"
+                                               enabled="true"
+                                               jndi-name="java:/eis/JDBCwhitebox-tx-param"
+                                               pool-name="jdbcwb-txparam-connection">
+                            <config-property name="RAName">LocalTxResourceAdapter</config-property>
+                            <config-property name="ConnectionURL">jdbc:derby:/tmp/DerbyDB;create=true;user=cts1;password=cts1</config-property>
+                            <config-property name="DriverName">org.apache.derby.jdbc.EmbeddedDriver</config-property>
+                            <pool></pool>
+                            <security>
+                                <security-domain>cts-configured-identity</security-domain>
+                            </security>
+                        </connection-definition>
+                    </connection-definitions>
+                </resource-adapter>
+                <resource-adapter>
+                    <archive>JDBCwhitebox-tx.rar</archive>
+                    <transaction-support>LocalTransaction</transaction-support>
+                    <connection-definitions>
+                        <connection-definition class-name="com.sun.ts.tests.common.connector.JDBCwhitebox.whitebox.LocalTxManagedConnectionFactory"
+                                               enabled="true"
+                                               jndi-name="java:/eis/JDBCwhitebox-tx"
+                                               pool-name="jdbcwb-tx-connection"
+                                               use-ccm="true"
+                                               use-java-context="false">
+                            <config-property name="RAName">LocalTxResourceAdapter</config-property>
+                            <config-property name="ConnectionURL">jdbc:derby:/tmp/DerbyDB;create=true;user=cts1;password=cts1</config-property>
+                            <config-property name="DriverName">org.apache.derby.jdbc.EmbeddedDriver</config-property>
+                            <pool></pool>
+                            <security>
+                                <security-domain>cts-configured-identity</security-domain>
+                            </security>
+                        </connection-definition>
+                    </connection-definitions>
+                </resource-adapter>
+                <resource-adapter>
+                    <archive>JDBCwhitebox-xa-param.rar</archive>
+                    <transaction-support>XATransaction</transaction-support>
+                    <connection-definitions>
+                        <connection-definition class-name="com.sun.ts.tests.common.connector.JDBCwhitebox.whitebox.JdbcManagedConnectionFactory"
+                                               enabled="true"
+                                               jndi-name="java:/eis/JDBCwhitebox-xa-param"
+                                               pool-name="jdbcwb-xaparam-connection"
+                                               use-ccm="true"
+                                               use-java-context="false">
+                            <config-property name="XADataSourceName">org.apache.derby.jdbc.EmbeddedXADataSource</config-property>
+                            <config-property name="XAProps">user=cts1:password=cts1:DatabaseName=/tmp/DerbyDB:createDatabase=create</config-property>
+                            <xa-pool></xa-pool>
+                            <security>
+                                <security-domain>cts-configured-identity</security-domain>
+                            </security>
+                            <recovery no-recovery="true"/>
+                        </connection-definition>
+                    </connection-definitions>
+                </resource-adapter>
+                <resource-adapter>
+                    <archive>JDBCwhitebox-xa.rar</archive>
+                    <transaction-support>XATransaction</transaction-support>
+                    <connection-definitions>
+                        <connection-definition class-name="com.sun.ts.tests.common.connector.JDBCwhitebox.whitebox.JdbcManagedConnectionFactory"
+                                               enabled="true"
+                                               jndi-name="java:/eis/JDBCwhitebox-xa"
+                                               pool-name="jdbcwb-xa-connection"
+                                               use-ccm="true"
+                                               use-java-context="false">
+                            <config-property name="XADataSourceName">org.apache.derby.jdbc.EmbeddedXADataSource</config-property>
+                            <config-property name="XAProps">user=cts1:password=cts1:DatabaseName=/tmp/DerbyDB:createDatabase=create</config-property>
+                            <xa-pool></xa-pool>
+                            <security>
+                                <security-domain>cts-configured-identity</security-domain>
+                            </security>
+                            <recovery no-recovery="true"/>
+                        </connection-definition>
+                    </connection-definitions>
+                </resource-adapter>
+            </resource-adapters>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:sar:1.0"/>
         <subsystem xmlns="urn:jboss:domain:security:1.1">
@@ -1257,7 +1257,7 @@
                 <security-domain name="cts" cache-type="default">
                     <authentication>
                         <login-module code="Remoting" flag="optional">
-                           <module-option name="password-stacking" value="useFirstPass" />
+                            <module-option name="password-stacking" value="useFirstPass"/>
                         </login-module>
                         <login-module code="UsersRoles" flag="required">
                             <module-option name="usersProperties" value="../standalone/configuration/security/cts-users.properties"/>
@@ -1273,7 +1273,7 @@
                 <security-domain name="messaging" cache-type="default">
                     <authentication>
                         <login-module code="Remoting" flag="optional">
-                            <module-option name="password-stacking" value="useFirstPass" />
+                            <module-option name="password-stacking" value="useFirstPass"/>
                         </login-module>
                         <login-module code="UsersRoles" flag="required">
                             <module-option name="usersProperties" value="../standalone/configuration/security/cts-users.properties"/>
@@ -1312,9 +1312,9 @@
                     <authorization>
                         <policy-module code="Delegating" flag="required"/>
                     </authorization>
-               </security-domain>
+                </security-domain>
             </security-domains>
-         </subsystem>
+        </subsystem>
         <subsystem xmlns="urn:jboss:domain:threads:1.1"/>
         <subsystem xmlns="urn:jboss:domain:transactions:1.2">
             <core-environment>
@@ -1327,7 +1327,26 @@
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:undertow:1.0">
             <worker name="default" task-core-threads="12" write-threads="3" read-threads="3"/>
-            <http-listener name="default" socket-binding="http" />
+            <buffer-pool name="default" buffer-size="2048" buffers-per-slice="512"/>
+
+            <virtual-host default-host="localhost">
+                <http-listener name="default" socket-binding="http"/>
+                <ajp-listener name="ajp-connector" socket-binding="ajp"/>
+
+                <handlers>
+                    <simple-error-page/>
+                </handlers>
+
+                <host name="localhost" alias="www.localhost">
+                    <handlers>
+                        <file-error-page code="404" file="/my/error/page.html"/>
+                    </handlers>
+                </host>
+
+            </virtual-host>
+            <servlet-container name="default">
+                <jsp-config/>
+            </servlet-container>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:webservices:1.1">
             <modify-wsdl-address>true</modify-wsdl-address>
@@ -1339,7 +1358,7 @@
                 </pre-handler-chain>
             </endpoint-config>
         </subsystem>
-        <subsystem xmlns="urn:jboss:domain:weld:1.0" />
+        <subsystem xmlns="urn:jboss:domain:weld:1.0"/>
     </profile>
 
     <interfaces>
@@ -1347,10 +1366,10 @@
             <inet-address value="${jboss.bind.address.management:127.0.0.1}"/>
         </interface>
         <interface name="public">
-           <inet-address value="${jboss.bind.address:127.0.0.1}"/>
+            <inet-address value="${jboss.bind.address:127.0.0.1}"/>
         </interface>
         <interface name="unsecure">
-           <inet-address value="${jboss.bind.address.unsecure:127.0.0.1}"/>
+            <inet-address value="${jboss.bind.address.unsecure:127.0.0.1}"/>
         </interface>
     </interfaces>
 
@@ -1363,7 +1382,7 @@
         <socket-binding name="https" port="8443"/>
         <socket-binding name="jacorb" interface="unsecure" port="3528"/>
         <socket-binding name="jacorb-ssl" interface="unsecure" port="3529"/>
-        <socket-binding name="messaging" port="5445" />
+        <socket-binding name="messaging" port="5445"/>
         <socket-binding name="messaging-group" multicast-address="${jboss.messaging.group.address:231.7.7.7}" multicast-port="${jboss.messaging.group.port:9876}"/>
         <socket-binding name="messaging-throughput" port="5455"/>
         <socket-binding name="osgi-http" interface="management" port="8090"/>
