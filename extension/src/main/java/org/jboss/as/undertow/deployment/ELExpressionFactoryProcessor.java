@@ -37,7 +37,7 @@ import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.ServicesAttachment;
-import org.jboss.as.web.WebLogger;
+import org.jboss.as.undertow.extension.UndertowLogger;
 import org.jboss.el.cache.FactoryFinderCache;
 import org.jboss.modules.Module;
 
@@ -112,7 +112,7 @@ public class ELExpressionFactoryProcessor implements DeploymentUnitProcessor {
             try {
                 purge.invoke(new BeanELResolver(), module.getClassLoader());
             } catch (Exception e) {
-                WebLogger.ROOT_LOGGER.couldNotPurgeELCache(e);
+                UndertowLogger.ROOT_LOGGER.couldNotPurgeELCache(e);
             }
         }
     }

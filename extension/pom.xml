@@ -53,13 +53,11 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.as</groupId>
-            <artifactId>jboss-as-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.jboss.web</groupId>
-                    <artifactId>jbossweb</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>jboss-as-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-web-common</artifactId>
         </dependency>
         <dependency>
             <groupId>io.undertow</groupId>

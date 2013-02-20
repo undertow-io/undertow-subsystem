@@ -35,7 +35,7 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.blocking.BlockingHttpHandler;
 import io.undertow.servlet.handlers.ServletAttachments;
 import io.undertow.servlet.handlers.ServletPathMatch;
-import org.jboss.as.web.WebLogger;
+import org.jboss.as.undertow.extension.UndertowLogger;
 import org.jboss.security.RunAsIdentity;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityRolesAssociation;
@@ -63,7 +63,7 @@ public class SecurityContextAssociationHandler implements BlockingHttpHandler {
             identity = servlet.getHandler().getManagedServlet().getServletInfo().getRunAs();
             RunAsIdentity runAsIdentity = null;
             if (identity != null) {
-                WebLogger.WEB_SECURITY_LOGGER.tracef("%s, runAs: %s", servlet.getHandler().getManagedServlet().getServletInfo().getName(), identity);
+                UndertowLogger.ROOT_LOGGER.tracef("%s, runAs: %s", servlet.getHandler().getManagedServlet().getServletInfo().getName(), identity);
                 final Set<String> roles = principleVsRoleMap.get(identity);
                 runAsIdentity = new RunAsIdentity(identity, identity, roles == null ? Collections.<String>emptySet() : roles);
             }

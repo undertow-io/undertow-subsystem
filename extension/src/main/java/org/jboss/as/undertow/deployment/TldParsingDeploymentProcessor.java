@@ -42,7 +42,7 @@ import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.module.ResourceRoot;
 import org.jboss.as.undertow.extension.UndertowLogger;
-import org.jboss.as.web.deployment.WarMetaData;
+import org.jboss.as.web.common.WarMetaData;
 import org.jboss.metadata.parser.jsp.TldMetaDataParser;
 import org.jboss.metadata.parser.util.NoopXMLResolver;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
@@ -52,7 +52,7 @@ import org.jboss.metadata.web.spec.TaglibMetaData;
 import org.jboss.metadata.web.spec.TldMetaData;
 import org.jboss.vfs.VirtualFile;
 
-import static org.jboss.as.web.WebMessages.MESSAGES;
+import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
 
 /**
  * @author Remy Maucherat

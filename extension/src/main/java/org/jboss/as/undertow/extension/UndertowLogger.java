@@ -22,6 +22,7 @@
 
 package org.jboss.as.undertow.extension;
 
+import org.jboss.jandex.ClassInfo;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;
@@ -29,10 +30,14 @@ import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 
+import static org.jboss.logging.Logger.Level.ERROR;
+import static org.jboss.logging.Logger.Level.INFO;
+import static org.jboss.logging.Logger.Level.WARN;
+
 /**
  * This module is using message IDs in the range 17300 - 17699.
  * <p/>
- * This file is using the subset 11500-11529 for logger messages.
+ * This file is using the subset 17500-17699 for logger messages.
  * <p/>
  * See <a href="http://community.jboss.org/docs/DOC-16810">http://community.jboss.org/docs/DOC-16810</a> for the full
  * list of currently reserved JBAS message id blocks.
@@ -50,10 +55,110 @@ public interface UndertowLogger extends BasicLogger {
     UndertowLogger ROOT_LOGGER = Logger.getMessageLogger(UndertowLogger.class, UndertowLogger.class.getPackage().getName());
 
     @LogMessage(level = Logger.Level.ERROR)
-    @Message(id = 17301, value = "Could not initialize JSP")
+    @Message(id = 17500, value = "Could not initialize JSP")
     void couldNotInitJsp(@Cause ClassNotFoundException e);
 
+    @LogMessage(level = ERROR)
+    @Message(id = 1750, value = "Failed to purge EL cache.")
+    void couldNotPurgeELCache(@Cause Exception exception);
     // id = 11500, value = "%s caught exception attempting to revert operation %s at address %s" -- now unused
 
+
+
+
+
+
+    @LogMessage(level = ERROR)
+       @Message(id = 18200, value = "Failed to start welcome context")
+       void stopWelcomeContextFailed(@Cause Throwable cause);
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18201, value = "Failed to destroy welcome context")
+       void destroyWelcomeContextFailed(@Cause Throwable cause);
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18202, value = "Error calling onStartup for servlet container initializer: %s")
+       void sciOnStartupError(String sciClassName, @Cause Throwable cause);
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18203, value = "Error instantiating container component: %s")
+       void componentInstanceCreationFailed(String className, @Cause Throwable cause);
+
+       @LogMessage(level = WARN)
+       @Message(id = 18204, value = "Clustering not supported, falling back to non-clustered session manager")
+       void clusteringNotSupported();
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18205, value = "Cannot setup overlays for [%s] due to custom resources")
+       void noOverlay(String webappPath);
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18206, value = "Webapp [%s] is unavailable due to startup errors")
+       void unavailable(String webappPath);
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18208, value = "Failed to start context")
+       void stopContextFailed(@Cause Throwable cause);
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18209, value = "Failed to destroy context")
+       void destroyContextFailed(@Cause Throwable cause);
+
+       @LogMessage(level = INFO)
+       @Message(id = 18210, value = "Register web context: %s")
+       void registerWebapp(String webappPath);
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18214, value = "Error during login/password authenticate")
+       void authenticateError(@Cause Throwable t);
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18215, value = "Error during certificate authenticate")
+       void authenticateErrorCert(@Cause Throwable t);
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18216, value = "Error during digest authenticate")
+       void authenticateErrorDigest(@Cause Throwable t);
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18217, value = "Error obtaining authorization helper")
+       void noAuthorizationHelper(@Cause Throwable t);
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18218, value = "Exception in obtaining server authentication manager")
+       void noServerAuthenticationManager(@Cause Throwable t);
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18219, value = "JASPI validation for unprotected request context %s failed")
+       void failJASPIValidation(String path);
+
+       @LogMessage(level = ERROR)
+       @Message(id = 18220, value = "Caught Exception: %s")
+       void unsupportedEncoding(String encoding);
+
+       @LogMessage(level = WARN)
+       @Message(id = 18221, value = "Error forwarding to login page: %s")
+       void errorForwardingToLoginPage(String encoding);
+
+       @LogMessage(level = WARN)
+       @Message(id = 18222, value = "Error forwarding to error page: %s")
+       void errorForwardingToErrorPage(String encoding);
+
+       @LogMessage(level = WARN)
+       @Message(id = 18223, value = "Snapshot mode set to 'interval' but snapshotInterval is < 1 or was not specified, using 'instant'")
+       void invalidSnapshotInterval();
+
+       @LogMessage(level = INFO)
+       @Message(id = 18224, value = "Unregister web context: %s")
+       void unregisterWebapp(String webappPath);
+
+
+       @LogMessage(level = INFO)
+       @Message(id = 18226, value = "Skipped SCI for jar: %s.")
+       void skippedSCI(String jar, @Cause Exception e);
+
+       @LogMessage(level = INFO)
+       @Message(id = 18227, value = "Could not load class designated by HandlesTypes [%s].")
+       void cannotLoadDesignatedHandleTypes(ClassInfo classInfo, @Cause Exception e);
 
 }

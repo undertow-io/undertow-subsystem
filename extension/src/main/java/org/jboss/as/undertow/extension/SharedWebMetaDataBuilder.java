@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.jboss.as.web.Constants;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
 import org.jboss.metadata.javaee.spec.ParamValueMetaData;
@@ -38,34 +37,34 @@ import org.jboss.metadata.web.spec.SessionConfigMetaData;
 import org.jboss.metadata.web.spec.WebMetaData;
 import org.jboss.metadata.web.spec.WelcomeFileListMetaData;
 
-import static org.jboss.as.web.Constants.CHECK_INTERVAL;
-import static org.jboss.as.web.Constants.DEVELOPMENT;
-import static org.jboss.as.web.Constants.DISABLED;
-import static org.jboss.as.web.Constants.DISPLAY_SOURCE_FRAGMENT;
-import static org.jboss.as.web.Constants.DUMP_SMAP;
-import static org.jboss.as.web.Constants.ERROR_ON_USE_BEAN_INVALID_CLASS_ATTRIBUTE;
-import static org.jboss.as.web.Constants.FILE_ENCODING;
-import static org.jboss.as.web.Constants.GENERATE_STRINGS_AS_CHAR_ARRAYS;
-import static org.jboss.as.web.Constants.JAVA_ENCODING;
-import static org.jboss.as.web.Constants.JSP_CONFIGURATION;
-import static org.jboss.as.web.Constants.KEEP_GENERATED;
-import static org.jboss.as.web.Constants.LISTINGS;
-import static org.jboss.as.web.Constants.MAPPED_FILE;
-import static org.jboss.as.web.Constants.MAX_DEPTH;
-import static org.jboss.as.web.Constants.MODIFICATION_TEST_INTERVAL;
-import static org.jboss.as.web.Constants.READ_ONLY;
-import static org.jboss.as.web.Constants.RECOMPILE_ON_FAIL;
-import static org.jboss.as.web.Constants.SCRATCH_DIR;
-import static org.jboss.as.web.Constants.SECRET;
-import static org.jboss.as.web.Constants.SENDFILE;
-import static org.jboss.as.web.Constants.SMAP;
-import static org.jboss.as.web.Constants.SOURCE_VM;
-import static org.jboss.as.web.Constants.STATIC_RESOURCES;
-import static org.jboss.as.web.Constants.TAG_POOLING;
-import static org.jboss.as.web.Constants.TARGET_VM;
-import static org.jboss.as.web.Constants.TRIM_SPACES;
-import static org.jboss.as.web.Constants.WEBDAV;
-import static org.jboss.as.web.Constants.X_POWERED_BY;
+import static org.jboss.as.undertow.extension.Constants.CHECK_INTERVAL;
+import static org.jboss.as.undertow.extension.Constants.DEVELOPMENT;
+import static org.jboss.as.undertow.extension.Constants.DISABLED;
+import static org.jboss.as.undertow.extension.Constants.DISPLAY_SOURCE_FRAGMENT;
+import static org.jboss.as.undertow.extension.Constants.DUMP_SMAP;
+import static org.jboss.as.undertow.extension.Constants.ERROR_ON_USE_BEAN_INVALID_CLASS_ATTRIBUTE;
+import static org.jboss.as.undertow.extension.Constants.FILE_ENCODING;
+import static org.jboss.as.undertow.extension.Constants.GENERATE_STRINGS_AS_CHAR_ARRAYS;
+import static org.jboss.as.undertow.extension.Constants.JAVA_ENCODING;
+import static org.jboss.as.undertow.extension.Constants.JSP_CONFIGURATION;
+import static org.jboss.as.undertow.extension.Constants.KEEP_GENERATED;
+import static org.jboss.as.undertow.extension.Constants.LISTINGS;
+import static org.jboss.as.undertow.extension.Constants.MAPPED_FILE;
+import static org.jboss.as.undertow.extension.Constants.MAX_DEPTH;
+import static org.jboss.as.undertow.extension.Constants.MODIFICATION_TEST_INTERVAL;
+import static org.jboss.as.undertow.extension.Constants.READ_ONLY;
+import static org.jboss.as.undertow.extension.Constants.RECOMPILE_ON_FAIL;
+import static org.jboss.as.undertow.extension.Constants.SCRATCH_DIR;
+import static org.jboss.as.undertow.extension.Constants.SECRET;
+import static org.jboss.as.undertow.extension.Constants.SENDFILE;
+import static org.jboss.as.undertow.extension.Constants.SMAP;
+import static org.jboss.as.undertow.extension.Constants.SOURCE_VM;
+import static org.jboss.as.undertow.extension.Constants.STATIC_RESOURCES;
+import static org.jboss.as.undertow.extension.Constants.TAG_POOLING;
+import static org.jboss.as.undertow.extension.Constants.TARGET_VM;
+import static org.jboss.as.undertow.extension.Constants.TRIM_SPACES;
+import static org.jboss.as.undertow.extension.Constants.WEBDAV;
+import static org.jboss.as.undertow.extension.Constants.X_POWERED_BY;
 
 /**
  * Internal helper creating a shared web.xml based on the domain configuration.
@@ -96,13 +95,13 @@ class SharedWebMetaDataBuilder {
     }
 
     private void init() {
-        ModelNode containerConfig = config.get(org.jboss.as.web.Constants.CONTAINER);
-        if (containerConfig.hasDefined(org.jboss.as.web.Constants.MIME_MAPPING)) {
-            for (final Property mapping : containerConfig.get(org.jboss.as.web.Constants.MIME_MAPPING).asPropertyList()) {
+        ModelNode containerConfig = config.get(org.jboss.as.undertow.extension.Constants.CONTAINER);
+        if (containerConfig.hasDefined(org.jboss.as.undertow.extension.Constants.MIME_MAPPING)) {
+            for (final Property mapping : containerConfig.get(org.jboss.as.undertow.extension.Constants.MIME_MAPPING).asPropertyList()) {
                 mimeMappings.add(createMimeMapping(mapping.getName(), mapping.getValue().asString()));
             }
         }
-        if (containerConfig.hasDefined(org.jboss.as.web.Constants.WELCOME_FILE)) {
+        if (containerConfig.hasDefined(org.jboss.as.undertow.extension.Constants.WELCOME_FILE)) {
             for (final ModelNode file : containerConfig.get(Constants.WELCOME_FILE).asList()) {
                 welcomeFiles.add(file.asString());
             }

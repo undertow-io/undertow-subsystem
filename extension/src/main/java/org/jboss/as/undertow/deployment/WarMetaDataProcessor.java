@@ -45,7 +45,7 @@ import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.module.ResourceRoot;
-import org.jboss.as.web.deployment.WarMetaData;
+import org.jboss.as.web.common.WarMetaData;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ear.spec.EarMetaData;
 import org.jboss.metadata.javaee.spec.EmptyMetaData;
@@ -63,7 +63,7 @@ import org.jboss.metadata.web.spec.WebFragmentMetaData;
 import org.jboss.metadata.web.spec.WebMetaData;
 import org.jboss.vfs.VirtualFile;
 
-import static org.jboss.as.web.WebMessages.MESSAGES;
+import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
 
 /**
  * Merge all metadata into a main JBossWebMetaData.

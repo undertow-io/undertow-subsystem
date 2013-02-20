@@ -40,8 +40,8 @@ import org.jboss.as.server.deployment.module.ModuleSpecification;
 import org.jboss.as.server.deployment.module.MountHandle;
 import org.jboss.as.server.deployment.module.ResourceRoot;
 import org.jboss.as.server.deployment.module.TempFileProviderService;
-import org.jboss.as.web.SharedTldsMetaDataBuilder;
-import org.jboss.as.web.deployment.WarMetaData;
+import org.jboss.as.web.common.SharedTldsMetaDataBuilder;
+import org.jboss.as.web.common.WarMetaData;
 import org.jboss.metadata.web.spec.WebMetaData;
 import org.jboss.vfs.VFS;
 import org.jboss.vfs.VirtualFile;
@@ -49,7 +49,7 @@ import org.jboss.vfs.VirtualFileFilter;
 import org.jboss.vfs.VisitorAttributes;
 import org.jboss.vfs.util.SuffixMatchFilter;
 
-import static org.jboss.as.web.WebMessages.MESSAGES;
+import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
 
 /**
  * Create and mount classpath entries in the .war deployment.

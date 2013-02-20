@@ -40,7 +40,6 @@ import org.jboss.as.controller.operations.validation.ModelTypeValidator;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
-import org.jboss.as.web.Constants;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 import org.jboss.msc.service.ServiceController;
@@ -53,109 +52,109 @@ class JSPDefinition extends SimplePersistentResourceDefinition {
     static final JSPDefinition INSTANCE = new JSPDefinition();
 
     protected static final SimpleAttributeDefinition DEVELOPMENT =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.DEVELOPMENT, ModelType.BOOLEAN, true)
+            new SimpleAttributeDefinitionBuilder(Constants.DEVELOPMENT, ModelType.BOOLEAN, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setDefaultValue(new ModelNode(false))
                     .setAllowExpression(true)
                     .build();
     protected static final SimpleAttributeDefinition DISABLED =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.DISABLED, ModelType.BOOLEAN, true)
+            new SimpleAttributeDefinitionBuilder(Constants.DISABLED, ModelType.BOOLEAN, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setDefaultValue(new ModelNode(false))
                     .setAllowExpression(true)
                     .build();
     protected static final SimpleAttributeDefinition KEEP_GENERATED =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.KEEP_GENERATED, ModelType.BOOLEAN, true)
+            new SimpleAttributeDefinitionBuilder(Constants.KEEP_GENERATED, ModelType.BOOLEAN, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setDefaultValue(new ModelNode(true))
                     .setAllowExpression(true)
                     .build();
 
     protected static final SimpleAttributeDefinition TRIM_SPACES =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.TRIM_SPACES, ModelType.BOOLEAN, true)
+            new SimpleAttributeDefinitionBuilder(Constants.TRIM_SPACES, ModelType.BOOLEAN, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setDefaultValue(new ModelNode(false))
                     .setAllowExpression(true)
                     .build();
 
     protected static final SimpleAttributeDefinition TAG_POOLING =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.TAG_POOLING, ModelType.BOOLEAN, true)
+            new SimpleAttributeDefinitionBuilder(Constants.TAG_POOLING, ModelType.BOOLEAN, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setDefaultValue(new ModelNode(true))
                     .setAllowExpression(true)
                     .build();
 
     protected static final SimpleAttributeDefinition MAPPED_FILE =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.MAPPED_FILE, ModelType.BOOLEAN, true)
+            new SimpleAttributeDefinitionBuilder(Constants.MAPPED_FILE, ModelType.BOOLEAN, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setDefaultValue(new ModelNode(true))
                     .setAllowExpression(true)
                     .build();
 
     protected static final SimpleAttributeDefinition CHECK_INTERVAL =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.CHECK_INTERVAL, ModelType.INT, true)
+            new SimpleAttributeDefinitionBuilder(Constants.CHECK_INTERVAL, ModelType.INT, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setDefaultValue(new ModelNode(0))
                     .setAllowExpression(true)
                     .build();
 
     protected static final SimpleAttributeDefinition MODIFICATION_TEST_INTERVAL =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.MODIFICATION_TEST_INTERVAL, ModelType.INT, true)
+            new SimpleAttributeDefinitionBuilder(Constants.MODIFICATION_TEST_INTERVAL, ModelType.INT, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setDefaultValue(new ModelNode(4))
                     .setAllowExpression(true)
                     .build();
     protected static final SimpleAttributeDefinition RECOMPILE_ON_FAIL =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.RECOMPILE_ON_FAIL, ModelType.BOOLEAN, true)
+            new SimpleAttributeDefinitionBuilder(Constants.RECOMPILE_ON_FAIL, ModelType.BOOLEAN, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setDefaultValue(new ModelNode(false))
                     .setAllowExpression(true)
                     .build();
 
     protected static final SimpleAttributeDefinition SMAP =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.SMAP, ModelType.BOOLEAN, true)
+            new SimpleAttributeDefinitionBuilder(Constants.SMAP, ModelType.BOOLEAN, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setDefaultValue(new ModelNode(true))
                     .setAllowExpression(true)
                     .build();
 
     protected static final SimpleAttributeDefinition DUMP_SMAP =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.DUMP_SMAP, ModelType.BOOLEAN, true)
+            new SimpleAttributeDefinitionBuilder(Constants.DUMP_SMAP, ModelType.BOOLEAN, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setDefaultValue(new ModelNode(false))
                     .setAllowExpression(true)
                     .build();
 
     protected static final SimpleAttributeDefinition GENERATE_STRINGS_AS_CHAR_ARRAYS =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.GENERATE_STRINGS_AS_CHAR_ARRAYS, ModelType.BOOLEAN, true)
+            new SimpleAttributeDefinitionBuilder(Constants.GENERATE_STRINGS_AS_CHAR_ARRAYS, ModelType.BOOLEAN, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setDefaultValue(new ModelNode(false))
                     .setAllowExpression(true)
                     .build();
 
     protected static final SimpleAttributeDefinition ERROR_ON_USE_BEAN_INVALID_CLASS_ATTRIBUTE =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.ERROR_ON_USE_BEAN_INVALID_CLASS_ATTRIBUTE, ModelType.BOOLEAN, true)
+            new SimpleAttributeDefinitionBuilder(Constants.ERROR_ON_USE_BEAN_INVALID_CLASS_ATTRIBUTE, ModelType.BOOLEAN, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setDefaultValue(new ModelNode(false))
                     .setAllowExpression(true)
                     .build();
 
     protected static final SimpleAttributeDefinition SCRATCH_DIR =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.SCRATCH_DIR, ModelType.STRING, true)
+            new SimpleAttributeDefinitionBuilder(Constants.SCRATCH_DIR, ModelType.STRING, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setValidator(new StringLengthValidator(1, true))
                     .setAllowExpression(true)
                     .build();
 
     protected static final SimpleAttributeDefinition SOURCE_VM =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.SOURCE_VM, ModelType.STRING, true)
+            new SimpleAttributeDefinitionBuilder(Constants.SOURCE_VM, ModelType.STRING, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setValidator(new StringLengthValidator(1, true))
                     .setDefaultValue(new ModelNode("1.6"))
                     .setAllowExpression(true)
                     .build();
     protected static final SimpleAttributeDefinition TARGET_VM =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.TARGET_VM, ModelType.STRING, true)
+            new SimpleAttributeDefinitionBuilder(Constants.TARGET_VM, ModelType.STRING, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setValidator(new StringLengthValidator(1, true))
                     .setDefaultValue(new ModelNode("1.6"))
@@ -163,7 +162,7 @@ class JSPDefinition extends SimplePersistentResourceDefinition {
                     .build();
 
     protected static final SimpleAttributeDefinition JAVA_ENCODING =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.JAVA_ENCODING, ModelType.STRING, true)
+            new SimpleAttributeDefinitionBuilder(Constants.JAVA_ENCODING, ModelType.STRING, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setValidator(new StringLengthValidator(1, true))
                     .setDefaultValue(new ModelNode("UTF8"))
@@ -172,7 +171,7 @@ class JSPDefinition extends SimplePersistentResourceDefinition {
 
 
     protected static final SimpleAttributeDefinition X_POWERED_BY =
-            new SimpleAttributeDefinitionBuilder(org.jboss.as.web.Constants.X_POWERED_BY, ModelType.BOOLEAN, true)
+            new SimpleAttributeDefinitionBuilder(Constants.X_POWERED_BY, ModelType.BOOLEAN, true)
                     .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
                     .setValidator(new ModelTypeValidator(ModelType.BOOLEAN, true))
                     .setDefaultValue(new ModelNode(true))

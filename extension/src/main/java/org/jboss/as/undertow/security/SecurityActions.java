@@ -31,7 +31,7 @@ import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityContextAssociation;
 import org.jboss.security.SecurityContextFactory;
 
-import static org.jboss.as.web.WebMessages.MESSAGES;
+import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
 
 /**
  * Privileged Actions

@@ -41,7 +41,7 @@ import org.jboss.modules.ModuleLoader;
  * @author Emanuel Muckenhuber
  * @author Stan Silvert
  */
-public class WarClassloadingDependencyProcessor implements DeploymentUnitProcessor {
+public class UndertowDependencyProcessor implements DeploymentUnitProcessor {
 
     private static final ModuleIdentifier JAVAX_EE_API = ModuleIdentifier.create("javaee.api");
     private static final ModuleIdentifier JSTL = ModuleIdentifier.create("javax.servlet.jstl.api");
@@ -50,7 +50,7 @@ public class WarClassloadingDependencyProcessor implements DeploymentUnitProcess
     private static final ModuleIdentifier UNDERTOW = ModuleIdentifier.create("io.undertow");
 
     static {
-        Module module = Module.forClass(WarClassloadingDependencyProcessor.class);
+        Module module = Module.forClass(UndertowDependencyProcessor.class);
         if (module != null) {
             //When testing the subsystems we are running in a non-modular environment
             //so module will be null. Having a null entry kills ModularURLStreamHandlerFactory
@@ -58,7 +58,7 @@ public class WarClassloadingDependencyProcessor implements DeploymentUnitProcess
         }
     }
 
-    private static final Logger logger = Logger.getLogger(WarClassloadingDependencyProcessor.class);
+    private static final Logger logger = Logger.getLogger(UndertowDependencyProcessor.class);
 
     public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();

@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import javax.naming.NamingException;
 
 import org.apache.tomcat.InstanceManager;
-import org.jboss.as.web.deployment.WebInjectionContainer;
+import org.jboss.as.web.common.WebInjectionContainer;
 
 /**
  *
