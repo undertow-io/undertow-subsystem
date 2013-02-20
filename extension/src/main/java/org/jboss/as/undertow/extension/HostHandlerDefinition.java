@@ -95,7 +95,7 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
                 }
             }
         }
-        ParseUtils.requireNoContent(reader);
+        //ParseUtils.requireNoContent(reader);
     }
 
 

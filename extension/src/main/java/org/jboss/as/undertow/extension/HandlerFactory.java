@@ -41,7 +41,7 @@ public class HandlerFactory {
                 }
             }
         } catch (ModuleLoadException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         if (handlers.isEmpty()) {
             ServiceLoader<Handler> loader = ServiceLoader.load(Handler.class);

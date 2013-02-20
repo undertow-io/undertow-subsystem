@@ -21,16 +21,6 @@
                     <file path="/opt/data" cache-buffer-size="1024" cache-buffers="1024"/>
                 </path>
             </paths>
-            <!-- <paths>
-                 <path name="/app/myData">
-                     <basic-auth security-domain="other"/>
-                     <response-header name="MY_HEADER" value="someValue"/>
-                     <file path="/opt/data" cache-buffer-size="1024" cache-buffers="1024"/>
-                 </path>
-                 <default>
-                     <servlet name="default"/>
-                 </default>
-             </paths>-->
         </host>
 
     </virtual-host>

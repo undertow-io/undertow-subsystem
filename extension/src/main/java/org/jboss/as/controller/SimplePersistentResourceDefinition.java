@@ -97,6 +97,9 @@ public abstract class SimplePersistentResourceDefinition extends SimpleResourceD
         op.get(ADDRESS).set(address.toModelNode());
         list.add(op);
         parseChildren(reader, address, list);
+        if (getXmlWrapperElement() != null) {
+            ParseUtils.requireNoContent(reader);
+        }
     }
 
     public void parseChildren(final XMLExtendedStreamReader reader, PathAddress parentAddress, List<ModelNode> list) throws XMLStreamException {
