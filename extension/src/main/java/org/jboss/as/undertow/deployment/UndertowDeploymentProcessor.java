@@ -82,7 +82,9 @@ import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.SetupAction;
 import org.jboss.as.server.deployment.reflect.DeploymentClassIndex;
+import org.jboss.as.undertow.extension.DeploymentDefinition;
 import org.jboss.as.undertow.extension.ServletContainerService;
+import org.jboss.as.undertow.extension.UndertowExtension;
 import org.jboss.as.undertow.extension.UndertowServices;
 import org.jboss.as.undertow.security.SecurityContextAssociationHandler;
 import org.jboss.as.undertow.security.SecurityContextCreationHandler;
@@ -278,10 +280,11 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
 
 
         // Process the web related mgmt information
-        //final ModelNode node = deploymentUnit.getDeploymentSubsystemModel("web");
-        //node.get(WebDeploymentDefinition.CONTEXT_ROOT.getName()).set("".equals(pathName) ? "/" : pathName);
-        //node.get(WebDeploymentDefinition.VIRTUAL_HOST.getName()).set(hostName);
-        //processManagement(deploymentUnit, metaData);
+        final ModelNode node = deploymentUnit.getDeploymentSubsystemModel(UndertowExtension.SUBSYSTEM_NAME);
+        node.get(DeploymentDefinition.CONTEXT_ROOT.getName()).set("".equals(pathName) ? "/" : pathName);
+        String hostName = "localhost";
+        node.get(DeploymentDefinition.VIRTUAL_HOST.getName()).set(hostName);
+        processManagement(deploymentUnit, metaData);
     }
 
     static String pathNameOfDeployment(final DeploymentUnit deploymentUnit, final JBossWebMetaData metaData) {
@@ -309,7 +312,7 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
         for (final JBossServletMetaData servlet : metaData.getServlets()) {
             try {
                 final String name = servlet.getName();
-                final ModelNode node = unit.createDeploymentSubModel("web", PathElement.pathElement("servlet", name));
+                final ModelNode node = unit.createDeploymentSubModel(UndertowExtension.SUBSYSTEM_NAME, PathElement.pathElement("servlet", name));
                 node.get("servlet-class").set(servlet.getServletClass());
                 node.get("servlet-name").set(servlet.getServletName());
             } catch (Exception e) {

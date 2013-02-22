@@ -61,6 +61,8 @@ public class  UndertowExtension implements Extension {
         registration.registerSubModel(VirtualHostHandlerDefinition.INSTANCE);
         registration.registerSubModel(ServletContainerDefinition.INSTANCE);
 
+        final ManagementResourceRegistration deployments = subsystem.registerDeploymentModel(DeploymentDefinition.INSTANCE);
+        deployments.registerSubModel(DeploymentServletDefinition.INSTANCE);
 
 
         subsystem.registerXMLElementWriter(UndertowSubsystemParser.INSTANCE);
