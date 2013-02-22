@@ -155,4 +155,7 @@ public interface UndertowMessages {
 
     @Message(id = 17329, value = "No security context found")
     IllegalStateException noSecurityContext();
+
+    @Message(id = 17330, value = "Unknown metric %s")
+    String unknownMetric(Object metric);
 }
