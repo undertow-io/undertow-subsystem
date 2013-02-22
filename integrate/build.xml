@@ -24,9 +24,8 @@
 
     <import file="lib.xml"/>
 
-    <property environment="env"/>
     <property name="output.dir" value="target/undertow-release"/>
-    <property name="jboss.dir" value="${jboss.home}"/>
+    <property name="jboss.dir" value="${ant.jboss.home}"/>
 
     <target name="base" depends="clean-target, copy-files"/>
 
