@@ -36,13 +36,14 @@ import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
-import org.jboss.as.web.deployment.WarMetaData;
+import org.jboss.as.web.common.WarMetaData;
 import org.jboss.metadata.parser.jbossweb.JBossWebMetaDataParser;
 import org.jboss.metadata.parser.util.NoopXMLResolver;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.vfs.VirtualFile;
 
-import static org.jboss.as.web.WebMessages.MESSAGES;
+import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
+
 
 /**
  * @author Jean-Frederic Clere

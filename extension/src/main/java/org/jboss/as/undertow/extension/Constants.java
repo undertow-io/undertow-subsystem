@@ -65,6 +65,41 @@ public interface Constants {
     String CLASS = "class";
     String PROPERTY = "property";
     String PATHS = "paths";
-    String DEFAULT_HOST= "default-host";
+    String DEFAULT_HOST = "default-host";
     String ALIAS = "alias";
+
+    /*JSP config */
+    String CHECK_INTERVAL = "check-interval";
+    String CONTAINER = "container";
+    String DEVELOPMENT = "development";
+    String DISABLED = "disabled";
+    String DISPLAY_SOURCE_FRAGMENT = "display-source-fragment";
+    String DUMP_SMAP = "dump-smap";
+    String ERROR_ON_USE_BEAN_INVALID_CLASS_ATTRIBUTE = "error-on-use-bean-invalid-class-attribute";
+    String FILE_ENCODING = "file-encoding";
+    String GENERATE_STRINGS_AS_CHAR_ARRAYS = "generate-strings-as-char-arrays";
+    String JAVA_ENCODING = "java-encoding";
+    String JSP_CONFIGURATION = "jsp-configuration";
+    String KEEP_GENERATED = "keep-generated";
+    String LISTINGS = "listings";
+    String MAPPED_FILE = "mapped-file";
+    String MAX_DEPTH = "max-depth";
+    String MIME_MAPPING = "mime-mapping";
+    String MODIFICATION_TEST_INTERVAL = "modification-test-interval";
+    String READ_ONLY = "read-only";
+    String RECOMPILE_ON_FAIL = "recompile-on-fail";
+    String SCRATCH_DIR = "scratch-dir";
+    String SECRET = "secret";
+    String SENDFILE = "sendfile";
+    String SMAP = "smap";
+    String SOURCE_VM = "source-vm";
+    String SSL = "ssl";
+    String STATIC_RESOURCES = "static-resources";
+    String TAG_POOLING = "tag-pooling";
+    String TARGET_VM = "target-vm";
+    String TRIM_SPACES = "trim-spaces";
+    String WEBDAV = "webdav";
+    String WELCOME_FILE = "welcome-file";
+    String X_POWERED_BY = "x-powered-by";
+
 }
