@@ -59,6 +59,7 @@ class UndertowSubsystemAdd extends AbstractBoottimeAddStepHandler {
     public void performBoottime(OperationContext context, ModelNode operation, final ModelNode model,
                                 ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
             throws OperationFailedException {
+        UndertowLogger.ROOT_LOGGER.serverStarting("1.0.0.Alpha1-SNAPSHOT");
 
         context.addStep(new AbstractDeploymentChainStep() {
             @Override

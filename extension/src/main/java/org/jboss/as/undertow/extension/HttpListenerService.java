@@ -72,6 +72,8 @@ public class HttpListenerService extends AbstractListenerService<HttpListenerSer
             CanonicalPathHandler canonicalPathHandler = new CanonicalPathHandler(cookie);
             openListener.setRootHandler(canonicalPathHandler);
             startListening(worker.getValue(), socketAddress, acceptListener);
+
+            registerBinding();
         } catch (IOException e) {
             throw new StartException("Could not start http listener", e);
         }
@@ -80,6 +82,7 @@ public class HttpListenerService extends AbstractListenerService<HttpListenerSer
     @Override
     public void stop(final StopContext stopContext) {
         stopListening();
+        unRegisterBinding();
     }
 
 
@@ -88,7 +91,7 @@ public class HttpListenerService extends AbstractListenerService<HttpListenerSer
         server = worker.createStreamServer(socketAddress, acceptListener, SERVER_OPTIONS);
         server.resumeAccepts();
 
-        UndertowMessages.MESSAGES.listenerStarted("Http listener", socketAddress);
+        UndertowLogger.ROOT_LOGGER.listenerStarted("Http listener", socketAddress);
     }
 
     protected void stopListening() {

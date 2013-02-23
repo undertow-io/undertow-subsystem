@@ -23,7 +23,8 @@ public class AJPListenerService extends AbstractListenerService<AJPListenerServi
             ChannelListener<AcceptingChannel<ConnectedStreamChannel>> acceptListener = ChannelListeners.openListenerAdapter(openListener);
             AcceptingChannel<? extends ConnectedStreamChannel> server = worker.getValue().createStreamServer(binding.getValue().getSocketAddress(), acceptListener, serverOptions);
             server.resumeAccepts();
-            UndertowMessages.MESSAGES.listenerStarted("AJP listener", binding.getValue().getSocketAddress());
+            UndertowLogger.ROOT_LOGGER.listenerStarted("AJP listener", binding.getValue().getSocketAddress());
+            registerBinding();
         } catch (IOException e) {
             throw new StartException("Could not start ajp listener", e);
         }
@@ -32,6 +33,7 @@ public class AJPListenerService extends AbstractListenerService<AJPListenerServi
     @Override
     public void stop(StopContext context) {
 
+        unRegisterBinding();
     }
 
     @Override

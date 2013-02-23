@@ -22,6 +22,10 @@
 
 package org.jboss.as.undertow.extension;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+
+import org.jboss.as.network.ManagedBinding;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.value.InjectedValue;
@@ -65,5 +69,40 @@ public abstract class AbstractListenerService<T> implements Service<T> {
 
     protected int getBufferSize() {
         return 1024;
+    }
+
+
+    protected void registerBinding() {
+        binding.getValue().getSocketBindings().getNamedRegistry().registerBinding(new ListenerBinding(binding.getValue()));
+        UndertowLogger.ROOT_LOGGER.infof("registering binding: %s", binding.getValue());
+    }
+
+    protected void unRegisterBinding() {
+        final SocketBinding binding = this.binding.getValue();
+        binding.getSocketBindings().getNamedRegistry().unregisterBinding(binding.getName());
+    }
+
+    private static class ListenerBinding implements ManagedBinding {
+
+        private final SocketBinding binding;
+
+        private ListenerBinding(final SocketBinding binding) {
+            this.binding = binding;
+        }
+
+        @Override
+        public String getSocketBindingName() {
+            return binding.getName();
+        }
+
+        @Override
+        public InetSocketAddress getBindAddress() {
+            return binding.getSocketAddress();
+        }
+
+        @Override
+        public void close() throws IOException {
+
+        }
     }
 }

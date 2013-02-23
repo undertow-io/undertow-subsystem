@@ -22,8 +22,6 @@
 
 package org.jboss.as.undertow.extension;
 
-import java.net.InetSocketAddress;
-
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 
@@ -32,14 +30,11 @@ import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.jandex.AnnotationTarget;
 import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.Cause;
-import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
 import org.jboss.logging.annotations.Param;
 import org.jboss.modules.ModuleIdentifier;
 import org.jboss.vfs.VirtualFile;
-
-import static org.jboss.logging.Logger.Level.INFO;
 
 /**
  * This module is using message IDs in the range 17300 - 17699.
@@ -57,17 +52,6 @@ public interface UndertowMessages {
      * The default messages.
      */
     UndertowMessages MESSAGES = Messages.getBundle(UndertowMessages.class);
-
-    /**
-     * Creates an exception indicating the class, represented by the {@code className} parameter, cannot be accessed.
-     *
-     * @param name    name of the listener
-     * @param address socket address
-     * @return the message.
-     */
-    @LogMessage(level = INFO)
-    @Message(id = 17300, value = "Undertow listener %s listening on %s")
-    String listenerStarted(String name, InetSocketAddress address);
 
     @Message(id = 17301, value = "Unknown handler '%s' encountered")
     XMLStreamException unknownHandler(String name, @Param Location location);
@@ -158,4 +142,5 @@ public interface UndertowMessages {
 
     @Message(id = 17330, value = "Unknown metric %s")
     String unknownMetric(Object metric);
+
 }
