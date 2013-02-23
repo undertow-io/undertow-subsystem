@@ -74,7 +74,7 @@ public class HttpsListenerService extends HttpListenerService {
 
         container.getValue().registerSecurePort(name, socketAddress.getPort());
 
-        UndertowMessages.MESSAGES.listenerStarted("Https listener", socketAddress);
+        UndertowLogger.ROOT_LOGGER.listenerStarted("Https listener", socketAddress);
     }
 
     @Override
