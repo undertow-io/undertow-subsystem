@@ -36,6 +36,7 @@ import java.util.Set;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
+import javax.servlet.http.HttpServletRequest;
 
 import io.undertow.jsp.JspFileWrapper;
 import io.undertow.jsp.JspServletBuilder;
@@ -581,10 +582,11 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
             }
             final LoginConfigMetaData loginConfig = mergedMetaData.getLoginConfig();
             if (loginConfig != null) {
+                String authMethod = authMethod(loginConfig.getAuthMethod());
                 if (loginConfig.getFormLoginConfig() != null) {
-                    d.setLoginConfig(new LoginConfig(loginConfig.getAuthMethod(), loginConfig.getRealmName(), loginConfig.getFormLoginConfig().getLoginPage(), loginConfig.getFormLoginConfig().getErrorPage()));
+                    d.setLoginConfig(new LoginConfig(authMethod, loginConfig.getRealmName(), loginConfig.getFormLoginConfig().getLoginPage(), loginConfig.getFormLoginConfig().getErrorPage()));
                 } else {
-                    d.setLoginConfig(new LoginConfig(loginConfig.getAuthMethod(), loginConfig.getRealmName()));
+                    d.setLoginConfig(new LoginConfig(authMethod, loginConfig.getRealmName()));
                 }
             }
 
@@ -627,6 +629,25 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
             throw new DeploymentUnitProcessingException(e);
         }
     }
+
+    /**
+     * Convert the authentication method name from the format specified in the web.xml to the format used by
+     * {@link HttpServletRequest}.
+     *
+     * If the auth method is not recognised then it is returned as-is.
+     *
+     * @return The converted auth method.
+     * @throws NullPointerException if no configuredMethod is supplied.
+     */
+    private String authMethod(String configuredMethod) {
+        // TODO - Feels like a candidate for an enum but will hold off until configuration of custom methods and chaining is
+        // defined.
+        if (configuredMethod.equals("CLIENT-CERT")) {
+            return HttpServletRequest.CLIENT_CERT_AUTH;
+        }
+        return configuredMethod;
+    }
+
 
     private io.undertow.servlet.api.TransportGuaranteeType transportGuaranteeType(final TransportGuaranteeType type) {
         if (type == null) {

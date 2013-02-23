@@ -1,6 +1,28 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2013, Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.jboss.as.undertow.security;
 
 import java.security.Principal;
+import java.security.cert.X509Certificate;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +33,8 @@ import io.undertow.security.idm.Account;
 import io.undertow.security.idm.Credential;
 import io.undertow.security.idm.IdentityManager;
 import io.undertow.security.idm.PasswordCredential;
+import io.undertow.security.idm.X509CertificateCredential;
+
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.undertow.extension.UndertowLogger;
 import org.jboss.security.AuthenticationManager;
@@ -26,6 +50,7 @@ import org.jboss.security.mapping.MappingType;
 
 /**
  * @author Stuart Douglas
+ * @author <a href="mailto:darran.lofthouse@jboss.com">Darran Lofthouse</a>
  */
 public class IdentityManagerImpl implements IdentityManager {
 
@@ -46,7 +71,8 @@ public class IdentityManagerImpl implements IdentityManager {
     @Override
     public Account verify(String id, Credential credential) {
         Account account = getAccount(id);
-        if (account != null && verifyCredential(account, credential)) {
+        final char[] password = ((PasswordCredential) credential).getPassword();
+        if (verifyCredential(account, password)) {
             return account;
         }
 
@@ -55,7 +81,17 @@ public class IdentityManagerImpl implements IdentityManager {
 
     @Override
     public Account verify(Credential credential) {
-        throw new RuntimeException("Not yet implemented.");
+        if (credential instanceof X509CertificateCredential) {
+            X509CertificateCredential certCredential = (X509CertificateCredential) credential;
+            X509Certificate certificate = certCredential.getCertificate();
+            Account account = getAccount(certificate.getSubjectDN().getName());
+            if (verifyCredential(account, certificate)) {
+                return account;
+            }
+
+            return null;
+        }
+        throw new IllegalArgumentException("Parameter must be a X509CertificateCredential");
     }
 
     @Override
@@ -63,8 +99,7 @@ public class IdentityManagerImpl implements IdentityManager {
         return new AccountImpl(id);
     }
 
-    private boolean verifyCredential(final Account account, final Credential credential) {
-        final char[] credentials = ((PasswordCredential) credential).getPassword();
+    private boolean verifyCredential(final Account account, final Object credential) {
         final AuthenticationManager authenticationManager = securityDomainContext.getAuthenticationManager();
         final MappingManager mappingManager = securityDomainContext.getMappingManager();
         final AuthorizationManager authorizationManager = securityDomainContext.getAuthorizationManager();
@@ -73,12 +108,12 @@ public class IdentityManagerImpl implements IdentityManager {
         Principal incomingPrincipal = (Principal) account;
         Subject subject = new Subject();
         try {
-            boolean isValid = authenticationManager.isValid(incomingPrincipal, credentials, subject);
+            boolean isValid = authenticationManager.isValid(incomingPrincipal, credential, subject);
             if (isValid) {
                 UndertowLogger.ROOT_LOGGER.tracef("User: " + incomingPrincipal + " is authenticated");
                 if (sc == null)
                     throw new IllegalStateException("No SecurityContext found!");
-                sc.getUtil().createSubjectInfo(incomingPrincipal, credentials, subject);
+                sc.getUtil().createSubjectInfo(incomingPrincipal, credential, subject);
                 SecurityContextCallbackHandler scb = new SecurityContextCallbackHandler(sc);
                 if (mappingManager != null) {
                     // if there are mapping modules let them handle the role mapping
