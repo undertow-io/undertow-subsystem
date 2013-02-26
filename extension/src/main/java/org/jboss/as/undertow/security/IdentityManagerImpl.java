@@ -141,4 +141,9 @@ public class IdentityManagerImpl implements IdentityManager {
         return null;
     }
 
+    @Override
+    public byte[] getHash(Account account) {
+        return null;
+    }
+
 }
