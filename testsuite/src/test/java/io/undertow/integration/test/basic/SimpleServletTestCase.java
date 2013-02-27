@@ -1,7 +1,5 @@
 package io.undertow.integration.test.basic;
 
-import static org.junit.Assert.assertEquals;
-
 import java.net.URL;
 
 import org.apache.http.client.methods.HttpGet;
@@ -15,6 +13,8 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Stuart Douglas
  */
@@ -27,14 +27,14 @@ public class SimpleServletTestCase {
 
     @Deployment
     public static WebArchive deploy() {
-        WebArchive archive = ShrinkWrap.create(WebArchive.class,"SimpleServlet.war");
+        WebArchive archive = ShrinkWrap.create(WebArchive.class, "SimpleServlet.war");
         archive.addClass(SimpleServlet.class);
         return archive;
     }
 
     private String performCall(URL url, String urlPattern) throws Exception {
         DefaultHttpClient client = new DefaultHttpClient();
-        return client.execute(new HttpGet(url + urlPattern)).getStatusLine().getReasonPhrase();
+        return client.execute(new HttpGet(url + "/SimpleServlet/" + urlPattern)).getStatusLine().getReasonPhrase();
         //return HttpRequest.get(url.toExternalForm() + urlPattern, 1000, SECONDS);
     }
 
