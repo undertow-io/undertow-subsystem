@@ -48,6 +48,9 @@
             <maven-resource group="io.undertow.jastow" artifact="jastow"/>
             <maven-resource group="org.jboss.web" artifact="jasper-jdt"/>
         </module-def>
+        <module-def name="javax.servlet.api">
+            <maven-resource group="org.jboss.spec.javax.servlet" artifact="jboss-servlet-api_3.1_spec"/>
+        </module-def>
         <module-def name="org.jboss.xnio">
             <maven-resource group="org.jboss.xnio" artifact="xnio-api"/>
         </module-def>
