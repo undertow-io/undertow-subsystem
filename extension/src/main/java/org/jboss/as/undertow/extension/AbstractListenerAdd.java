@@ -30,6 +30,7 @@ abstract class AbstractListenerAdd extends AbstractAddStepHandler {
     protected String bindingRef;
     protected String workerName;
     protected String bufferPoolName;
+    protected String serverName;
 
 
     AbstractListenerAdd(AbstractListenerResourceDefinition definition) {
@@ -46,10 +47,12 @@ abstract class AbstractListenerAdd extends AbstractAddStepHandler {
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
         final PathAddress address = PathAddress.pathAddress(operation.get(OP_ADDR));
+        final PathAddress parent = address.subAddress(0,address.size()-1);
         name = address.getLastElement().getValue();
         bindingRef = SOCKET_BINDING.resolveModelAttribute(context, model).asString();
         workerName = WORKER.resolveModelAttribute(context, model).asString();
         bufferPoolName = BUFFER_POOL.resolveModelAttribute(context, model).asString();
+        serverName = parent.getLastElement().getValue();
         installService(context, model, verificationHandler, newControllers);
     }
 
@@ -57,7 +60,8 @@ abstract class AbstractListenerAdd extends AbstractAddStepHandler {
         serviceBuilder.addDependency(UndertowServices.WORKER.append(workerName), XnioWorker.class, service.getWorker())
                 .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding())
                 .addDependency(UndertowServices.CONTAINER.append("default"), ServletContainerService.class, service.getContainer())
-                .addDependency(UndertowServices.BUFFER_POOL.append(bufferPoolName), Pool.class, service.getBufferPool());
+                .addDependency(UndertowServices.BUFFER_POOL.append(bufferPoolName), Pool.class, service.getBufferPool())
+                .addDependency(UndertowServices.SERVER.append(serverName), ServerService.class, service.getServerService());
 
     }
 

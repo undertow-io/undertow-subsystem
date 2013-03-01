@@ -143,4 +143,9 @@ public interface UndertowMessages {
     @Message(id = 17330, value = "Unknown metric %s")
     String unknownMetric(Object metric);
 
+    @Message(id = 17331, value = "Null default host")
+    IllegalArgumentException nullDefaultHost();
+
+    @Message(id = 17332, value = "Null host name")
+    IllegalStateException nullHostName();
 }

@@ -1,34 +1,12 @@
 package org.jboss.as.undertow.extension;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.ServiceVerificationHandler;
-import org.jboss.as.server.AbstractDeploymentChainStep;
-import org.jboss.as.server.DeploymentProcessorTarget;
-import org.jboss.as.server.deployment.Phase;
-import org.jboss.as.server.deployment.jbossallxml.JBossAllXmlParserRegisteringProcessor;
-import org.jboss.as.undertow.deployment.ELExpressionFactoryProcessor;
-import org.jboss.as.undertow.deployment.EarContextRootProcessor;
-import org.jboss.as.undertow.deployment.JBossWebParsingDeploymentProcessor;
-import org.jboss.as.undertow.deployment.ServletContainerInitializerDeploymentProcessor;
-import org.jboss.as.undertow.deployment.TldParsingDeploymentProcessor;
-import org.jboss.as.undertow.deployment.UndertowDependencyProcessor;
-import org.jboss.as.undertow.deployment.UndertowDeploymentProcessor;
-import org.jboss.as.undertow.deployment.WarAnnotationDeploymentProcessor;
-import org.jboss.as.undertow.deployment.WarDeploymentInitializingProcessor;
-import org.jboss.as.undertow.deployment.WarMetaDataProcessor;
-import org.jboss.as.undertow.deployment.WarStructureDeploymentProcessor;
-import org.jboss.as.undertow.deployment.WebFragmentParsingDeploymentProcessor;
-import org.jboss.as.undertow.deployment.WebJBossAllParser;
-import org.jboss.as.undertow.deployment.WebParsingDeploymentProcessor;
-import org.jboss.as.web.common.SharedTldsMetaDataBuilder;
 import org.jboss.dmr.ModelNode;
-import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.msc.service.ServiceController;
 
 
@@ -60,27 +38,13 @@ class UndertowSubsystemAdd extends AbstractBoottimeAddStepHandler {
                                 ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
             throws OperationFailedException {
         UndertowLogger.ROOT_LOGGER.serverStarting("1.0.0.Alpha1-SNAPSHOT");
-
-        context.addStep(new AbstractDeploymentChainStep() {
+        //moved to other resources
+        /*context.addStep(new AbstractDeploymentChainStep() {
             @Override
             protected void execute(DeploymentProcessorTarget processorTarget) {
 
                 final SharedWebMetaDataBuilder sharedWebBuilder = new SharedWebMetaDataBuilder(model.clone());
-                final SharedTldsMetaDataBuilder sharedTldsBuilder;
-                try {
-                    //horrible hack alert, we need to fix this in the AS
-                    final Constructor<SharedTldsMetaDataBuilder> declaredConstructor = SharedTldsMetaDataBuilder.class.getDeclaredConstructor(ModelNode.class);
-                    declaredConstructor.setAccessible(true);
-                    sharedTldsBuilder = declaredConstructor.newInstance(model.clone());
-                } catch (InstantiationException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                } catch (NoSuchMethodException e) {
-                    throw new RuntimeException(e);
-                }
+                final SharedTldsMetaDataBuilder sharedTldsBuilder = new SharedTldsMetaDataBuilder(model.clone());
 
                 processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.STRUCTURE, Phase.STRUCTURE_REGISTER_JBOSS_ALL_XML_PARSER, new JBossAllXmlParserRegisteringProcessor<JBossWebMetaData>(WebJBossAllParser.ROOT_ELEMENT, WebJBossAllParser.ATTACHMENT_KEY, new WebJBossAllParser()));
                 processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.STRUCTURE, Phase.STRUCTURE_WAR_DEPLOYMENT_INIT, new WarDeploymentInitializingProcessor());
@@ -102,6 +66,7 @@ class UndertowSubsystemAdd extends AbstractBoottimeAddStepHandler {
                 processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.INSTALL, Phase.INSTALL_WAR_DEPLOYMENT, new UndertowDeploymentProcessor("default"));
             }
         }, OperationContext.Stage.RUNTIME);
-
+*/
     }
+
 }

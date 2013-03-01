@@ -53,7 +53,7 @@ public class HttpsListenerAdd extends HttpListenerAdd {
     }
 
     @Override
-    protected void additionalDependencies(OperationContext context, ServiceBuilder<HttpListenerService> serviceBuilder, ModelNode model, HttpListenerService service) throws OperationFailedException {
+    protected void configureAdditionalDependencies(OperationContext context, ServiceBuilder<HttpListenerService> serviceBuilder, ModelNode model, HttpListenerService service) throws OperationFailedException {
         final String securityRealm = SECURITY_REALM.resolveModelAttribute(context, model).asString();
 
         serviceBuilder.addDependency(SecurityRealmService.BASE_SERVICE_NAME.append(securityRealm), SecurityRealm.class, ((HttpsListenerService) service).getSecurityRealm());

@@ -34,7 +34,7 @@ public class SimpleServletTestCase {
 
     private String performCall(URL url, String urlPattern) throws Exception {
         DefaultHttpClient client = new DefaultHttpClient();
-        return client.execute(new HttpGet(url + "/SimpleServlet/" + urlPattern)).getStatusLine().getReasonPhrase();
+        return client.execute(new HttpGet(url + urlPattern)).getStatusLine().getReasonPhrase();
         //return HttpRequest.get(url.toExternalForm() + urlPattern, 1000, SECONDS);
     }
 

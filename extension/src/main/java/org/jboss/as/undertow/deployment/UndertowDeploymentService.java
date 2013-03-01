@@ -67,7 +67,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
             deploymentManager.deploy();
             try {
                 HttpHandler handler = deploymentManager.start();
-                container.getValue().getPathHandler().addPath(deploymentInfo.getContextPath(), handler);
+                container.getValue().registerDeployment(deploymentInfo, handler);
             } catch (ServletException e) {
                 throw new StartException(e);
             }
@@ -85,6 +85,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
         }
         deploymentManager.undeploy();
         deploymentInfo.setIdentityManager(null);
+        container.getValue().unregisterDeployment(deploymentInfo);
     }
 
     @Override

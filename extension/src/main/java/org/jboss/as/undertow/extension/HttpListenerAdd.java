@@ -29,7 +29,7 @@ public class HttpListenerAdd extends AbstractListenerAdd {
         final ServiceBuilder<HttpListenerService> serviceBuilder = context.getServiceTarget().addService(constructServiceName(name), service);
         addDefaultDependencies(serviceBuilder, service);
 
-        additionalDependencies(context, serviceBuilder, model, service);
+        configureAdditionalDependencies(context, serviceBuilder, model, service);
         serviceBuilder.setInitialMode(ServiceController.Mode.ACTIVE);
 
         final ServiceController<HttpListenerService> serviceController = serviceBuilder.install();
@@ -42,6 +42,6 @@ public class HttpListenerAdd extends AbstractListenerAdd {
         return new HttpListenerService();
     }
 
-    protected void additionalDependencies(OperationContext context, ServiceBuilder<HttpListenerService> serviceBuilder, ModelNode model, HttpListenerService service) throws OperationFailedException {
+    protected void configureAdditionalDependencies(OperationContext context, ServiceBuilder<HttpListenerService> serviceBuilder, ModelNode model, HttpListenerService service) throws OperationFailedException {
     }
 }

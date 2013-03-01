@@ -31,7 +31,7 @@ public class  UndertowExtension implements Extension {
     protected static final PathElement HANDLERS_PATH = PathElement.pathElement(Constants.HANDLERS);
     protected static final PathElement PATH_SERVLET_CONTAINER = PathElement.pathElement(Constants.SERVLET_CONTAINER);
     protected static final PathElement PATH_PATHS = PathElement.pathElement(Constants.PATH);
-    protected static final PathElement VIRTUAL_HOST_PATH = PathElement.pathElement(Constants.VIRTUAL_HOST);
+    protected static final PathElement SERVER_PATH = PathElement.pathElement(Constants.SERVER);
     public static final PathElement PATH_JSP = PathElement.pathElement(Constants.SETTING, Constants.JSP);
     private static final String RESOURCE_NAME = UndertowExtension.class.getPackage().getName() + ".LocalDescriptions";
 
@@ -58,7 +58,7 @@ public class  UndertowExtension implements Extension {
         registration.registerOperationHandler(GenericSubsystemDescribeHandler.DEFINITION, GenericSubsystemDescribeHandler.INSTANCE, false);
         registration.registerSubModel(WorkerResourceDefinition.INSTANCE);
         registration.registerSubModel(BufferPoolResourceDefinition.INSTANCE);
-        registration.registerSubModel(VirtualHostHandlerDefinition.INSTANCE);
+        registration.registerSubModel(ServerDefinition.INSTANCE);
         registration.registerSubModel(ServletContainerDefinition.INSTANCE);
 
         final ManagementResourceRegistration deployments = subsystem.registerDeploymentModel(DeploymentDefinition.INSTANCE);

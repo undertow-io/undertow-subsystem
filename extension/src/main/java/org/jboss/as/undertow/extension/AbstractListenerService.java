@@ -25,14 +25,27 @@ package org.jboss.as.undertow.extension;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import io.undertow.server.OpenListener;
+import io.undertow.server.handlers.CanonicalPathHandler;
+import io.undertow.server.handlers.CookieHandler;
+import io.undertow.server.handlers.error.SimpleErrorPageHandler;
+import io.undertow.server.handlers.form.FormEncodedDataHandler;
+import io.undertow.server.handlers.form.MultiPartHandler;
 import org.jboss.as.network.ManagedBinding;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.msc.service.Service;
+import org.jboss.msc.service.StartContext;
+import org.jboss.msc.service.StartException;
+import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
+import org.xnio.ChannelListener;
+import org.xnio.ChannelListeners;
 import org.xnio.OptionMap;
 import org.xnio.Options;
 import org.xnio.Pool;
 import org.xnio.XnioWorker;
+import org.xnio.channels.AcceptingChannel;
+import org.xnio.channels.ConnectedStreamChannel;
 
 /**
  * @author Tomaz Cerar
@@ -43,6 +56,10 @@ public abstract class AbstractListenerService<T> implements Service<T> {
     protected final InjectedValue<XnioWorker> worker = new InjectedValue<>();
     protected final InjectedValue<SocketBinding> binding = new InjectedValue<>();
     protected final InjectedValue<Pool> bufferPool = new InjectedValue<>();
+    protected final InjectedValue<ServerService> serverService = new InjectedValue<>();
+
+    protected volatile OpenListener openListener;
+    private volatile ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener;
 
     OptionMap serverOptions = OptionMap.builder()
             .set(Options.WORKER_ACCEPT_THREADS, Runtime.getRuntime().availableProcessors())
@@ -67,6 +84,10 @@ public abstract class AbstractListenerService<T> implements Service<T> {
         return bufferPool;
     }
 
+    public InjectedValue<ServerService> getServerService() {
+        return serverService;
+    }
+
     protected int getBufferSize() {
         return 1024;
     }
@@ -74,13 +95,47 @@ public abstract class AbstractListenerService<T> implements Service<T> {
 
     protected void registerBinding() {
         binding.getValue().getSocketBindings().getNamedRegistry().registerBinding(new ListenerBinding(binding.getValue()));
-        UndertowLogger.ROOT_LOGGER.infof("registering binding: %s", binding.getValue());
     }
 
     protected void unRegisterBinding() {
         final SocketBinding binding = this.binding.getValue();
         binding.getSocketBindings().getNamedRegistry().unregisterBinding(binding.getName());
     }
+
+    @Override
+    public void start(StartContext context) throws StartException {
+        try {
+            final InetSocketAddress socketAddress = binding.getValue().getSocketAddress();
+            openListener = createOpenListener();
+            acceptListener = ChannelListeners.openListenerAdapter(openListener);
+            FormEncodedDataHandler formEncodedDataHandler = new FormEncodedDataHandler();
+            formEncodedDataHandler.setNext(container.getValue().getPathHandler());
+            MultiPartHandler multiPartHandler = new MultiPartHandler();
+            multiPartHandler.setNext(formEncodedDataHandler);
+            final CookieHandler cookie = new CookieHandler();
+            cookie.setNext(new SimpleErrorPageHandler(multiPartHandler));
+            CanonicalPathHandler canonicalPathHandler = new CanonicalPathHandler(cookie);
+            openListener.setRootHandler(canonicalPathHandler);
+            startListening(worker.getValue(), socketAddress, acceptListener);
+            registerBinding();
+        } catch (IOException e) {
+            throw new StartException("Could not start http listener", e);
+        }
+    }
+
+    @Override
+    public void stop(StopContext context) {
+        stopListening();
+        unRegisterBinding();
+
+    }
+
+    protected abstract OpenListener createOpenListener();
+
+    abstract void startListening(XnioWorker worker, InetSocketAddress socketAddress, ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener) throws IOException;
+
+    abstract void stopListening();
+
 
     private static class ListenerBinding implements ManagedBinding {
 

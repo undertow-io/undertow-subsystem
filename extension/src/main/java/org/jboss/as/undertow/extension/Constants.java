@@ -56,7 +56,7 @@ public interface Constants {
 
     String HANDLER = "handler";
     String HANDLERS = "handlers";
-    String VIRTUAL_HOST = "virtual-host";
+    String SERVER = "server";
     String HOST = "host";
     String CHAIN = "chain";
     String CHAINS = "chains";

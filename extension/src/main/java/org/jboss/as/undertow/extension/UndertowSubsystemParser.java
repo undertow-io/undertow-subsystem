@@ -1,6 +1,5 @@
 package org.jboss.as.undertow.extension;
 
-import static org.jboss.as.controller.parsing.ParseUtils.requireSingleAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
 
 import java.util.List;
@@ -35,7 +34,7 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         ModelNode model = context.getModelNode();
         WorkerResourceDefinition.INSTANCE.persist(writer, model);
         BufferPoolResourceDefinition.INSTANCE.persist(writer, model);
-        VirtualHostHandlerDefinition.INSTANCE.persist(writer, model);
+        ServerDefinition.INSTANCE.persist(writer, model);
         ServletContainerDefinition.INSTANCE.persist(writer, model);
         writer.writeEndElement();
     }
@@ -62,8 +61,8 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
                             BufferPoolResourceDefinition.INSTANCE.parse(reader, address, list);
                             break;
                         }
-                        case Constants.VIRTUAL_HOST: {
-                            parseVirtualHost(reader, address, list);
+                        case Constants.SERVER: {
+                            ServerDefinition.INSTANCE.parse(reader, address, list);
                             break;
                         }
                         case Constants.SERVLET_CONTAINER: {
@@ -83,41 +82,6 @@ public class UndertowSubsystemParser implements XMLStreamConstants, XMLElementRe
         }
         ParseUtils.requireNoContent(reader);
 
-    }
-
-    static void parseVirtualHost(XMLExtendedStreamReader reader, PathAddress parent, List<ModelNode> list) throws XMLStreamException {
-        requireSingleAttribute(reader, Constants.DEFAULT_HOST);
-        String defaultHost = reader.getAttributeValue(0);
-        PathAddress address = parent.append(Constants.VIRTUAL_HOST, defaultHost);
-        list.add(Util.createAddOperation(address));
-
-        while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-            switch (reader.getLocalName()) {
-                case Constants.HTTP_LISTENER: {
-                    HttpListenerResourceDefinition.INSTANCE.parse(reader, address, list);
-                    break;
-                }
-                case Constants.HTTPS_LISTENER: {
-                    HttpsListenerResourceDefinition.INSTANCE.parse(reader, address, list);
-                    break;
-                }
-                case Constants.AJP_LISTENER: {
-                    AJPListenerResourceDefinition.INSTANCE.parse(reader, address, list);
-                    break;
-                }
-                case Constants.HANDLERS: {
-                    HandlerFactory.parseHandlers(reader, address, list);
-                    break;
-                }
-                case Constants.HOST: {
-                    HostHandlerDefinition.INSTANCE.parse(reader, address, list);
-                    break;
-                }
-                default: {
-                    throw unexpectedElement(reader);
-                }
-            }
-        }
     }
 }
 

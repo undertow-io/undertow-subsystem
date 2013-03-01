@@ -23,6 +23,7 @@
 package org.jboss.as.undertow.deployment;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EventListener;
@@ -139,8 +140,13 @@ import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
 public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
 
     private final String defaultContainer;
+    private final String defaultHost;
 
-    public UndertowDeploymentProcessor(final String defaultContainer) {
+    public UndertowDeploymentProcessor(String defaultHost, final String defaultContainer) {
+        this.defaultHost = defaultHost;
+        if (defaultHost == null) {
+                    throw MESSAGES.nullDefaultHost();
+                }
         this.defaultContainer = defaultContainer;
     }
 
@@ -151,11 +157,11 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
         if (warMetaData == null) {
             return;
         }
-        //String hostName = hostNameOfDeployment(warMetaData, defaultHost);
-        processDeployment(warMetaData, deploymentUnit, phaseContext.getServiceTarget());
+        String hostName = hostNameOfDeployment(warMetaData, defaultHost);
+        processDeployment(warMetaData, deploymentUnit, phaseContext.getServiceTarget(),hostName);
     }
 
-    /*
+
     static String hostNameOfDeployment(final WarMetaData metaData, final String defaultHost) {
         Collection<String> hostNames = null;
         if (metaData.getMergedJBossWebMetaData() != null) {
@@ -170,7 +176,6 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
         }
         return hostName;
     }
-    */
 
     @Override
     public void undeploy(final DeploymentUnit context) {
@@ -178,7 +183,7 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
         //deployer.undeploy(context);
     }
 
-    private void processDeployment(final WarMetaData warMetaData, final DeploymentUnit deploymentUnit, final ServiceTarget serviceTarget)
+    private void processDeployment(final WarMetaData warMetaData, final DeploymentUnit deploymentUnit, final ServiceTarget serviceTarget, String hostName)
             throws DeploymentUnitProcessingException {
         final VirtualFile deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT).getRoot();
         final Module module = deploymentUnit.getAttachment(Attachments.MODULE);
@@ -283,7 +288,6 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
         // Process the web related mgmt information
         final ModelNode node = deploymentUnit.getDeploymentSubsystemModel(UndertowExtension.SUBSYSTEM_NAME);
         node.get(DeploymentDefinition.CONTEXT_ROOT.getName()).set("".equals(pathName) ? "/" : pathName);
-        String hostName = "localhost";
         node.get(DeploymentDefinition.VIRTUAL_HOST.getName()).set(hostName);
         processManagement(deploymentUnit, metaData);
     }

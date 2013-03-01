@@ -1,6 +1,7 @@
 package org.jboss.as.undertow.extension;
 
 import static javax.xml.stream.XMLStreamConstants.END_ELEMENT;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
 
 import java.util.List;
@@ -8,10 +9,12 @@ import javax.xml.stream.XMLStreamException;
 
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
+import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.SimplePersistentResourceDefinition;
 import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.as.controller.operations.common.Util;
@@ -21,6 +24,9 @@ import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
+import org.jboss.msc.service.ServiceBuilder;
+import org.jboss.msc.service.ServiceController;
+import org.jboss.msc.service.ServiceName;
 import org.jboss.staxmapper.XMLExtendedStreamReader;
 import org.jboss.staxmapper.XMLExtendedStreamWriter;
 
@@ -39,12 +45,8 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
 
 
     private HostHandlerDefinition() {
-        super(UndertowExtension.HOST_PATH, UndertowExtension.getResolver(Constants.HOST), new AbstractAddStepHandler() {
-            @Override
-            protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-                ALIAS.validateAndSet(operation, model);
-            }
-        },
+        super(UndertowExtension.HOST_PATH, UndertowExtension.getResolver(Constants.HOST),
+                new HostAdd(),
                 ReloadRequiredRemoveStepHandler.INSTANCE);
     }
 
@@ -95,7 +97,7 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
                 }
             }
         }
-        //ParseUtils.requireNoContent(reader);
+
     }
 
 
@@ -122,4 +124,31 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
 
     }
 
+    private static class HostAdd extends AbstractAddStepHandler {
+        @Override
+        protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
+            ALIAS.validateAndSet(operation, model);
+        }
+
+        @Override
+        protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
+            final PathAddress address = PathAddress.pathAddress(operation.get(OP_ADDR));
+            final PathAddress parent = address.subAddress(0, address.size() - 1);
+            final String name = address.getLastElement().getValue();
+            List<String> aliases = ALIAS.unwrap(context, model);
+            final String serverName = parent.getLastElement().getValue();
+            final ServiceName virtualHostServiceName = UndertowServices.virtualHostName(serverName, name);
+            HostService service = new HostService(name, aliases);
+            final ServiceBuilder<HostService> builder = context.getServiceTarget().addService(virtualHostServiceName, service)
+                    .addDependency(UndertowServices.SERVER.append(serverName), ServerService.class, service.getServer());
+
+
+            builder.setInitialMode(ServiceController.Mode.ACTIVE);
+
+            final ServiceController<HostService> serviceController = builder.install();
+            if (newControllers != null) {
+                newControllers.add(serviceController);
+            }
+        }
+    }
 }

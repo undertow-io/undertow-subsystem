@@ -26,7 +26,9 @@ import java.util.ConcurrentModificationException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.PathHandler;
+import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.ServletContainer;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
@@ -49,16 +51,6 @@ public class ServletContainerService implements Service<ServletContainerService>
      */
 
     public void start(StartContext context) throws StartException {
-        //TODO: make this configurable, and use a more realistic buffer size by default.
-        //this is only this large to work around an XNIO bug
-        /*FormEncodedDataHandler formEncodedDataHandler = new FormEncodedDataHandler();
-        formEncodedDataHandler.setNext(pathHandler);
-        MultiPartHandler multiPartHandler = new MultiPartHandler();
-        multiPartHandler.setNext(formEncodedDataHandler);
-        final CookieHandler cookie = new CookieHandler();
-        cookie.setNext(new SimpleErrorPageHandler(multiPartHandler));
-        CanonicalPathHandler canonicalPathHandler = new CanonicalPathHandler(cookie);
-        openListener.setRootHandler(canonicalPathHandler);*/
 
         servletContainer = ServletContainer.Factory.newInstance();
     }
@@ -75,6 +67,15 @@ public class ServletContainerService implements Service<ServletContainerService>
      * Access Methods
      */
 
+    public void registerDeployment(DeploymentInfo deploymentInfo, HttpHandler handler) {
+        pathHandler.addPath(deploymentInfo.getContextPath(), handler);
+        UndertowLogger.ROOT_LOGGER.registerWebapp(deploymentInfo.getContextPath());
+    }
+
+    public void unregisterDeployment(DeploymentInfo deploymentInfo) {
+        pathHandler.removePath(deploymentInfo.getContextPath());
+        UndertowLogger.ROOT_LOGGER.unregisterWebapp(deploymentInfo.getContextPath());
+    }
 
     public PathHandler getPathHandler() {
         return pathHandler;

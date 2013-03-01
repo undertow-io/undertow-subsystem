@@ -19,6 +19,9 @@ public final class UndertowServices {
 
     public static final ServiceName CONTAINER = UNDERTOW.append("container");
 
+    public static final ServiceName SERVER = UNDERTOW.append(Constants.SERVER);
+    ///public static final ServiceName HOST = SERVER.append(Constants.HOST);
+
     /**
      * The base name for jboss.web connector services.
      */
@@ -35,6 +38,9 @@ public final class UndertowServices {
 
     public static ServiceName deploymentServiceName(final String virtualHost, final String contextPath) {
         return WEB_DEPLOYMENT_BASE.append(virtualHost).append("".equals(contextPath) ? "/" : contextPath);
+    }
+    public static ServiceName virtualHostName(final String server, final String virtualHost) {
+        return SERVER.append(server).append(Constants.HOST).append(virtualHost);
     }
 
     private UndertowServices() {

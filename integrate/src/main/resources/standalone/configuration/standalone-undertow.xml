@@ -253,7 +253,7 @@
         <subsystem xmlns="urn:jboss:domain:undertow:1.0">
             <worker name="default" task-core-threads="12" write-threads="3" read-threads="3"/>
             <buffer-pool name="default" buffer-size="2048" buffers-per-slice="512"/>
-            <virtual-host default-host="localhost">
+            <server name="default-server" default-host="localhost" servlet-container="default">
                 <http-listener name="default" socket-binding="http" worker="default" buffer-pool="default"/>
                 <ajp-listener name="ajp-connector" socket-binding="ajp"/>
 
@@ -274,7 +274,7 @@
                     </paths>
                 </host>
 
-            </virtual-host>
+            </server>
             <servlet-container name="default">
                 <jsp-config development="${prop.development:true}"
                             disabled="${prop.disabled:false}"
