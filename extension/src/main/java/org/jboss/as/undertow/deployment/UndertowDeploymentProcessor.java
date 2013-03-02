@@ -419,6 +419,9 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
                     if (servlet.getRunAs() != null) {
                         s.setRunAs(servlet.getRunAs().getRoleName());
                     }
+                    if (servlet.getLoadOnStartupSet()){//todo why not cleanup api and just use int everywhere
+                        s.setLoadOnStartup(servlet.getLoadOnStartupInt());
+                    }
 
                     List<ServletMappingMetaData> mappings = servletMappings.get(servlet.getName());
                     if (mappings != null) {
