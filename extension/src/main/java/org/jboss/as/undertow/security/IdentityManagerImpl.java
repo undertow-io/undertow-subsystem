@@ -35,6 +35,7 @@ import io.undertow.security.idm.IdentityManager;
 import io.undertow.security.idm.PasswordCredential;
 import io.undertow.security.idm.X509CertificateCredential;
 
+import io.undertow.servlet.api.ThreadSetupAction;
 import io.undertow.servlet.core.CompositeThreadSetupAction;
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.undertow.extension.UndertowLogger;
@@ -74,10 +75,14 @@ public class IdentityManagerImpl implements IdentityManager {
     @Override
     public Account verify(String id, Credential credential) {
         Account account = getAccount(id);
-        threadSetupAction.setup(null);
-        final char[] password = ((PasswordCredential) credential).getPassword();
-        if (verifyCredential(account, password)) {
-            return account;
+        ThreadSetupAction.Handle handle = threadSetupAction.setup(null);
+        try{
+            final char[] password = ((PasswordCredential) credential).getPassword();
+            if (verifyCredential(account, password)) {
+                return account;
+            }
+        }finally {
+            handle.tearDown();
         }
 
         return null;
@@ -85,18 +90,22 @@ public class IdentityManagerImpl implements IdentityManager {
 
     @Override
     public Account verify(Credential credential) {
-        threadSetupAction.setup(null);
-        if (credential instanceof X509CertificateCredential) {
-            X509CertificateCredential certCredential = (X509CertificateCredential) credential;
-            X509Certificate certificate = certCredential.getCertificate();
-            Account account = getAccount(certificate.getSubjectDN().getName());
-            if (verifyCredential(account, certificate)) {
-                return account;
-            }
+        ThreadSetupAction.Handle handle = threadSetupAction.setup(null);
+        try{
+            if (credential instanceof X509CertificateCredential) {
+                X509CertificateCredential certCredential = (X509CertificateCredential) credential;
+                X509Certificate certificate = certCredential.getCertificate();
+                Account account = getAccount(certificate.getSubjectDN().getName());
+                if (verifyCredential(account, certificate)) {
+                    return account;
+                }
 
-            return null;
+                return null;
+            }
+            throw new IllegalArgumentException("Parameter must be a X509CertificateCredential");
+        }finally {
+            handle.tearDown();
         }
-        throw new IllegalArgumentException("Parameter must be a X509CertificateCredential");
     }
 
     @Override
