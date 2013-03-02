@@ -22,6 +22,8 @@
 
 package org.jboss.as.undertow.deployment;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletException;
 
 import io.undertow.server.HttpHandler;
@@ -29,6 +31,9 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.servlet.api.ConfidentialPortManager;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
+import io.undertow.servlet.api.ThreadSetupAction;
+import io.undertow.servlet.core.CompositeThreadSetupAction;
+import io.undertow.servlet.core.ContextClassLoaderSetupAction;
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.undertow.extension.ServletContainerService;
 import org.jboss.as.undertow.security.IdentityManagerImpl;
@@ -59,7 +64,13 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
     @Override
     public void start(final StartContext startContext) throws StartException {
 
-        deploymentInfo.setIdentityManager(new IdentityManagerImpl(securityDomainContextValue.getValue(), deploymentInfo.getPrincipleVsRoleMapping()));
+        //TODO darren, check this!
+        final List<ThreadSetupAction> setup = new ArrayList<ThreadSetupAction>();
+        setup.add(new ContextClassLoaderSetupAction(deploymentInfo.getClassLoader()));
+        setup.addAll(deploymentInfo.getThreadSetupActions());
+        final CompositeThreadSetupAction threadSetupAction = new CompositeThreadSetupAction(setup);
+
+        deploymentInfo.setIdentityManager(new IdentityManagerImpl(securityDomainContextValue.getValue(), deploymentInfo.getPrincipleVsRoleMapping(), threadSetupAction));
         deploymentInfo.setConfidentialPortManager(getConfidentialPortManager());
         StartupContext.setInjectionContainer(webInjectionContainer);
         try {
