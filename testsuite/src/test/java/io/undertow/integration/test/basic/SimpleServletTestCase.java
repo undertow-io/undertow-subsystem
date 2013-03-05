@@ -32,7 +32,7 @@ public class SimpleServletTestCase {
         return archive;
     }
 
-    private String performCall(URL url, String urlPattern) throws Exception {
+    private String performCall(String url, String urlPattern) throws Exception {
         DefaultHttpClient client = new DefaultHttpClient();
         return client.execute(new HttpGet(url + urlPattern)).getStatusLine().getReasonPhrase();
         //return HttpRequest.get(url.toExternalForm() + urlPattern, 1000, SECONDS);
@@ -41,7 +41,7 @@ public class SimpleServletTestCase {
 
     @Test
     public void test() throws Exception {
-        String result = performCall(url, "SimpleServlet");
+        String result = performCall("http://localhost:8080/SimpleServlet/", "SimpleServlet");
         assertEquals("OK", result);
     }
 

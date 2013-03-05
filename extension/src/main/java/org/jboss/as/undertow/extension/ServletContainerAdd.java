@@ -20,6 +20,7 @@ import org.jboss.as.undertow.deployment.JBossWebParsingDeploymentProcessor;
 import org.jboss.as.undertow.deployment.ServletContainerInitializerDeploymentProcessor;
 import org.jboss.as.undertow.deployment.TldParsingDeploymentProcessor;
 import org.jboss.as.undertow.deployment.UndertowDependencyProcessor;
+import org.jboss.as.undertow.deployment.UndertowWebSocketDeploymentProcessor;
 import org.jboss.as.undertow.deployment.WarAnnotationDeploymentProcessor;
 import org.jboss.as.undertow.deployment.WarDeploymentInitializingProcessor;
 import org.jboss.as.undertow.deployment.WarMetaDataProcessor;
@@ -76,6 +77,7 @@ final class ServletContainerAdd extends AbstractBoottimeAddStepHandler {
                 processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.DEPENDENCIES, Phase.DEPENDENCIES_WAR_MODULE, new UndertowDependencyProcessor());
 
                 processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.POST_MODULE, Phase.POST_MODULE_EL_EXPRESSION_FACTORY, new ELExpressionFactoryProcessor());
+                processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.POST_MODULE, Phase.POST_MODULE_EL_EXPRESSION_FACTORY+1, new UndertowWebSocketDeploymentProcessor());
 
                 processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.INSTALL, Phase.INSTALL_SERVLET_INIT_DEPLOYMENT, new ServletContainerInitializerDeploymentProcessor());
                 // TODO registered in ServerAdd, we should probably reverse dependencies
