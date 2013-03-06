@@ -23,6 +23,7 @@ package org.jboss.as.undertow.security;
 
 import java.security.Principal;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -78,7 +79,9 @@ public class IdentityManagerImpl implements IdentityManager {
         ThreadSetupAction.Handle handle = threadSetupAction.setup(null);
         try{
             final char[] password = ((PasswordCredential) credential).getPassword();
-            if (verifyCredential(account, password)) {
+            // The original array may be cleared, this integration relies on it being cached for use later.
+            final char[] duplicate = Arrays.copyOf(password, password.length);
+            if (verifyCredential(account, duplicate)) {
                 return account;
             }
         }finally {
