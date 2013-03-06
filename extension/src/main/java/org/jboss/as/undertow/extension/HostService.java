@@ -1,9 +1,14 @@
 package org.jboss.as.undertow.extension;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.PathHandler;
+import io.undertow.server.handlers.ResponseCodeHandler;
+import io.undertow.server.handlers.form.MultiPartHandler;
+import io.undertow.servlet.api.DeploymentInfo;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
@@ -15,54 +20,30 @@ import org.jboss.msc.value.InjectedValue;
  */
 public class HostService implements Service<HostService> {
     private String name;
-    private List<String> aliases;
     private InjectedValue<ServerService> server = new InjectedValue<>();
+    private final PathHandler pathHandler = new PathHandler();
+    private final List<String> allHosts;
+    private volatile MultiPartHandler rootHandler;
 
-    public HostService(String name, List<String> aliases) {
+    protected HostService(String name, List<String> aliases) {
         this.name = name;
-        this.aliases = aliases;
+        List<String> hosts = new ArrayList<>(aliases.size() + 1);
+        hosts.add(name);
+        hosts.addAll(aliases);
+        allHosts = Collections.unmodifiableList(hosts);
+        rootHandler = new MultiPartHandler();
     }
 
     @Override
     public void start(StartContext context) throws StartException {
-        final PathHandler paths = new PathHandler();
-        /*paths.setDefaultHandler(host.defaultHandler);
-        for (final Map.Entry<String, HttpHandler> entry : host.handlers.entrySet()) {
-            paths.addPath(entry.getKey(), entry.getValue());
-        }*/
-        HttpHandler handler = paths;
-        /*for (HandlerWrapper<HttpHandler> wrapper : host.wrappers) {
-            handler = wrapper.wrap(handler);
-        }*/
-        server.getValue().addHost(name, handler);
-
-
-        /*handler = addLoginConfig(handler, host.loginConfig);
-        if (host.defaultHost) {
-            virtualHostHandler.setDefaultHandler(handler);
-        }*/
-
-        /*final PathHandler paths = new PathHandler();
-                   paths.setDefaultHandler(host.defaultHandler);
-                   for (final Map.Entry<String, HttpHandler> entry : host.handlers.entrySet()) {
-                       paths.addPath(entry.getKey(), entry.getValue());
-                   }
-                   HttpHandler handler = paths;
-                   for (HandlerWrapper<HttpHandler> wrapper : host.wrappers) {
-                       handler = wrapper.wrap(handler);
-                   }
-                   handler = addLoginConfig(handler, host.loginConfig);
-                   if (host.defaultHost) {
-                       virtualHostHandler.setDefaultHandler(handler);
-                   }
-                   for (String hostName : host.hostNames) {
-                       virtualHostHandler.addHost(hostName, handler);
-                   }*/
+        pathHandler.setDefaultHandler(ResponseCodeHandler.HANDLE_404);
+        rootHandler.setNext(pathHandler);
+        server.getValue().registerHost(this);
     }
 
     @Override
     public void stop(StopContext context) {
-
+        server.getValue().unRegisterHost(this);
     }
 
     @Override
@@ -70,7 +51,31 @@ public class HostService implements Service<HostService> {
         return this;
     }
 
-    public InjectedValue<ServerService> getServer() {
+    protected InjectedValue<ServerService> getServer() {
         return server;
+    }
+
+    protected List<String> getAllHosts() {
+        return allHosts;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    protected HttpHandler getRootHandler() {
+        return rootHandler;
+    }
+
+    public void registerDeployment(DeploymentInfo deploymentInfo, HttpHandler handler) {
+        String path = ServletContainerService.getDeployedContextPath(deploymentInfo);
+        pathHandler.addPath(path, handler);
+        UndertowLogger.ROOT_LOGGER.registerWebapp(path);
+    }
+
+    public void unRegisterDeployment(DeploymentInfo deploymentInfo) {
+        String path = ServletContainerService.getDeployedContextPath(deploymentInfo);
+        pathHandler.removePath(path);
+        UndertowLogger.ROOT_LOGGER.unregisterWebapp(path);
     }
 }

@@ -2,7 +2,7 @@
     <worker name="default" task-core-threads="12" write-threads="3" read-threads="3"/>
     <buffer-pool name="default" buffer-size="2048" buffers-per-slice="512"/>
 
-    <server name="localhost" default-host="localhost" servlet-container="blah">
+    <server name="default-server" default-host="localhost" servlet-container="blah">
         <http-listener name="default" socket-binding="http" />
         <ajp-listener name="ajp-connector" socket-binding="ajp"/>
 
@@ -24,6 +24,8 @@
         </host>
 
     </server>
+    <server name="test" default-host="test-context" servlet-container="blah" />
+
     <servlet-container name="default">
         <jsp-config development="${prop.development:true}"
                     disabled="${prop.disabled:false}"

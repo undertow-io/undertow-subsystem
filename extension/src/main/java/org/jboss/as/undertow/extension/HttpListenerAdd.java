@@ -39,7 +39,7 @@ public class HttpListenerAdd extends AbstractListenerAdd {
     }
 
     protected HttpListenerService createService(final String name) {
-        return new HttpListenerService();
+        return new HttpListenerService(name);
     }
 
     protected void configureAdditionalDependencies(OperationContext context, ServiceBuilder<HttpListenerService> serviceBuilder, ModelNode model, HttpListenerService service) throws OperationFailedException {

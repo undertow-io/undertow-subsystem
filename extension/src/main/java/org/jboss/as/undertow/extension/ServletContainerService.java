@@ -22,12 +22,12 @@
 
 package org.jboss.as.undertow.extension;
 
+import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.undertow.server.HttpHandler;
-import io.undertow.server.handlers.PathHandler;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.ServletContainer;
 import org.jboss.msc.service.Service;
@@ -41,14 +41,11 @@ import org.jboss.msc.service.StopContext;
  * @author <a href="mailto:darran.lofthouse@jboss.com">Darran Lofthouse</a>
  */
 public class ServletContainerService implements Service<ServletContainerService> {
-
-    private volatile PathHandler pathHandler = new PathHandler();
     private volatile ServletContainer servletContainer;
+    @Deprecated
     private Map<String, Integer> secureListeners = new ConcurrentHashMap<>(1);
-
-    /*
-     * Service Methods
-     */
+    //private ConcurrentHashMap<String,>
+    private List<ServerService> registerServers = new ArrayList<>(1);
 
     public void start(StartContext context) throws StartException {
 
@@ -63,26 +60,32 @@ public class ServletContainerService implements Service<ServletContainerService>
         return this;
     }
 
-    /*
-     * Access Methods
-     */
-
-    public void registerDeployment(DeploymentInfo deploymentInfo, HttpHandler handler) {
-        pathHandler.addPath(deploymentInfo.getContextPath(), handler);
-        UndertowLogger.ROOT_LOGGER.registerWebapp(deploymentInfo.getContextPath());
+    static String getDeployedContextPath(DeploymentInfo deploymentInfo) {
+        return "".equals(deploymentInfo.getContextPath()) ? "/" : deploymentInfo.getContextPath();
     }
 
-    public void unregisterDeployment(DeploymentInfo deploymentInfo) {
-        pathHandler.removePath(deploymentInfo.getContextPath());
-        UndertowLogger.ROOT_LOGGER.unregisterWebapp(deploymentInfo.getContextPath());
-    }
-
-    public PathHandler getPathHandler() {
-        return pathHandler;
-    }
 
     public ServletContainer getServletContainer() {
         return servletContainer;
+    }
+
+    public void registerServer(ServerService server) {
+        registerServers.add(server);
+    }
+
+    public void unRegisterServer(ServerService server) {
+        registerServers.remove(server);
+    }
+
+    public HostService getHost(String hostName) {
+        for (ServerService server : registerServers) {
+            HostService host = server.getHost(hostName);
+            if (host != null) {
+                return host;
+            }
+        }
+        UndertowLogger.ROOT_LOGGER.warnf("could not find host for hostname: %s", hostName);
+        return null;
     }
 
     public Integer lookupSecurePort(final String listenerName) {

@@ -24,7 +24,7 @@ class AJPListenerAdd extends AbstractListenerAdd {
 
     @Override
     void installService(OperationContext context, ModelNode operation, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) {
-        final AJPListenerService service = new AJPListenerService();
+        final AJPListenerService service = new AJPListenerService(name);
         final ServiceBuilder<AJPListenerService> serviceBuilder = context.getServiceTarget().addService(constructServiceName(name), service);
         addDefaultDependencies(serviceBuilder, service);
 

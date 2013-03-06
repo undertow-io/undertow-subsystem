@@ -45,35 +45,20 @@ public class HttpListenerService extends AbstractListenerService<HttpListenerSer
             .set(Options.REUSE_ADDRESSES, true)
             .getMap();
 
-    /*private volatile HttpOpenListener openListener;
-    private volatile ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener;*/
     private volatile AcceptingChannel<? extends ConnectedStreamChannel> server;
 
-    /*@Override
-    public void start(final StartContext startContext) throws StartException {
-        try {
-            final InetSocketAddress socketAddress = binding.getValue().getSocketAddress();
-            openListener = new HttpOpenListener(getBufferPool().getValue(), getBufferSize());
-            acceptListener = ChannelListeners.openListenerAdapter(openListener);
-            FormEncodedDataHandler formEncodedDataHandler = new FormEncodedDataHandler();
-            formEncodedDataHandler.setNext(container.getValue().getPathHandler());
-            MultiPartHandler multiPartHandler = new MultiPartHandler();
-            multiPartHandler.setNext(formEncodedDataHandler);
-            final CookieHandler cookie = new CookieHandler();
-            cookie.setNext(new SimpleErrorPageHandler(multiPartHandler));
-            CanonicalPathHandler canonicalPathHandler = new CanonicalPathHandler(cookie);
-            openListener.setRootHandler(canonicalPathHandler);
-            startListening(worker.getValue(), socketAddress, acceptListener);
-
-            registerBinding();
-        } catch (IOException e) {
-            throw new StartException("Could not start http listener", e);
-        }
-    }*/
+    public HttpListenerService(String name) {
+        super(name);
+    }
 
     @Override
     protected OpenListener createOpenListener() {
         return new HttpOpenListener(getBufferPool().getValue(), getBufferSize());
+    }
+
+    @Override
+    public boolean isSecure() {
+        return false;
     }
 
     protected void startListening(XnioWorker worker, InetSocketAddress socketAddress, ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener)

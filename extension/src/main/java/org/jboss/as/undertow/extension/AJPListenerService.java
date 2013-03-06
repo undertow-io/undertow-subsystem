@@ -18,6 +18,10 @@ public class AJPListenerService extends AbstractListenerService<AJPListenerServi
 
     private AcceptingChannel<? extends ConnectedStreamChannel> server;
 
+    public AJPListenerService(String name) {
+        super(name);
+    }
+
     @Override
     protected OpenListener createOpenListener() {
         return new AjpOpenListener(getBufferPool().getValue(), getBufferSize());
@@ -38,5 +42,10 @@ public class AJPListenerService extends AbstractListenerService<AJPListenerServi
     @Override
     public AJPListenerService getValue() throws IllegalStateException, IllegalArgumentException {
         return this;
+    }
+
+    @Override
+    public boolean isSecure() {
+        return false;
     }
 }

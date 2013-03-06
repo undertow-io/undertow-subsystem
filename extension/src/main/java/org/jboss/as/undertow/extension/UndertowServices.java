@@ -17,7 +17,7 @@ public final class UndertowServices {
 
     public static final ServiceName WORKER = UNDERTOW.append("worker");
 
-    public static final ServiceName CONTAINER = UNDERTOW.append("container");
+    public static final ServiceName SERVLET_CONTAINER = UNDERTOW.append(Constants.SERVLET_CONTAINER);
 
     public static final ServiceName SERVER = UNDERTOW.append(Constants.SERVER);
     ///public static final ServiceName HOST = SERVER.append(Constants.HOST);
