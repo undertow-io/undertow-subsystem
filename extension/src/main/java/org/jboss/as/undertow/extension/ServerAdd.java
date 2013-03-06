@@ -10,10 +10,6 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.server.AbstractDeploymentChainStep;
-import org.jboss.as.server.DeploymentProcessorTarget;
-import org.jboss.as.server.deployment.Phase;
-import org.jboss.as.undertow.deployment.UndertowDeploymentProcessor;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
@@ -37,27 +33,12 @@ class ServerAdd extends AbstractBoottimeAddStepHandler {
         final String defaultHost = ServerDefinition.DEFAULT_HOST.resolveModelAttribute(context, model).asString();
         final String servletContainer = ServerDefinition.SERVLET_CONTAINER.resolveModelAttribute(context, model).asString();
 
-
-        context.addStep(new AbstractDeploymentChainStep() {
-            @Override
-            protected void execute(DeploymentProcessorTarget processorTarget) {
-
-                //TODO not sure if this is proper place...
-                processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.INSTALL, Phase.INSTALL_WAR_DEPLOYMENT, new UndertowDeploymentProcessor(defaultHost, servletContainer));
-            }
-        }, OperationContext.Stage.RUNTIME);
-
-
-        final ServiceName virutalHostServiceName = UndertowServices.SERVER.append(name);
-        ServerService service = new ServerService(defaultHost);
-        final ServiceBuilder<ServerService> builder = context.getServiceTarget().addService(virutalHostServiceName, service)
-                .addDependency(UndertowServices.CONTAINER.append(servletContainer), ServletContainerService.class, service.getServletContainer());
-                        /*.addDependencies(dependentComponents)
-                        .addDependency(UndertowServices.CONTAINER.append("default"), ServletContainerService.class, service.getContainer())
-                        .addDependency(SecurityDomainService.SERVICE_NAME.append(securityDomain), SecurityDomainContext.class, service.getSecurityDomainContextValue());*/
+        final ServiceName serverName = UndertowServices.SERVER.append(name);
+        final ServerService service = new ServerService(defaultHost);
+        final ServiceBuilder<ServerService> builder = context.getServiceTarget().addService(serverName, service)
+                .addDependency(UndertowServices.SERVLET_CONTAINER.append(servletContainer), ServletContainerService.class, service.getServletContainer());
 
         builder.setInitialMode(ServiceController.Mode.ACTIVE);
-
         final ServiceController<ServerService> serviceController = builder.install();
         if (newControllers != null) {
             newControllers.add(serviceController);

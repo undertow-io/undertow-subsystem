@@ -234,11 +234,11 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
         String securityDomain = metaDataSecurityDomain == null ? SecurityConstants.DEFAULT_APPLICATION_POLICY : SecurityUtil
                 .unprefixSecurityDomain(metaDataSecurityDomain);
 
-            final ServiceName deploymentServiceName = UndertowServices.UNDERTOW.append(deploymentInfo.getContextPath());
-            UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer);
+            final ServiceName deploymentServiceName = UndertowServices.deploymentServiceName(hostName,deploymentInfo.getContextPath());
+            final UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer, hostName);
             final ServiceBuilder<UndertowDeploymentService> builder = serviceTarget.addService(deploymentServiceName, service)
                     .addDependencies(dependentComponents)
-                    .addDependency(UndertowServices.CONTAINER.append(defaultContainer), ServletContainerService.class, service.getContainer())
+                    .addDependency(UndertowServices.SERVLET_CONTAINER.append(defaultContainer), ServletContainerService.class, service.getContainer())
                     .addDependency(SecurityDomainService.SERVICE_NAME.append(securityDomain), SecurityDomainContext.class, service.getSecurityDomainContextValue());
 
             deploymentUnit.addToAttachmentList(Attachments.DEPLOYMENT_COMPLETE_SERVICES, deploymentServiceName);

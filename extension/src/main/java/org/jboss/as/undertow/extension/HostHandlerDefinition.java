@@ -4,6 +4,7 @@ import static javax.xml.stream.XMLStreamConstants.END_ELEMENT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
 
+import java.util.LinkedList;
 import java.util.List;
 import javax.xml.stream.XMLStreamException;
 
@@ -110,8 +111,10 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
             ModelNode host = hostProp.getValue();
             writer.writeAttribute(Constants.NAME, hostProp.getName());
             StringBuilder aliases = new StringBuilder();
-            for (ModelNode p : host.get(ALIAS.getName()).asList()) {
-                aliases.append(p.asString()).append(", ");
+            if (host.hasDefined(ALIAS.getName())) {
+                for (ModelNode p : host.get(ALIAS.getName()).asList()) {
+                    aliases.append(p.asString()).append(", ");
+                }
             }
             if (aliases.length() > 3) {
                 aliases.setLength(aliases.length() - 2);
@@ -138,7 +141,7 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
             List<String> aliases = ALIAS.unwrap(context, model);
             final String serverName = parent.getLastElement().getValue();
             final ServiceName virtualHostServiceName = UndertowServices.virtualHostName(serverName, name);
-            HostService service = new HostService(name, aliases);
+            HostService service = new HostService(name, aliases == null ? new LinkedList<String>() : aliases);
             final ServiceBuilder<HostService> builder = context.getServiceTarget().addService(virtualHostServiceName, service)
                     .addDependency(UndertowServices.SERVER.append(serverName), ServerService.class, service.getServer());
 

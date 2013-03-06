@@ -10,27 +10,7 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ServiceVerificationHandler;
-import org.jboss.as.server.AbstractDeploymentChainStep;
-import org.jboss.as.server.DeploymentProcessorTarget;
-import org.jboss.as.server.deployment.Phase;
-import org.jboss.as.server.deployment.jbossallxml.JBossAllXmlParserRegisteringProcessor;
-import org.jboss.as.undertow.deployment.ELExpressionFactoryProcessor;
-import org.jboss.as.undertow.deployment.EarContextRootProcessor;
-import org.jboss.as.undertow.deployment.JBossWebParsingDeploymentProcessor;
-import org.jboss.as.undertow.deployment.ServletContainerInitializerDeploymentProcessor;
-import org.jboss.as.undertow.deployment.TldParsingDeploymentProcessor;
-import org.jboss.as.undertow.deployment.UndertowDependencyProcessor;
-import org.jboss.as.undertow.deployment.UndertowWebSocketDeploymentProcessor;
-import org.jboss.as.undertow.deployment.WarAnnotationDeploymentProcessor;
-import org.jboss.as.undertow.deployment.WarDeploymentInitializingProcessor;
-import org.jboss.as.undertow.deployment.WarMetaDataProcessor;
-import org.jboss.as.undertow.deployment.WarStructureDeploymentProcessor;
-import org.jboss.as.undertow.deployment.WebFragmentParsingDeploymentProcessor;
-import org.jboss.as.undertow.deployment.WebJBossAllParser;
-import org.jboss.as.undertow.deployment.WebParsingDeploymentProcessor;
-import org.jboss.as.web.common.SharedTldsMetaDataBuilder;
 import org.jboss.dmr.ModelNode;
-import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceTarget;
 
@@ -53,9 +33,15 @@ final class ServletContainerAdd extends AbstractBoottimeAddStepHandler {
     @Override
     protected void performBoottime(OperationContext context, ModelNode operation, final ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
         final PathAddress address = PathAddress.pathAddress(operation.get(OP_ADDR));
-        String name = address.getLastElement().getValue();
+        final String name = address.getLastElement().getValue();
 
-        context.addStep(new AbstractDeploymentChainStep() {
+        final ServletContainerService container = new ServletContainerService();
+        final ServiceTarget target = context.getServiceTarget();
+        newControllers.add(target.addService(UndertowServices.SERVLET_CONTAINER.append(name), container)
+                .setInitialMode(ServiceController.Mode.ON_DEMAND)
+                .install());
+
+        /*context.addStep(new AbstractDeploymentChainStep() {
             @Override
             protected void execute(DeploymentProcessorTarget processorTarget) {
 
@@ -80,17 +66,14 @@ final class ServletContainerAdd extends AbstractBoottimeAddStepHandler {
                 processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.POST_MODULE, Phase.POST_MODULE_EL_EXPRESSION_FACTORY+1, new UndertowWebSocketDeploymentProcessor());
 
                 processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.INSTALL, Phase.INSTALL_SERVLET_INIT_DEPLOYMENT, new ServletContainerInitializerDeploymentProcessor());
-                // TODO registered in ServerAdd, we should probably reverse dependencies
-                //processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.INSTALL, Phase.INSTALL_WAR_DEPLOYMENT, new UndertowDeploymentProcessor("default"));
+
+                //TODO this needs to be fixed
+                processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.INSTALL, Phase.INSTALL_WAR_DEPLOYMENT, new UndertowDeploymentProcessor("localhost", name));
 
             }
         }, OperationContext.Stage.RUNTIME);
+*/
 
-        ServletContainerService container = new ServletContainerService();
-        final ServiceTarget target = context.getServiceTarget();
-        newControllers.add(target.addService(UndertowServices.CONTAINER.append(name), container)
-                .setInitialMode(ServiceController.Mode.ON_DEMAND)
-                .install());
 
     }
 }

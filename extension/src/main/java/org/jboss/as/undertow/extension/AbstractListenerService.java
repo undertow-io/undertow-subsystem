@@ -26,11 +26,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import io.undertow.server.OpenListener;
-import io.undertow.server.handlers.CanonicalPathHandler;
-import io.undertow.server.handlers.CookieHandler;
-import io.undertow.server.handlers.error.SimpleErrorPageHandler;
-import io.undertow.server.handlers.form.FormEncodedDataHandler;
-import io.undertow.server.handlers.form.MultiPartHandler;
 import org.jboss.as.network.ManagedBinding;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.msc.service.Service;
@@ -52,7 +47,7 @@ import org.xnio.channels.ConnectedStreamChannel;
  */
 public abstract class AbstractListenerService<T> implements Service<T> {
 
-    protected final InjectedValue<ServletContainerService> container = new InjectedValue<>();
+    private final String name;
     protected final InjectedValue<XnioWorker> worker = new InjectedValue<>();
     protected final InjectedValue<SocketBinding> binding = new InjectedValue<>();
     protected final InjectedValue<Pool> bufferPool = new InjectedValue<>();
@@ -68,16 +63,16 @@ public abstract class AbstractListenerService<T> implements Service<T> {
             .getMap();
 
 
+    protected AbstractListenerService(String name) {
+        this.name = name;
+    }
+
     public InjectedValue<XnioWorker> getWorker() {
         return worker;
     }
 
     public InjectedValue<SocketBinding> getBinding() {
         return binding;
-    }
-
-    public InjectedValue<ServletContainerService> getContainer() {
-        return container;
     }
 
     public InjectedValue<Pool> getBufferPool() {
@@ -92,6 +87,11 @@ public abstract class AbstractListenerService<T> implements Service<T> {
         return 1024;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public abstract boolean isSecure();
 
     protected void registerBinding() {
         binding.getValue().getSocketBindings().getNamedRegistry().registerBinding(new ListenerBinding(binding.getValue()));
@@ -104,18 +104,14 @@ public abstract class AbstractListenerService<T> implements Service<T> {
 
     @Override
     public void start(StartContext context) throws StartException {
+        serverService.getValue().registerListener(this);
         try {
             final InetSocketAddress socketAddress = binding.getValue().getSocketAddress();
             openListener = createOpenListener();
             acceptListener = ChannelListeners.openListenerAdapter(openListener);
-            FormEncodedDataHandler formEncodedDataHandler = new FormEncodedDataHandler();
-            formEncodedDataHandler.setNext(container.getValue().getPathHandler());
-            MultiPartHandler multiPartHandler = new MultiPartHandler();
-            multiPartHandler.setNext(formEncodedDataHandler);
-            final CookieHandler cookie = new CookieHandler();
-            cookie.setNext(new SimpleErrorPageHandler(multiPartHandler));
-            CanonicalPathHandler canonicalPathHandler = new CanonicalPathHandler(cookie);
-            openListener.setRootHandler(canonicalPathHandler);
+
+
+            openListener.setRootHandler(serverService.getValue().getRoot());
             startListening(worker.getValue(), socketAddress, acceptListener);
             registerBinding();
         } catch (IOException e) {
@@ -125,9 +121,9 @@ public abstract class AbstractListenerService<T> implements Service<T> {
 
     @Override
     public void stop(StopContext context) {
+        serverService.getValue().unRegisterListener(this);
         stopListening();
         unRegisterBinding();
-
     }
 
     protected abstract OpenListener createOpenListener();

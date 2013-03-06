@@ -117,22 +117,26 @@ public abstract class SimplePersistentResourceDefinition extends SimpleResourceD
         if (writeWrapper) {
             writer.writeStartElement(getXmlWrapperElement());
         }
-        writer.writeStartElement(getXmlElementName());
+
         if (wildcard) {
             for (Property p : model.asPropertyList()) {
+                writer.writeStartElement(getXmlElementName());
                 writer.writeAttribute(NAME, p.getName());
                 for (AttributeDefinition def : getAttributes()) {
                     def.getAttributeMarshaller().marshallAsAttribute(def, p.getValue(), false, writer);
                 }
                 persistChildren(writer, p.getValue());
+                writer.writeEndElement();
             }
         } else {
+            writer.writeStartElement(getXmlElementName());
             for (AttributeDefinition def : getAttributes()) {
                 def.getAttributeMarshaller().marshallAsAttribute(def, model, false, writer);
             }
             persistChildren(writer, model);
+            writer.writeEndElement();
         }
-        writer.writeEndElement();
+
         if (writeWrapper) {
             writer.writeEndElement();
         }

@@ -48,13 +48,12 @@ import org.xnio.ssl.XnioSsl;
  */
 public class HttpsListenerService extends HttpListenerService {
 
-    private final String name;
     private final InjectedValue<SecurityRealm> securityRealm = new InjectedValue<SecurityRealm>();
 
     private AcceptingChannel<ConnectedSslStreamChannel> sslServer;
 
     HttpsListenerService(final String name) {
-        this.name = name;
+        super(name);
     }
 
     @Override
@@ -72,14 +71,16 @@ public class HttpsListenerService extends HttpListenerService {
         sslServer = xnioSsl.createSslTcpServer(worker, socketAddress, acceptListener, combined);
         sslServer.resumeAccepts();
 
-        container.getValue().registerSecurePort(name, socketAddress.getPort());
-
         UndertowLogger.ROOT_LOGGER.listenerStarted("Https listener", socketAddress);
     }
 
     @Override
+    public boolean isSecure() {
+        return true;
+    }
+
+    @Override
     protected void stopListening() {
-        container.getValue().unregisterSecurePort(name);
         IoUtils.safeClose(sslServer);
         sslServer = null;
     }

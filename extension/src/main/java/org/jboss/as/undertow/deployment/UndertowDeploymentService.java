@@ -35,6 +35,7 @@ import io.undertow.servlet.api.ThreadSetupAction;
 import io.undertow.servlet.core.CompositeThreadSetupAction;
 import io.undertow.servlet.core.ContextClassLoaderSetupAction;
 import org.jboss.as.security.plugins.SecurityDomainContext;
+import org.jboss.as.undertow.extension.HostService;
 import org.jboss.as.undertow.extension.ServletContainerService;
 import org.jboss.as.undertow.security.IdentityManagerImpl;
 import org.jboss.as.web.common.StartupContext;
@@ -55,14 +56,19 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
     private final WebInjectionContainer webInjectionContainer;
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
     private volatile DeploymentManager deploymentManager;
+    private final String hostName;
+    private volatile HostService host;
 
-    public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer) {
+    public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer, String hostName) {
         this.deploymentInfo = deploymentInfo;
         this.webInjectionContainer = webInjectionContainer;
+        this.hostName = hostName;
     }
 
     @Override
     public void start(final StartContext startContext) throws StartException {
+        host = container.getValue().getHost(hostName);
+
 
         //TODO darren, check this!
         final List<ThreadSetupAction> setup = new ArrayList<ThreadSetupAction>();
@@ -78,7 +84,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
             deploymentManager.deploy();
             try {
                 HttpHandler handler = deploymentManager.start();
-                container.getValue().registerDeployment(deploymentInfo, handler);
+                host.registerDeployment(deploymentInfo, handler);
             } catch (ServletException e) {
                 throw new StartException(e);
             }
@@ -96,7 +102,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
         }
         deploymentManager.undeploy();
         deploymentInfo.setIdentityManager(null);
-        container.getValue().unregisterDeployment(deploymentInfo);
+        host.unRegisterDeployment(deploymentInfo);
     }
 
     @Override

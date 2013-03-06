@@ -1,8 +1,13 @@
 package org.jboss.as.undertow.extension;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
 import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.CanonicalPathHandler;
 import io.undertow.server.handlers.CookieHandler;
-import io.undertow.server.handlers.NameVirtualHostHandler;
+import io.undertow.server.handlers.ResponseCodeHandler;
 import io.undertow.server.handlers.error.SimpleErrorPageHandler;
 import io.undertow.server.handlers.form.FormEncodedDataHandler;
 import org.jboss.msc.service.Service;
@@ -18,10 +23,12 @@ public class ServerService implements Service<ServerService> {
 
 
     private final String defaultHost;
-
     private volatile HttpHandler root;
-    private final NameVirtualHostHandler virtualHostHandler = new NameVirtualHostHandler();
+    private final DefaultVirtualHostHandler virtualHostHandler = new DefaultVirtualHostHandler();
     private final InjectedValue<ServletContainerService> servletContainer = new InjectedValue<>();
+    private List<AbstractListenerService> listeners = new LinkedList<>();
+    private final ConcurrentHashMap<String, HostService> registerHosts = new ConcurrentHashMap<>();
+
 
     protected ServerService(String defaultHost) {
         this.defaultHost = defaultHost;
@@ -29,7 +36,6 @@ public class ServerService implements Service<ServerService> {
 
     @Override
     public void start(StartContext startContext) throws StartException {
-
 
        /* for (Undertow.VirtualHost host : hosts) {
             final PathHandler paths = new PathHandler();
@@ -50,24 +56,71 @@ public class ServerService implements Service<ServerService> {
             }
         }
 */
+
         root = virtualHostHandler;
         root = new CookieHandler(root);
         root = new FormEncodedDataHandler(root);
         root = new SimpleErrorPageHandler(root);
-        //TODO: multipart
+        root = new CanonicalPathHandler(root);
+
 /*
         if (cacheSize > 0) {
             root = new CacheHandler(new DirectBufferCache<CachedHttpRequest>(1024, cacheSize * 1024 * 1024), root);
         }*/
+
+        UndertowLogger.ROOT_LOGGER.infof("Starting server server service: %s", startContext.getController().getName());
+        servletContainer.getValue().registerServer(this);
     }
 
-    public void addHost(String name, HttpHandler handler) {
+    protected void registerListener(AbstractListenerService listener) {
+        listeners.add(listener);
+        if (listener.isSecure()) {
+            //servletContainer.getValue().registerSecurePort(listener.getName(), listener.getBinding().getValue().getPort());
+        }
+    }
+
+    protected void unRegisterListener(AbstractListenerService listener) {
+        listeners.add(listener);
+        if (listener.isSecure()) {
+            servletContainer.getValue().unregisterSecurePort(listener.getName());
+        }
+    }
+
+    protected void registerHost(HostService host) {
+        for (String hostName : host.getAllHosts()) {
+            registerHosts.putIfAbsent(hostName, host);
+            virtualHostHandler.addHost(hostName, host.getRootHandler());
+        }
+        if (host.getName().equals(getDefaultHost())) {
+            virtualHostHandler.setDefaultHandler(host.getRootHandler());
+        }
+    }
+
+    protected void unRegisterHost(HostService host) {
+        for (String hostName : host.getAllHosts()) {
+            registerHosts.remove(hostName);
+            virtualHostHandler.removeHost(hostName);
+        }
+        if (host.getName().equals(getDefaultHost())) {
+            virtualHostHandler.setDefaultHandler(ResponseCodeHandler.HANDLE_404);
+        }
+    }
+
+    protected HostService getHost(String hostname) {
+        return registerHosts.get(hostname);
+    }
+
+    /*protected void registerHost(String name, HttpHandler handler) {
         virtualHostHandler.addHost(name, handler);
     }
 
+    protected void unRegisterHost(String name) {
+        virtualHostHandler.removeHost(name);
+    }*/
+
     @Override
     public void stop(StopContext stopContext) {
-
+        servletContainer.getValue().unRegisterServer(this);
     }
 
     @Override
@@ -79,15 +132,11 @@ public class ServerService implements Service<ServerService> {
         return defaultHost;
     }
 
-    public InjectedValue<ServletContainerService> getServletContainer() {
+    protected InjectedValue<ServletContainerService> getServletContainer() {
         return servletContainer;
     }
 
-    public NameVirtualHostHandler getVirtualHostHandler() {
-        return virtualHostHandler;
-    }
-
-    public HttpHandler getRoot() {
+    protected HttpHandler getRoot() {
         return root;
     }
 }
