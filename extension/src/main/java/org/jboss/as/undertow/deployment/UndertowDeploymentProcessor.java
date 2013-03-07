@@ -139,15 +139,17 @@ import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
 
 public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
 
-    private final String defaultContainer;
+    private final String defaultServer;
     private final String defaultHost;
+    private final String defaultContainer;
 
-    public UndertowDeploymentProcessor(String defaultHost, final String defaultContainer) {
+    public UndertowDeploymentProcessor(String defaultHost, final String defaultContainer, String defaultServer) {
         this.defaultHost = defaultHost;
         if (defaultHost == null) {
                     throw MESSAGES.nullDefaultHost();
                 }
         this.defaultContainer = defaultContainer;
+        this.defaultServer = defaultServer;
     }
 
     @Override
