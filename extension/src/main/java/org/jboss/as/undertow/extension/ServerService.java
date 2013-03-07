@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.CanonicalPathHandler;
 import io.undertow.server.handlers.CookieHandler;
+import io.undertow.server.handlers.NameVirtualHostHandler;
 import io.undertow.server.handlers.ResponseCodeHandler;
 import io.undertow.server.handlers.error.SimpleErrorPageHandler;
 import io.undertow.server.handlers.form.FormEncodedDataHandler;
@@ -24,7 +25,7 @@ public class ServerService implements Service<ServerService> {
 
     private final String defaultHost;
     private volatile HttpHandler root;
-    private final DefaultVirtualHostHandler virtualHostHandler = new DefaultVirtualHostHandler();
+    private final NameVirtualHostHandler virtualHostHandler = new NameVirtualHostHandler();
     private final InjectedValue<ServletContainerService> servletContainer = new InjectedValue<>();
     private List<AbstractListenerService> listeners = new LinkedList<>();
     private final ConcurrentHashMap<String, HostService> registerHosts = new ConcurrentHashMap<>();
@@ -109,15 +110,6 @@ public class ServerService implements Service<ServerService> {
     protected HostService getHost(String hostname) {
         return registerHosts.get(hostname);
     }
-
-    /*protected void registerHost(String name, HttpHandler handler) {
-        virtualHostHandler.addHost(name, handler);
-    }
-
-    protected void unRegisterHost(String name) {
-        virtualHostHandler.removeHost(name);
-    }*/
-
     @Override
     public void stop(StopContext stopContext) {
         servletContainer.getValue().unRegisterServer(this);

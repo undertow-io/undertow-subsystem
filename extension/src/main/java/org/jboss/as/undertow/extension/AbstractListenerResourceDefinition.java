@@ -40,7 +40,14 @@ abstract class AbstractListenerResourceDefinition extends SimplePersistentResour
             .setDefaultValue(new ModelNode("default"))
             .build();
 
-    protected static SimpleAttributeDefinition[] ATTRIBUTES = {SOCKET_BINDING, WORKER, BUFFER_POOL};
+    protected static final SimpleAttributeDefinition ENABLED = new SimpleAttributeDefinitionBuilder(Constants.ENABLED, ModelType.BOOLEAN)
+            .setAllowNull(true)
+            .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
+            .setDefaultValue(new ModelNode(true))
+            .setAllowExpression(true)
+            .build();
+
+    protected static SimpleAttributeDefinition[] ATTRIBUTES = {SOCKET_BINDING, WORKER, BUFFER_POOL, ENABLED};
 
 
     public AbstractListenerResourceDefinition(PathElement pathElement) {

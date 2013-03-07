@@ -253,7 +253,7 @@
         <subsystem xmlns="urn:jboss:domain:undertow:1.0">
             <worker name="default" task-core-threads="12" write-threads="3" read-threads="3"/>
             <buffer-pool name="default" buffer-size="2048" buffers-per-slice="512"/>
-            <server name="default-server" default-host="localhost" servlet-container="default">
+            <server name="default-server" default-host="default-host" servlet-container="default">
                 <http-listener name="default" socket-binding="http" worker="default" buffer-pool="default"/>
                 <ajp-listener name="ajp-connector" socket-binding="ajp"/>
 
@@ -261,7 +261,7 @@
                     <simple-error-page/>
                 </handlers>
 
-                <host name="localhost" alias="www.localhost">
+                <host name="default-host" alias="localhost">
                     <handlers>
                         <file-error-page code="404" file="/my/error/page.html"/>
                     </handlers>
@@ -276,25 +276,7 @@
 
             </server>
             <servlet-container name="default">
-                <jsp-config development="${prop.development:true}"
-                            disabled="${prop.disabled:false}"
-                            keep-generated="${prop.keep-generated:true}"
-                            trim-spaces="${prop.trim-spaces:true}"
-                            tag-pooling="${prop.tag-pooling:true}"
-                            mapped-file="${prop.mapped-file:true}"
-                            check-interval="${prop.check-interval:20}"
-                            modification-test-interval="${prop.modification-test-interval:1000}"
-                            recompile-on-fail="${prop.recompile-on-fail:true}"
-                            smap="${prop.smap:true}"
-                            dump-smap="${prop.dump-smap:true}"
-                            generate-strings-as-char-arrays="${prop.generate-strings-as-char-arrays:true}"
-                            error-on-use-bean-invalid-class-attribute="${prop.error-on-use-bean-invalid-class-attribute:true}"
-                            scratch-dir="${prop.scratch-dir:/some/dir}"
-                            source-vm="${prop.source-vm:1.7}"
-                            target-vm="${prop.target-vm:1.7}"
-                            java-encoding="${prop.java-encoding:utf-8}"
-                            x-powered-by="${prop.x-powered-by:true}"
-                            display-source-fragment="${prop.display-source-fragment:true}"/>
+                <jsp-config />
             </servlet-container>
 
         </subsystem>

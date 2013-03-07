@@ -66,6 +66,9 @@ public interface Constants {
     String PROPERTY = "property";
     String PATHS = "paths";
     String DEFAULT_HOST = "default-host";
+    String DEFAULT_VIRTUAL_HOST = "default-virtual-host";
+    String DEFAULT_SERVLET_CONTAINER = "default-servlet-container";
+    String DEFAULT_SERVER = "default-server";
     String ALIAS = "alias";
 
     /*JSP config */
@@ -102,4 +105,5 @@ public interface Constants {
     String WELCOME_FILE = "welcome-file";
     String X_POWERED_BY = "x-powered-by";
 
+    String ENABLED = "enabled";
 }

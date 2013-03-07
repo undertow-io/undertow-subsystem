@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import javax.net.ssl.SSLContext;
 
-import org.jboss.as.domain.management.AuthenticationMechanism;
+import org.jboss.as.domain.management.AuthMechanism;
 import org.jboss.as.domain.management.SecurityRealm;
 import org.jboss.msc.value.InjectedValue;
 import org.xnio.ChannelListener;
@@ -62,7 +62,7 @@ public class HttpsListenerService extends HttpListenerService {
 
         SSLContext sslContext = securityRealm.getValue().getSSLContext();
         Builder builder = OptionMap.builder().addAll(SERVER_OPTIONS);
-        if (securityRealm.getValue().getSupportedAuthenticationMechanisms().contains(AuthenticationMechanism.CLIENT_CERT)) {
+        if (securityRealm.getValue().getSupportedAuthenticationMechanisms().contains(AuthMechanism.CLIENT_CERT)) {
             builder.set(SSL_CLIENT_AUTH_MODE, REQUESTED);
         }
         OptionMap combined = builder.getMap();

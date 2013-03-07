@@ -10,7 +10,7 @@
             <simple-error-page/>
         </handlers>
 
-        <host name="localhost" alias="www.localhost">
+        <host name="default-host" alias="localhost">
             <handlers>
                 <file-error-page code="404" file="/my/error/page.html"/>
             </handlers>
