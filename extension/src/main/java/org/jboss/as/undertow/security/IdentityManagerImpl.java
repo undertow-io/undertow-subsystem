@@ -22,8 +22,10 @@
 package org.jboss.as.undertow.security;
 
 import java.security.Principal;
+import java.security.acl.Group;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +44,7 @@ import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.undertow.extension.UndertowLogger;
 import org.jboss.security.AuthenticationManager;
 import org.jboss.security.AuthorizationManager;
+import org.jboss.security.SecurityConstants;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityRolesAssociation;
 import org.jboss.security.callbacks.SecurityContextCallbackHandler;
@@ -81,14 +84,10 @@ public class IdentityManagerImpl implements IdentityManager {
             final char[] password = ((PasswordCredential) credential).getPassword();
             // The original array may be cleared, this integration relies on it being cached for use later.
             final char[] duplicate = Arrays.copyOf(password, password.length);
-            if (verifyCredential(account, duplicate)) {
-                return account;
-            }
+            return verifyCredential(account, duplicate);
         }finally {
             handle.tearDown();
         }
-
-        return null;
     }
 
     @Override
@@ -99,11 +98,8 @@ public class IdentityManagerImpl implements IdentityManager {
                 X509CertificateCredential certCredential = (X509CertificateCredential) credential;
                 X509Certificate certificate = certCredential.getCertificate();
                 Account account = getAccount(certificate.getSubjectDN().getName());
-                if (verifyCredential(account, certificate)) {
-                    return account;
-                }
 
-                return null;
+                return verifyCredential(account, certificate);
             }
             throw new IllegalArgumentException("Parameter must be a X509CertificateCredential");
         }finally {
@@ -116,13 +112,12 @@ public class IdentityManagerImpl implements IdentityManager {
         return new AccountImpl(id);
     }
 
-    private boolean verifyCredential(final Account account, final Object credential) {
+    private Account verifyCredential(final Account account, final Object credential) {
         final AuthenticationManager authenticationManager = securityDomainContext.getAuthenticationManager();
         final MappingManager mappingManager = securityDomainContext.getMappingManager();
         final AuthorizationManager authorizationManager = securityDomainContext.getAuthorizationManager();
         final SecurityContext sc = SecurityActions.getSecurityContext();
-        final AccountImpl accountImpl = (AccountImpl) account;
-        Principal incomingPrincipal = (Principal) account;
+        Principal incomingPrincipal = account.getPrincipal();
         Subject subject = new Subject();
         try {
             boolean isValid = authenticationManager.isValid(incomingPrincipal, credential, subject);
@@ -130,7 +125,8 @@ public class IdentityManagerImpl implements IdentityManager {
                 UndertowLogger.ROOT_LOGGER.tracef("User: " + incomingPrincipal + " is authenticated");
                 if (sc == null)
                     throw new IllegalStateException("No SecurityContext found!");
-                sc.getUtil().createSubjectInfo(incomingPrincipal, credential, subject);
+                Principal userPrincipal = getPrincipal(subject);
+                sc.getUtil().createSubjectInfo(userPrincipal, credential, subject);
                 SecurityContextCallbackHandler scb = new SecurityContextCallbackHandler(sc);
                 if (mappingManager != null) {
                     // if there are mapping modules let them handle the role mapping
@@ -144,13 +140,45 @@ public class IdentityManagerImpl implements IdentityManager {
                 for (Role role : roles.getRoles()) {
                     roleSet.add(role.getRoleName());
                 }
+                AccountImpl accountImpl = new AccountImpl(userPrincipal);
                 accountImpl.setRoles(roleSet);
-                return true;
+                return accountImpl;
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return false;
+        return null;
+    }
+
+    /**
+     * Get the Principal given the authenticated Subject. Currently the first principal that is not of type {@code Group} is
+     * considered or the single principal inside the CallerPrincipal group.
+     *
+     * @param subject
+     * @return the authenticated principal
+     */
+    private Principal getPrincipal(Subject subject) {
+        Principal principal = null;
+        Principal callerPrincipal = null;
+        if (subject != null) {
+            Set<Principal> principals = subject.getPrincipals();
+            if (principals != null && !principals.isEmpty()) {
+                for (Principal p : principals) {
+                    if (!(p instanceof Group) && principal == null) {
+                        principal = p;
+                    }
+                    if (p instanceof Group) {
+                        Group g = Group.class.cast(p);
+                        if (g.getName().equals(SecurityConstants.CALLER_PRINCIPAL_GROUP) && callerPrincipal == null) {
+                            Enumeration<? extends Principal> e = g.members();
+                            if (e.hasMoreElements())
+                                callerPrincipal = e.nextElement();
+                        }
+                    }
+                }
+            }
+        }
+        return callerPrincipal == null ? principal : callerPrincipal;
     }
 
     @Override
