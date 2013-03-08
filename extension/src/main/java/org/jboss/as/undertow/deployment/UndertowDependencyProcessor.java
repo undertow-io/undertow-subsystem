@@ -46,8 +46,10 @@ public class UndertowDependencyProcessor implements DeploymentUnitProcessor {
     private static final ModuleIdentifier JAVAX_EE_API = ModuleIdentifier.create("javaee.api");
     private static final ModuleIdentifier JSTL = ModuleIdentifier.create("javax.servlet.jstl.api");
 
-    //todo: this is needed for JSP/EL stuff, we should split this out
-    private static final ModuleIdentifier UNDERTOW = ModuleIdentifier.create("io.undertow");
+    private static final ModuleIdentifier UNDERTOW_CORE = ModuleIdentifier.create("io.undertow.core");
+    private static final ModuleIdentifier UNDERTOW_SERVLET = ModuleIdentifier.create("io.undertow.servlet");
+    //TODO this should probably be added only if websockets are there
+    private static final ModuleIdentifier UNDERTOW_WEBSOCKET = ModuleIdentifier.create("io.undertow.websocket");
 
     static {
         Module module = Module.forClass(UndertowDependencyProcessor.class);
@@ -74,7 +76,9 @@ public class UndertowDependencyProcessor implements DeploymentUnitProcessor {
         moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, JAVAX_EE_API, false, false, false, false));
 
         moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, JSTL, false, false, false, false));
-        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, UNDERTOW, false, false, true, false));
+        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, UNDERTOW_CORE, false, false, true, false));
+        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, UNDERTOW_SERVLET, false, false, true, false));
+        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, UNDERTOW_WEBSOCKET, false, false, true, false));
     }
 
     public void undeploy(final DeploymentUnit context) {

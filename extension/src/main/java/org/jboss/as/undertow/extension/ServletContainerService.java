@@ -77,7 +77,7 @@ public class ServletContainerService implements Service<ServletContainerService>
         registerServers.remove(server);
     }
 
-    public HostService getHost(String hostName) {
+    /*public HostService getHost(String hostName) {
         for (ServerService server : registerServers) {
             HostService host = server.getHost(hostName);
             if (host != null) {
@@ -86,7 +86,7 @@ public class ServletContainerService implements Service<ServletContainerService>
         }
         UndertowLogger.ROOT_LOGGER.warnf("could not find host for hostname: %s", hostName);
         return null;
-    }
+    }*/
 
     public Integer lookupSecurePort(final String listenerName) {
         Integer response = null;

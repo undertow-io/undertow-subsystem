@@ -22,11 +22,7 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<module xmlns="urn:jboss:module:1.1" name="org.jboss.xnio.nio">
-    <properties>
-        <property name="jboss.api" value="private"/>
-    </properties>
-
+<module xmlns="urn:jboss:module:1.1" name="io.undertow.websocket">
     <resources>
         <!-- Insert resources here -->
     </resources>
@@ -34,6 +30,7 @@
     <dependencies>
         <module name="javax.api"/>
         <module name="org.jboss.logging"/>
+        <module name="io.undertow.core"/>
         <module name="org.jboss.xnio"/>
     </dependencies>
 </module>

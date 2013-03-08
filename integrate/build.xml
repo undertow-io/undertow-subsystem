@@ -41,21 +41,20 @@
         <module-def name="org.jboss.as.undertow">
             <maven-resource group="org.jboss.as" artifact="jboss-as-undertow"/>
         </module-def>
-        <module-def name="io.undertow">
-            <maven-resource group="io.undertow" artifact="undertow-core"/>
+        <module-def name="io.undertow.servlet">
             <maven-resource group="io.undertow" artifact="undertow-servlet"/>
             <maven-resource group="io.undertow" artifact="undertow-jsp"/>
             <maven-resource group="io.undertow.jastow" artifact="jastow"/>
             <maven-resource group="org.jboss.web" artifact="jasper-jdt"/>
         </module-def>
+        <module-def name="io.undertow.websocket">
+            <maven-resource group="io.undertow" artifact="undertow-websockets-jsr"/>
+        </module-def>
         <module-def name="javax.servlet.api">
             <maven-resource group="org.jboss.spec.javax.servlet" artifact="jboss-servlet-api_3.1_spec"/>
         </module-def>
-        <module-def name="org.jboss.xnio">
-            <maven-resource group="org.jboss.xnio" artifact="xnio-api"/>
-        </module-def>
-        <module-def name="org.jboss.xnio.nio">
-            <maven-resource group="org.jboss.xnio" artifact="xnio-nio"/>
+        <module-def name="javax.websocket.api">
+            <maven-resource group="javax.websocket" artifact="javax.websocket-api"/>
         </module-def>
     </target>
 

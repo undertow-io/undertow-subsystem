@@ -56,20 +56,16 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
     private final WebInjectionContainer webInjectionContainer;
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
     private volatile DeploymentManager deploymentManager;
-    private final String hostName;
-    private volatile HostService host;
+    //private final String hostName;
+    private final InjectedValue<HostService> host = new InjectedValue<>();
 
-    public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer, String hostName) {
+    public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer) {
         this.deploymentInfo = deploymentInfo;
         this.webInjectionContainer = webInjectionContainer;
-        this.hostName = hostName;
     }
 
     @Override
     public void start(final StartContext startContext) throws StartException {
-        host = container.getValue().getHost(hostName);
-
-
         //TODO darren, check this!
         final List<ThreadSetupAction> setup = new ArrayList<ThreadSetupAction>();
         setup.add(new ContextClassLoaderSetupAction(deploymentInfo.getClassLoader()));
@@ -84,7 +80,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
             deploymentManager.deploy();
             try {
                 HttpHandler handler = deploymentManager.start();
-                host.registerDeployment(deploymentInfo, handler);
+                host.getValue().registerDeployment(deploymentInfo, handler);
             } catch (ServletException e) {
                 throw new StartException(e);
             }
@@ -102,7 +98,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
         }
         deploymentManager.undeploy();
         deploymentInfo.setIdentityManager(null);
-        host.unRegisterDeployment(deploymentInfo);
+        host.getValue().unRegisterDeployment(deploymentInfo);
     }
 
     @Override
@@ -112,6 +108,10 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
 
     public InjectedValue<ServletContainerService> getContainer() {
         return container;
+    }
+
+    public InjectedValue<HostService> getHost() {
+        return host;
     }
 
     public InjectedValue<SecurityDomainContext> getSecurityDomainContextValue() {

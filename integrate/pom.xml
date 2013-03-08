@@ -140,6 +140,16 @@
             <artifactId>xnio-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-websockets-jsr</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+        </dependency>
+
 
     </dependencies>
 

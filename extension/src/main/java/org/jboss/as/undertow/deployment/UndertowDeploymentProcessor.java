@@ -85,6 +85,7 @@ import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.SetupAction;
 import org.jboss.as.server.deployment.reflect.DeploymentClassIndex;
 import org.jboss.as.undertow.extension.DeploymentDefinition;
+import org.jboss.as.undertow.extension.HostService;
 import org.jboss.as.undertow.extension.ServletContainerService;
 import org.jboss.as.undertow.extension.UndertowExtension;
 import org.jboss.as.undertow.extension.UndertowServices;
@@ -198,7 +199,7 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
 
         ScisMetaData scisMetaData = deploymentUnit.getAttachment(ScisMetaData.ATTACHMENT_KEY);
 
-        final Set<ServiceName> dependentComponents = new HashSet<ServiceName>();
+        final Set<ServiceName> dependentComponents = new HashSet<>();
         // see AS7-2077
         // basically we want to ignore components that have failed for whatever reason
         // if they are important they will be picked up when the web deployment actually starts
@@ -237,10 +238,12 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
                 .unprefixSecurityDomain(metaDataSecurityDomain);
 
             final ServiceName deploymentServiceName = UndertowServices.deploymentServiceName(hostName,deploymentInfo.getContextPath());
-            final UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer, hostName);
+            final ServiceName hostServiceName = UndertowServices.virtualHostName(defaultServer,hostName);
+            final UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer);
             final ServiceBuilder<UndertowDeploymentService> builder = serviceTarget.addService(deploymentServiceName, service)
                     .addDependencies(dependentComponents)
                     .addDependency(UndertowServices.SERVLET_CONTAINER.append(defaultContainer), ServletContainerService.class, service.getContainer())
+                    .addDependency(hostServiceName, HostService.class, service.getHost())
                     .addDependency(SecurityDomainService.SERVICE_NAME.append(securityDomain), SecurityDomainContext.class, service.getSecurityDomainContextValue());
 
             deploymentUnit.addToAttachmentList(Attachments.DEPLOYMENT_COMPLETE_SERVICES, deploymentServiceName);
@@ -378,25 +381,25 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
                 @Override
                 public <T> InstanceFactory<T> createInstanceFactory(final Class<T> clazz) {
                     try {
-                        return new ConstructorInstanceFactory<T>(clazz.getDeclaredConstructor());
+                        return new ConstructorInstanceFactory<>(clazz.getDeclaredConstructor());
                     } catch (NoSuchMethodException e) {
                         throw new RuntimeException(e);
                     }
                 }
             });
 
-            final Map<String, List<ServletMappingMetaData>> servletMappings = new HashMap<String, List<ServletMappingMetaData>>();
+            final Map<String, List<ServletMappingMetaData>> servletMappings = new HashMap<>();
 
             if (mergedMetaData.getServletMappings() != null) {
                 for (final ServletMappingMetaData mapping : mergedMetaData.getServletMappings()) {
                     List<ServletMappingMetaData> list = servletMappings.get(mapping.getServletName());
                     if (list == null) {
-                        servletMappings.put(mapping.getServletName(), list = new ArrayList<ServletMappingMetaData>());
+                        servletMappings.put(mapping.getServletName(), list = new ArrayList<>());
                     }
                     list.add(mapping);
                 }
             }
-            final Set<String> seenMappings = new HashSet<String>(jspPropertyGroupMappings);
+            final Set<String> seenMappings = new HashSet<>(jspPropertyGroupMappings);
             if (mergedMetaData.getServlets() != null) {
                 for (final JBossServletMetaData servlet : mergedMetaData.getServlets()) {
                     final ServletInfo s;
@@ -526,7 +529,7 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
             }
 
             for (final Map.Entry<ServletContainerInitializer, Set<Class<?>>> sci : scisMetaData.getHandlesTypes().entrySet()) {
-                final ImmediateInstanceFactory<ServletContainerInitializer> instanceFactory = new ImmediateInstanceFactory<ServletContainerInitializer>(sci.getKey());
+                final ImmediateInstanceFactory<ServletContainerInitializer> instanceFactory = new ImmediateInstanceFactory<>(sci.getKey());
                 d.addServletContainerInitalizer(new ServletContainerInitializerInfo(sci.getKey().getClass(), instanceFactory, sci.getValue()));
             }
 
@@ -674,7 +677,7 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
     }
 
     private HashMap<String, JspPropertyGroup> createJspConfig(JBossWebMetaData metaData) {
-        final HashMap<String, JspPropertyGroup> result = new HashMap<String, JspPropertyGroup>();
+        final HashMap<String, JspPropertyGroup> result = new HashMap<>();
         // JSP Config
         JspConfigMetaData config = metaData.getJspConfig();
         if (config != null) {
@@ -714,8 +717,8 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
         }
 
         //it looks like jasper needs these in order of least specified to most specific
-        final LinkedHashMap<String, JspPropertyGroup> ret = new LinkedHashMap<String, JspPropertyGroup>();
-        final ArrayList<String> paths = new ArrayList<String>(result.keySet());
+        final LinkedHashMap<String, JspPropertyGroup> ret = new LinkedHashMap<>();
+        final ArrayList<String> paths = new ArrayList<>(result.keySet());
         Collections.sort(paths, new Comparator<String>() {
             @Override
             public int compare(final String o1, final String o2) {
@@ -731,7 +734,7 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
     private HashMap<String, TagLibraryInfo> createTldsInfo(final DeploymentUnit deploymentUnit, final DeploymentClassIndex classReflectionIndex, final ComponentRegistry components, final DeploymentInfo d) throws ClassNotFoundException {
 
         TldsMetaData tldsMetaData = deploymentUnit.getAttachment(TldsMetaData.ATTACHMENT_KEY);
-        final HashMap<String, TagLibraryInfo> ret = new HashMap<String, TagLibraryInfo>();
+        final HashMap<String, TagLibraryInfo> ret = new HashMap<>();
         if (tldsMetaData != null) {
             if (tldsMetaData.getTlds() != null) {
                 for (Map.Entry<String, TldMetaData> tld : tldsMetaData.getTlds().entrySet()) {
