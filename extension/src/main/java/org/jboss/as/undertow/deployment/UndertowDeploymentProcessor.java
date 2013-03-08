@@ -344,8 +344,14 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
             d.setDeploymentName(deploymentUnit.getName());
             d.setResourceLoader(new DeploymentResourceLoader(deploymentRoot));
             d.setClassLoader(module.getClassLoader());
-            d.setMajorVersion(Integer.parseInt(mergedMetaData.getServletVersion().charAt(0) + ""));
-            d.setMinorVersion(Integer.parseInt(mergedMetaData.getServletVersion().charAt(2) + ""));
+            final String servletVersion = mergedMetaData.getServletVersion();
+            if(servletVersion != null) {
+                d.setMajorVersion(Integer.parseInt(servletVersion.charAt(0) + ""));
+                d.setMinorVersion(Integer.parseInt(servletVersion.charAt(2) + ""));
+            } else {
+                d.setMajorVersion(3);
+                d.setMajorVersion(1);
+            }
 
             //for 2.2 apps we do not require a leading / in path mappings
             boolean is22OrOlder;
@@ -528,9 +534,11 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
                 }
             }
 
-            for (final Map.Entry<ServletContainerInitializer, Set<Class<?>>> sci : scisMetaData.getHandlesTypes().entrySet()) {
-                final ImmediateInstanceFactory<ServletContainerInitializer> instanceFactory = new ImmediateInstanceFactory<>(sci.getKey());
-                d.addServletContainerInitalizer(new ServletContainerInitializerInfo(sci.getKey().getClass(), instanceFactory, sci.getValue()));
+            if(scisMetaData != null && scisMetaData.getHandlesTypes() != null) {
+                for (final Map.Entry<ServletContainerInitializer, Set<Class<?>>> sci : scisMetaData.getHandlesTypes().entrySet()) {
+                    final ImmediateInstanceFactory<ServletContainerInitializer> instanceFactory = new ImmediateInstanceFactory<>(sci.getKey());
+                    d.addServletContainerInitalizer(new ServletContainerInitializerInfo(sci.getKey().getClass(), instanceFactory, sci.getValue()));
+                }
             }
 
             if (mergedMetaData.getListeners() != null) {

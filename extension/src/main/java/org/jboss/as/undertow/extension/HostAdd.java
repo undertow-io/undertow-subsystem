@@ -38,6 +38,9 @@ class HostAdd extends AbstractAddStepHandler {
                 .addDependency(UndertowServices.SERVER.append(serverName), ServerService.class, service.getServer())
                 .addAliases(WebHost.SERVICE_NAME.append(name));
 
+        for(String alias : aliases) {
+            builder.addAliases(WebHost.SERVICE_NAME.append(alias));
+        }
 
         builder.setInitialMode(ServiceController.Mode.ACTIVE);
 
