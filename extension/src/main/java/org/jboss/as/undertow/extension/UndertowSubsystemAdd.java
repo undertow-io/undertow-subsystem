@@ -28,6 +28,7 @@ import org.jboss.as.undertow.deployment.WebFragmentParsingDeploymentProcessor;
 import org.jboss.as.undertow.deployment.WebJBossAllParser;
 import org.jboss.as.undertow.deployment.WebParsingDeploymentProcessor;
 import org.jboss.as.web.common.SharedTldsMetaDataBuilder;
+import org.jboss.as.web.host.CommonWebServer;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
 
@@ -65,6 +66,9 @@ class UndertowSubsystemAdd extends AbstractBoottimeAddStepHandler {
         final String defaultVirtualHost = UndertowRootDefinition.DEFAULT_VIRTUAL_HOST.resolveModelAttribute(context, model).asString();
         final String defaultContainer = UndertowRootDefinition.DEFAULT_SERVLET_CONTAINER.resolveModelAttribute(context, model).asString();
         final String defaultServer = UndertowRootDefinition.DEFAULT_SERVER.resolveModelAttribute(context, model).asString();
+
+        newControllers.add(context.getServiceTarget().addService(CommonWebServer.SERVICE_NAME, new WebServerService())
+                .install());
 
 
         context.addStep(new AbstractDeploymentChainStep() {

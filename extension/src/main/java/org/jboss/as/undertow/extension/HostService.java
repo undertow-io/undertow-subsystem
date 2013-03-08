@@ -3,12 +3,24 @@ package org.jboss.as.undertow.extension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.Servlet;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.ResponseCodeHandler;
 import io.undertow.server.handlers.form.MultiPartHandler;
 import io.undertow.servlet.api.DeploymentInfo;
+import io.undertow.servlet.api.DeploymentManager;
+import io.undertow.servlet.api.ServletContainer;
+import io.undertow.servlet.api.ServletInfo;
+import io.undertow.servlet.util.ImmediateInstanceFactory;
+import org.jboss.as.undertow.deployment.FileResourceLoader;
+import org.jboss.as.web.host.ServletBuilder;
+import org.jboss.as.web.host.WebDeploymentBuilder;
+import org.jboss.as.web.host.WebDeploymentController;
+import org.jboss.as.web.host.WebHost;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
@@ -18,7 +30,7 @@ import org.jboss.msc.value.InjectedValue;
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
  */
-public class HostService implements Service<HostService> {
+public class HostService implements Service<HostService>, WebHost {
     private String name;
     private InjectedValue<ServerService> server = new InjectedValue<>();
     private final PathHandler pathHandler = new PathHandler();
@@ -78,4 +90,64 @@ public class HostService implements Service<HostService> {
         pathHandler.removePath(path);
         UndertowLogger.ROOT_LOGGER.unregisterWebapp(path);
     }
+
+    @Override
+    public WebDeploymentController addWebDeployment(final WebDeploymentBuilder webDeploymentBuilder) throws Exception {
+
+        DeploymentInfo d = new DeploymentInfo();
+        d.setContextPath(webDeploymentBuilder.getContextRoot());
+        d.setClassLoader(webDeploymentBuilder.getClassLoader());
+        d.setResourceLoader(new FileResourceLoader(webDeploymentBuilder.getDocumentRoot()));
+        for (ServletBuilder servlet : webDeploymentBuilder.getServlets()) {
+            ServletInfo s;
+            if (servlet.getServlet() == null) {
+                s = new ServletInfo(servlet.getServletName(), (Class<? extends Servlet>) servlet.getServletClass());
+            } else {
+                s = new ServletInfo(servlet.getServletName(), (Class<? extends Servlet>) servlet.getServletClass(), new ImmediateInstanceFactory<Servlet>(servlet.getServlet()));
+            }
+            s.addMappings(servlet.getUrlMappings());
+            for (Map.Entry<String, String> param : servlet.getInitParams().entrySet()) {
+                s.addInitParam(param.getKey(), param.getValue());
+            }
+            d.addServlet(s);
+        }
+
+        return new WebDeploymentControllerImpl(d);
+    }
+
+
+    private class WebDeploymentControllerImpl implements WebDeploymentController {
+
+        private final DeploymentInfo deploymentInfo;
+        private volatile DeploymentManager manager;
+
+        private WebDeploymentControllerImpl(final DeploymentInfo deploymentInfo) {
+            this.deploymentInfo = deploymentInfo;
+        }
+
+        @Override
+        public void create() throws Exception {
+            ServletContainer container = getServer().getValue().getServletContainer().getValue().getServletContainer();
+            manager = container.addDeployment(deploymentInfo);
+            manager.deploy();
+        }
+
+        @Override
+        public void start() throws Exception {
+            manager.start();
+        }
+
+        @Override
+        public void stop() throws Exception {
+            manager.stop();
+        }
+
+        @Override
+        public void destroy() throws Exception {
+            manager.undeploy();
+            ServletContainer container = getServer().getValue().getServletContainer().getValue().getServletContainer();
+            container.removeDeployment(deploymentInfo.getDeploymentName());
+        }
+    }
+
 }
