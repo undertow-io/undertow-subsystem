@@ -126,7 +126,7 @@ public class IdentityManagerImpl implements IdentityManager {
                 if (sc == null)
                     throw new IllegalStateException("No SecurityContext found!");
                 Principal userPrincipal = getPrincipal(subject);
-                sc.getUtil().createSubjectInfo(userPrincipal, credential, subject);
+                sc.getUtil().createSubjectInfo(incomingPrincipal, credential, subject);
                 SecurityContextCallbackHandler scb = new SecurityContextCallbackHandler(sc);
                 if (mappingManager != null) {
                     // if there are mapping modules let them handle the role mapping
