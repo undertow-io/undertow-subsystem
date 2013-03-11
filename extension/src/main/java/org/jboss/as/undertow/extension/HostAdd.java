@@ -10,6 +10,7 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.as.web.host.WebHost;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
@@ -34,8 +35,12 @@ class HostAdd extends AbstractAddStepHandler {
         final ServiceName virtualHostServiceName = UndertowServices.virtualHostName(serverName, name);
         HostService service = new HostService(name, aliases == null ? new LinkedList<String>() : aliases);
         final ServiceBuilder<HostService> builder = context.getServiceTarget().addService(virtualHostServiceName, service)
-                .addDependency(UndertowServices.SERVER.append(serverName), ServerService.class, service.getServer());
+                .addDependency(UndertowServices.SERVER.append(serverName), ServerService.class, service.getServer())
+                .addAliases(WebHost.SERVICE_NAME.append(name));
 
+        for(String alias : aliases) {
+            builder.addAliases(WebHost.SERVICE_NAME.append(alias));
+        }
 
         builder.setInitialMode(ServiceController.Mode.ACTIVE);
 
