@@ -229,7 +229,7 @@ class JSPDefinition extends SimplePersistentResourceDefinition {
 
     @Override
     public String getXmlElementName() {
-        return org.jboss.as.undertow.extension.Constants.JSP_CONFIG;
+        return Constants.JSP_CONFIG;
     }
 
     @Override

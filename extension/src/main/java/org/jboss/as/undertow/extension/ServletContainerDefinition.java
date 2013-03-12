@@ -8,6 +8,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.SimplePersistentResourceDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -34,25 +35,7 @@ public class ServletContainerDefinition extends SimplePersistentResourceDefiniti
     }
 
     @Override
-    public void registerChildren(ManagementResourceRegistration resourceRegistration) {
-        super.registerChildren(resourceRegistration);
-        resourceRegistration.registerSubModel(JSPDefinition.INSTANCE);
-    }
-
-
-    @Override
-    public void parseChildren(XMLExtendedStreamReader reader, PathAddress parentAddress, List<ModelNode> list) throws XMLStreamException {
-        while (reader.hasNext() && reader.nextTag() != XMLStreamConstants.END_ELEMENT) {
-            if (reader.getLocalName().equals(Constants.JSP_CONFIG)) {
-                JSPDefinition.INSTANCE.parse(reader, parentAddress, list);
-            } else {
-                throw unexpectedElement(reader);
-            }
-        }
-    }
-
-    @Override
-    public void persistChildren(XMLExtendedStreamWriter writer, ModelNode model) throws XMLStreamException {
-        JSPDefinition.INSTANCE.persist(writer, model);
+    public PersistentResourceDefinition[] getChildren() {
+        return new PersistentResourceDefinition[]{JSPDefinition.INSTANCE};
     }
 }

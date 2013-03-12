@@ -13,6 +13,8 @@ import org.jboss.staxmapper.XMLExtendedStreamWriter;
 public interface PersistentResourceDefinition extends ResourceDefinition {
     AttributeDefinition[] getAttributes();
 
+    PersistentResourceDefinition[] getChildren();
+
     String getXmlElementName();
 
     String getXmlWrapperElement();

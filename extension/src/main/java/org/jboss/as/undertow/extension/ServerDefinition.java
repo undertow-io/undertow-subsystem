@@ -8,6 +8,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.SimpleAttributeDefinition;
@@ -35,6 +36,7 @@ public class ServerDefinition extends SimplePersistentResourceDefinition {
             .setDefaultValue(new ModelNode("default"))
             .build();
     static final SimpleAttributeDefinition[] ATTRIBUTES = {DEFAULT_HOST, SERVLET_CONTAINER};
+    static final PersistentResourceDefinition[] CHILDREN = {AJPListenerResourceDefinition.INSTANCE,HttpListenerResourceDefinition.INSTANCE,HttpsListenerResourceDefinition.INSTANCE,HostHandlerDefinition.INSTANCE};
 
     public ServerDefinition() {
         super(UndertowExtension.SERVER_PATH, UndertowExtension.getResolver(Constants.SERVER), new ServerAdd(), ReloadRequiredRemoveStepHandler.INSTANCE);
@@ -43,6 +45,11 @@ public class ServerDefinition extends SimplePersistentResourceDefinition {
     @Override
     public AttributeDefinition[] getAttributes() {
         return ATTRIBUTES;
+    }
+
+    @Override
+    public PersistentResourceDefinition[] getChildren() {
+        return CHILDREN;
     }
 
     @Override
@@ -56,13 +63,9 @@ public class ServerDefinition extends SimplePersistentResourceDefinition {
     @Override
     public void registerChildren(ManagementResourceRegistration registration) {
         super.registerChildren(registration);
-        registration.registerSubModel(AJPListenerResourceDefinition.INSTANCE);
-        registration.registerSubModel(HttpListenerResourceDefinition.INSTANCE);
-        registration.registerSubModel(HttpsListenerResourceDefinition.INSTANCE);
         for (Handler handler : HandlerFactory.getHandlers()) {
             registration.registerSubModel(handler);
         }
-        registration.registerSubModel(HostHandlerDefinition.INSTANCE);
     }
 
     @Override

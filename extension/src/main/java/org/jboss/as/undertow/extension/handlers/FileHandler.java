@@ -1,5 +1,11 @@
 package org.jboss.as.undertow.extension.handlers;
 
+import java.io.File;
+
+import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.PathHandler;
+import io.undertow.server.handlers.resource.FileResourceManager;
+import io.undertow.server.handlers.resource.ResourceHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
@@ -37,5 +43,12 @@ public class FileHandler extends AbstractHandlerResourceDefinition {
     @Override
     public AttributeDefinition[] getAttributes() {
         return new AttributeDefinition[]{PATH, CACHE_BUFFER_SIZE, CACHE_BUFFERS};
+    }
+
+    public HttpHandler createHandler() {
+        return new PathHandler()
+                .addPath("/path", new ResourceHandler()
+                        .setResourceManager(new FileResourceManager(new File(getClass().getResource("page.html").getFile()).getParentFile()))
+                        .setDirectoryListingEnabled(true));
     }
 }

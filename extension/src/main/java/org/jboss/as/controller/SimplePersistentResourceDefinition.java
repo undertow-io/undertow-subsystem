@@ -8,11 +8,13 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAM
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
 import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
 import org.jboss.as.controller.operations.common.Util;
 import org.jboss.as.controller.parsing.ParseUtils;
+import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.registry.OperationEntry;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
@@ -53,6 +55,19 @@ public abstract class SimplePersistentResourceDefinition extends SimpleResourceD
     @Override
     public String getXmlWrapperElement() {
         return null;
+    }
+
+    @Override
+    public PersistentResourceDefinition[] getChildren() {
+        return new PersistentResourceDefinition[0];
+    }
+
+    @Override
+    public void registerChildren(ManagementResourceRegistration resourceRegistration) {
+        super.registerChildren(resourceRegistration);
+        for (PersistentResourceDefinition child : getChildren()) {
+            resourceRegistration.registerSubModel(child);
+        }
     }
 
     @Override
@@ -102,8 +117,28 @@ public abstract class SimplePersistentResourceDefinition extends SimpleResourceD
         }
     }
 
+    private Map<String, PersistentResourceDefinition> getChildrenMap() {
+        Map<String, PersistentResourceDefinition> res = new HashMap<>();
+        for (PersistentResourceDefinition child : getChildren()) {
+            res.put(child.getXmlElementName(), child);
+        }
+        return res;
+    }
+
     public void parseChildren(final XMLExtendedStreamReader reader, PathAddress parentAddress, List<ModelNode> list) throws XMLStreamException {
-        ParseUtils.requireNoContent(reader);
+        if (getChildren().length == 0) {
+            ParseUtils.requireNoContent(reader);
+        } else {
+            Map<String, PersistentResourceDefinition> children = getChildrenMap();
+            while (reader.hasNext() && reader.nextTag() != XMLStreamConstants.END_ELEMENT) {
+                PersistentResourceDefinition child = children.get(reader.getLocalName());
+                if (child != null) {
+                    child.parse(reader, parentAddress, list);
+                } else {
+                    throw ParseUtils.unexpectedElement(reader);
+                }
+            }
+        }
     }
 
     @Override
@@ -143,7 +178,9 @@ public abstract class SimplePersistentResourceDefinition extends SimpleResourceD
     }
 
     public void persistChildren(XMLExtendedStreamWriter writer, ModelNode model) throws XMLStreamException {
-        //
+        for (PersistentResourceDefinition child : getChildren()) {
+            child.persist(writer, model);
+        }
     }
 
 
