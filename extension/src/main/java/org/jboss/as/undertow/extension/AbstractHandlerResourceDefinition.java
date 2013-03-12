@@ -1,10 +1,5 @@
 package org.jboss.as.undertow.extension;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.xml.stream.XMLStreamException;
-
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
@@ -12,22 +7,16 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
-import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
+import org.jboss.as.controller.SimplePersistentResourceDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
-import org.jboss.as.controller.operations.common.Util;
-import org.jboss.as.controller.parsing.ParseUtils;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.registry.OperationEntry;
 import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.Property;
-import org.jboss.staxmapper.XMLExtendedStreamReader;
-import org.jboss.staxmapper.XMLExtendedStreamWriter;
 
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
  */
-public abstract class AbstractHandlerResourceDefinition extends SimpleResourceDefinition implements Handler {
+public abstract class AbstractHandlerResourceDefinition extends SimplePersistentResourceDefinition implements Handler {
     protected final String name;
 
     protected AbstractHandlerResourceDefinition(final String name, AbstractAddStepHandler addHandler, AbstractRemoveStepHandler removeHandler) {
@@ -70,6 +59,12 @@ public abstract class AbstractHandlerResourceDefinition extends SimpleResourceDe
         return new AttributeDefinition[0];
     }
 
+    @Override
+    protected boolean useValueAsElementName() {
+        return true;
+    }
+    /*
+
     protected Map<String, AttributeDefinition> getAttributeMap() {
         Map<String, AttributeDefinition> res = new HashMap<>();
         for (AttributeDefinition def : getAttributes()) {
@@ -108,7 +103,7 @@ public abstract class AbstractHandlerResourceDefinition extends SimpleResourceDe
             def.getAttributeMarshaller().marshallAsAttribute(def, handler.getValue(), false, writer);
         }
         writer.writeEndElement();
-    }
+    }*/
 
     protected class DefaultHandlerAdd extends AbstractAddStepHandler {
         @Override

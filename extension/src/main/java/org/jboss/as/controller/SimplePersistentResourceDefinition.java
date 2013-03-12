@@ -141,11 +141,15 @@ public abstract class SimplePersistentResourceDefinition extends SimpleResourceD
         }
     }
 
+    protected boolean useValueAsElementName() {
+        return false;
+    }
+
     @Override
     public void persist(XMLExtendedStreamWriter writer, ModelNode model) throws XMLStreamException {
         boolean wildcard = getPathElement().isWildcard();
         model = wildcard ? model.get(getPathElement().getKey()) : model.get(getPathElement().getKeyValuePair());
-        if (!model.isDefined()) {
+        if (!model.isDefined() && !useValueAsElementName()) {
             return;
         }
         boolean writeWrapper = getXmlWrapperElement() != null;
@@ -155,8 +159,12 @@ public abstract class SimplePersistentResourceDefinition extends SimpleResourceD
 
         if (wildcard) {
             for (Property p : model.asPropertyList()) {
-                writer.writeStartElement(getXmlElementName());
-                writer.writeAttribute(NAME, p.getName());
+                if (useValueAsElementName()) {
+                    writer.writeStartElement(p.getName());
+                } else {
+                    writer.writeStartElement(getXmlElementName());
+                    writer.writeAttribute(NAME, p.getName());
+                }
                 for (AttributeDefinition def : getAttributes()) {
                     def.getAttributeMarshaller().marshallAsAttribute(def, p.getValue(), false, writer);
                 }
@@ -164,7 +172,11 @@ public abstract class SimplePersistentResourceDefinition extends SimpleResourceD
                 writer.writeEndElement();
             }
         } else {
-            writer.writeStartElement(getXmlElementName());
+            if (useValueAsElementName()){
+                writer.writeStartElement(getPathElement().getValue());
+            }else{
+                writer.writeStartElement(getXmlElementName());
+            }
             for (AttributeDefinition def : getAttributes()) {
                 def.getAttributeMarshaller().marshallAsAttribute(def, model, false, writer);
             }

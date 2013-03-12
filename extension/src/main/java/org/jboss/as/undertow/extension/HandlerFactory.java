@@ -81,7 +81,7 @@ public class HandlerFactory {
             Map<String, Handler> handlerMap = HandlerFactory.getHandlerMap();
             for (final Property handlerProp : model.get(Constants.HANDLER).asPropertyList()) {
                 Handler handler = handlerMap.get(handlerProp.getName());
-                handler.persist(writer, handlerProp);
+                handler.persist(writer, model);
             }
             if (wrap) {
                 writer.writeEndElement();
