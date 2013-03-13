@@ -3,8 +3,6 @@ package org.jboss.as.undertow.security;
 import io.undertow.server.HandlerWrapper;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.HttpHandlers;
-import io.undertow.util.WorkerDispatcher;
 import org.jboss.security.SecurityContext;
 
 /**
@@ -25,29 +23,22 @@ public class SecurityContextCreationHandler implements HttpHandler {
     }
 
     @Override
-    public void handleRequest(final HttpServerExchange exchange) {
-        //TODO: we should not have to dispact here, once we get rid of the thread local stuff a bit
-        WorkerDispatcher.dispatch(exchange, new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final SecurityContext sc = SecurityActions.createSecurityContext(securityDomain);
-                    exchange.putAttachment(UndertowSecurityAttachments.SECURITY_CONTEXT_ATTACHMENT, sc);
-                    SecurityActions.setSecurityContextOnAssociation(sc);
+    public void handleRequest(final HttpServerExchange exchange) throws Exception {
+        try {
+            final SecurityContext sc = SecurityActions.createSecurityContext(securityDomain);
+            exchange.putAttachment(UndertowSecurityAttachments.SECURITY_CONTEXT_ATTACHMENT, sc);
+            SecurityActions.setSecurityContextOnAssociation(sc);
 
-                    HttpHandlers.executeHandler(next, exchange);
+            next.handleRequest(exchange);
 
-                } finally {
-                    SecurityActions.clearSecurityContext();
-                }
-            }
-        });
-
+        } finally {
+            SecurityActions.clearSecurityContext();
+        }
 
     }
 
-    public static final HandlerWrapper<HttpHandler> wrapper(final String securityDomain) {
-        return new HandlerWrapper<HttpHandler>() {
+    public static final HandlerWrapper wrapper(final String securityDomain) {
+        return new HandlerWrapper() {
             @Override
             public HttpHandler wrap(final HttpHandler handler) {
                 return new SecurityContextCreationHandler(securityDomain, handler);

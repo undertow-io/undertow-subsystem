@@ -31,39 +31,39 @@ import java.util.Set;
 import javax.security.jacc.PolicyContext;
 
 import io.undertow.server.HandlerWrapper;
+import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.blocking.BlockingHttpHandler;
 import io.undertow.servlet.handlers.ServletAttachments;
-import io.undertow.servlet.handlers.ServletPathMatch;
+import io.undertow.servlet.handlers.ServletChain;
 import org.jboss.as.undertow.extension.UndertowLogger;
 import org.jboss.security.RunAsIdentity;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityRolesAssociation;
 
-public class SecurityContextAssociationHandler implements BlockingHttpHandler {
+public class SecurityContextAssociationHandler implements HttpHandler {
 
     private final Map<String, Set<String>> principleVsRoleMap;
     private final String contextId;
-    private final BlockingHttpHandler next;
+    private final HttpHandler next;
 
-    public SecurityContextAssociationHandler(final Map<String, Set<String>> principleVsRoleMap, final String contextId, final BlockingHttpHandler next) {
+    public SecurityContextAssociationHandler(final Map<String, Set<String>> principleVsRoleMap, final String contextId, final HttpHandler next) {
         this.principleVsRoleMap = principleVsRoleMap;
         this.contextId = contextId;
         this.next = next;
     }
 
     @Override
-    public void handleBlockingRequest(final HttpServerExchange exchange) throws Exception {
+    public void handleRequest(final HttpServerExchange exchange) throws Exception {
         SecurityContext sc = exchange.getAttachment(UndertowSecurityAttachments.SECURITY_CONTEXT_ATTACHMENT);
         String previousContextID = null;
         String identity = null;
         try {
             SecurityActions.setSecurityContextOnAssociation(sc);
-            ServletPathMatch servlet = exchange.getAttachment(ServletAttachments.SERVLET_PATH_MATCH);
-            identity = servlet.getHandler().getManagedServlet().getServletInfo().getRunAs();
+            ServletChain servlet = exchange.getAttachment(ServletAttachments.CURRENT_SERVLET);
+            identity = servlet.getManagedServlet().getServletInfo().getRunAs();
             RunAsIdentity runAsIdentity = null;
             if (identity != null) {
-                UndertowLogger.ROOT_LOGGER.tracef("%s, runAs: %s", servlet.getHandler().getManagedServlet().getServletInfo().getName(), identity);
+                UndertowLogger.ROOT_LOGGER.tracef("%s, runAs: %s", servlet.getManagedServlet().getServletInfo().getName(), identity);
                 final Set<String> roles = principleVsRoleMap.get(identity);
                 runAsIdentity = new RunAsIdentity(identity, identity, roles == null ? Collections.<String>emptySet() : roles);
             }
@@ -73,7 +73,7 @@ public class SecurityContextAssociationHandler implements BlockingHttpHandler {
             previousContextID = setContextID(contextId);
 
             // Perform the request
-            next.handleBlockingRequest(exchange);
+            next.handleRequest(exchange);
         } finally {
             if (identity != null) {
                 SecurityActions.popRunAsIdentity();
@@ -106,10 +106,10 @@ public class SecurityContextAssociationHandler implements BlockingHttpHandler {
     }
 
 
-    public static HandlerWrapper<BlockingHttpHandler> wrapper(final Map<String, Set<String>> principleVsRoleMap, final String contextId) {
-        return new HandlerWrapper<BlockingHttpHandler>() {
+    public static HandlerWrapper wrapper(final Map<String, Set<String>> principleVsRoleMap, final String contextId) {
+        return new HandlerWrapper() {
             @Override
-            public BlockingHttpHandler wrap(final BlockingHttpHandler handler) {
+            public HttpHandler wrap(final HttpHandler handler) {
                 return new SecurityContextAssociationHandler(principleVsRoleMap, contextId, handler);
             }
         };
