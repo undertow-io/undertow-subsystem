@@ -1,6 +1,6 @@
 package org.jboss.as.undertow.extension.handlers;
 
-import java.io.File;
+import java.nio.file.Paths;
 
 import io.undertow.UndertowLogger;
 import io.undertow.server.HttpHandler;
@@ -49,7 +49,7 @@ public class FileHandler extends AbstractHandlerResourceDefinition {
     public HttpHandler createHandler(HttpHandler next, final OperationContext context, ModelNode model) throws OperationFailedException {
         String path = PATH.resolveModelAttribute(context, model).asString();
         UndertowLogger.ROOT_LOGGER.infof("Creating file handler for path %s", path);
-        FileResourceManager resourceManager = new FileResourceManager(new File(path));
+        FileResourceManager resourceManager = new FileResourceManager(Paths.get(path));
         ResourceHandler handler = new ResourceHandler();
         handler.setResourceManager(resourceManager);
         handler.setDirectoryListingEnabled(true);
