@@ -25,7 +25,7 @@ import org.jboss.staxmapper.XMLExtendedStreamWriter;
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
  */
-class HostHandlerDefinition extends SimplePersistentResourceDefinition {
+class HostDefinition extends SimplePersistentResourceDefinition {
     protected static final StringListAttributeDefinition ALIAS = new StringListAttributeDefinition.Builder(Constants.ALIAS)
             .setAllowNull(true)
             .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
@@ -33,10 +33,10 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
             .build();
     private static final AttributeDefinition[] ATTRIBUTES = new AttributeDefinition[]{ALIAS};
 
-    static final HostHandlerDefinition INSTANCE = new HostHandlerDefinition();
+    static final HostDefinition INSTANCE = new HostDefinition();
 
 
-    private HostHandlerDefinition() {
+    private HostDefinition() {
         super(UndertowExtension.HOST_PATH, UndertowExtension.getResolver(Constants.HOST),
                 new HostAdd(),
                 ReloadRequiredRemoveStepHandler.INSTANCE);
@@ -61,7 +61,7 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
         for (Handler handler : HandlerFactory.getHandlers()) {
             resourceRegistration.registerSubModel(handler);
         }
-        resourceRegistration.registerSubModel(PathsHandlerDefinition.INSTANCE);
+        resourceRegistration.registerSubModel(LocationDefinition.INSTANCE);
     }
 
     public void parse(XMLExtendedStreamReader reader, PathAddress parentAddress, List<ModelNode> list) throws XMLStreamException {
@@ -80,8 +80,8 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
                     HandlerFactory.parseHandlers(reader, address, list);
                     break;
                 }
-                case Constants.PATHS: {
-                    PathsHandlerDefinition.INSTANCE.parse(reader, address, list);
+                case Constants.LOCATION: {
+                    LocationDefinition.INSTANCE.parse(reader, address, list);
                     break;
                 }
                 default: {
@@ -89,7 +89,6 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
                 }
             }
         }
-
     }
 
 
@@ -112,10 +111,8 @@ class HostHandlerDefinition extends SimplePersistentResourceDefinition {
             }
             writer.writeAttribute(Constants.ALIAS, aliases.toString());
             HandlerFactory.persistHandlers(writer, host, true);
-            PathsHandlerDefinition.INSTANCE.persist(writer, host);
+            LocationDefinition.INSTANCE.persist(writer, host);
             writer.writeEndElement();
         }
-
     }
-
 }

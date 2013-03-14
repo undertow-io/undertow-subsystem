@@ -36,12 +36,10 @@ public interface Constants {
     String SECURITY_REALM = "security-realm";
     String SOCKET_BINDING = "socket-binding";
     String PATH = "path";
-
     String HTTP_LISTENER = "http-listener";
     String HTTPS_LISTENER = "https-listener";
     String NAME = "name";
     String WORKER = "worker";
-
     String WORKER_READ_THREADS = "read-threads";
     String WORKER_TASK_CORE_THREADS = "task-core-threads";
     String WORKER_TASK_KEEPALIVE = "task-keepalive";
@@ -51,9 +49,9 @@ public interface Constants {
     String THREAD_DAEMON = "thread-daemon";
     String STACK_SIZE = "stack-size";
     String SERVLET_CONTAINER = "servlet-container";
+    String LOCATION = "location";
     String JSP = "jsp";
     String JSP_CONFIG = "jsp-config";
-
     String HANDLER = "handler";
     String HANDLERS = "handlers";
     String SERVER = "server";
@@ -70,7 +68,6 @@ public interface Constants {
     String DEFAULT_SERVLET_CONTAINER = "default-servlet-container";
     String DEFAULT_SERVER = "default-server";
     String ALIAS = "alias";
-
     /*JSP config */
     String CHECK_INTERVAL = "check-interval";
     String CONTAINER = "container";
@@ -104,6 +101,5 @@ public interface Constants {
     String WEBDAV = "webdav";
     String WELCOME_FILE = "welcome-file";
     String X_POWERED_BY = "x-powered-by";
-
     String ENABLED = "enabled";
 }

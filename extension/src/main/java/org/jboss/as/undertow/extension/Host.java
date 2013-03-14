@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.Servlet;
 
 import io.undertow.server.HttpHandler;
@@ -30,14 +29,14 @@ import org.jboss.msc.value.InjectedValue;
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
  */
-public class HostService implements Service<HostService>, WebHost {
+public class Host implements Service<Host>, WebHost {
     private String name;
     private InjectedValue<ServerService> server = new InjectedValue<>();
     private final PathHandler pathHandler = new PathHandler();
     private final List<String> allHosts;
     private volatile MultiPartHandler rootHandler;
 
-    protected HostService(String name, List<String> aliases) {
+    protected Host(String name, List<String> aliases) {
         this.name = name;
         List<String> hosts = new ArrayList<>(aliases.size() + 1);
         hosts.add(name);
@@ -59,7 +58,7 @@ public class HostService implements Service<HostService>, WebHost {
     }
 
     @Override
-    public HostService getValue() throws IllegalStateException, IllegalArgumentException {
+    public Host getValue() throws IllegalStateException, IllegalArgumentException {
         return this;
     }
 
@@ -81,14 +80,22 @@ public class HostService implements Service<HostService>, WebHost {
 
     public void registerDeployment(DeploymentInfo deploymentInfo, HttpHandler handler) {
         String path = ServletContainerService.getDeployedContextPath(deploymentInfo);
-        pathHandler.addPath(path, handler);
+        registerHandler(path, handler);
         UndertowLogger.ROOT_LOGGER.registerWebapp(path);
     }
 
     public void unRegisterDeployment(DeploymentInfo deploymentInfo) {
         String path = ServletContainerService.getDeployedContextPath(deploymentInfo);
-        pathHandler.removePath(path);
+        unRegisterHandler(path);
         UndertowLogger.ROOT_LOGGER.unregisterWebapp(path);
+    }
+
+    public void registerHandler(String path, HttpHandler handler) {
+        pathHandler.addPath(path, handler);
+    }
+
+    public void unRegisterHandler(String path) {
+        pathHandler.removePath(path);
     }
 
     @Override
@@ -103,7 +110,7 @@ public class HostService implements Service<HostService>, WebHost {
             if (servlet.getServlet() == null) {
                 s = new ServletInfo(servlet.getServletName(), (Class<? extends Servlet>) servlet.getServletClass());
             } else {
-                s = new ServletInfo(servlet.getServletName(), (Class<? extends Servlet>) servlet.getServletClass(), new ImmediateInstanceFactory<Servlet>(servlet.getServlet()));
+                s = new ServletInfo(servlet.getServletName(), (Class<? extends Servlet>) servlet.getServletClass(), new ImmediateInstanceFactory<>(servlet.getServlet()));
             }
             s.addMappings(servlet.getUrlMappings());
             for (Map.Entry<String, String> param : servlet.getInitParams().entrySet()) {

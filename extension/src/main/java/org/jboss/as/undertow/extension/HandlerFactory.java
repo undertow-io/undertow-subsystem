@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import javax.xml.stream.XMLStreamException;
 
+import io.undertow.server.HttpHandler;
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
@@ -87,5 +90,18 @@ public class HandlerFactory {
                 writer.writeEndElement();
             }
         }
+    }
+
+    public static List<HttpHandler> getHandlers(final ModelNode model, final OperationContext context) throws OperationFailedException {
+        List<HttpHandler> result = new LinkedList<>();
+        HttpHandler last = null;
+        for (Handler h : handlers) {
+            ModelNode handlerModel = model.get(Constants.HANDLER, h.getName());
+            if (handlerModel.isDefined()) {
+                last = h.createHandler(last, context, handlerModel);
+                result.add(last);
+            }
+        }
+        return result;
     }
 }

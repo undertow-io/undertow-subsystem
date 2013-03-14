@@ -35,7 +35,7 @@ import io.undertow.servlet.api.ThreadSetupAction;
 import io.undertow.servlet.core.CompositeThreadSetupAction;
 import io.undertow.servlet.core.ContextClassLoaderSetupAction;
 import org.jboss.as.security.plugins.SecurityDomainContext;
-import org.jboss.as.undertow.extension.HostService;
+import org.jboss.as.undertow.extension.Host;
 import org.jboss.as.undertow.extension.ServletContainerService;
 import org.jboss.as.undertow.security.IdentityManagerImpl;
 import org.jboss.as.web.common.StartupContext;
@@ -57,7 +57,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
     private volatile DeploymentManager deploymentManager;
     //private final String hostName;
-    private final InjectedValue<HostService> host = new InjectedValue<>();
+    private final InjectedValue<Host> host = new InjectedValue<>();
 
     public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer) {
         this.deploymentInfo = deploymentInfo;
@@ -110,7 +110,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
         return container;
     }
 
-    public InjectedValue<HostService> getHost() {
+    public InjectedValue<Host> getHost() {
         return host;
     }
 

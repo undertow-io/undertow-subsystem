@@ -85,7 +85,7 @@ import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.SetupAction;
 import org.jboss.as.server.deployment.reflect.DeploymentClassIndex;
 import org.jboss.as.undertow.extension.DeploymentDefinition;
-import org.jboss.as.undertow.extension.HostService;
+import org.jboss.as.undertow.extension.Host;
 import org.jboss.as.undertow.extension.ServletContainerService;
 import org.jboss.as.undertow.extension.UndertowExtension;
 import org.jboss.as.undertow.extension.UndertowServices;
@@ -243,7 +243,7 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
             final ServiceBuilder<UndertowDeploymentService> builder = serviceTarget.addService(deploymentServiceName, service)
                     .addDependencies(dependentComponents)
                     .addDependency(UndertowServices.SERVLET_CONTAINER.append(defaultContainer), ServletContainerService.class, service.getContainer())
-                    .addDependency(hostServiceName, HostService.class, service.getHost())
+                    .addDependency(hostServiceName, Host.class, service.getHost())
                     .addDependency(SecurityDomainService.SERVICE_NAME.append(securityDomain), SecurityDomainContext.class, service.getSecurityDomainContextValue());
 
             deploymentUnit.addToAttachmentList(Attachments.DEPLOYMENT_COMPLETE_SERVICES, deploymentServiceName);

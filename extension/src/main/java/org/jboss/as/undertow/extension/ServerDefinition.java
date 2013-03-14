@@ -36,7 +36,7 @@ public class ServerDefinition extends SimplePersistentResourceDefinition {
             .setDefaultValue(new ModelNode("default"))
             .build();
     static final SimpleAttributeDefinition[] ATTRIBUTES = {DEFAULT_HOST, SERVLET_CONTAINER};
-    static final PersistentResourceDefinition[] CHILDREN = {AJPListenerResourceDefinition.INSTANCE,HttpListenerResourceDefinition.INSTANCE,HttpsListenerResourceDefinition.INSTANCE,HostHandlerDefinition.INSTANCE};
+    static final PersistentResourceDefinition[] CHILDREN = {AJPListenerResourceDefinition.INSTANCE,HttpListenerResourceDefinition.INSTANCE,HttpsListenerResourceDefinition.INSTANCE, HostDefinition.INSTANCE};
 
     public ServerDefinition() {
         super(UndertowExtension.SERVER_PATH, UndertowExtension.getResolver(Constants.SERVER), new ServerAdd(), ReloadRequiredRemoveStepHandler.INSTANCE);
@@ -89,7 +89,7 @@ public class ServerDefinition extends SimplePersistentResourceDefinition {
                     break;
                 }
                 case Constants.HOST: {
-                    HostHandlerDefinition.INSTANCE.parse(reader, address, list);
+                    HostDefinition.INSTANCE.parse(reader, address, list);
                     break;
                 }
                 default: {
@@ -105,7 +105,7 @@ public class ServerDefinition extends SimplePersistentResourceDefinition {
         HttpsListenerResourceDefinition.INSTANCE.persist(writer, config);
         AJPListenerResourceDefinition.INSTANCE.persist(writer, config);
         HandlerFactory.persistHandlers(writer, config, true);
-        HostHandlerDefinition.INSTANCE.persist(writer, config);
+        HostDefinition.INSTANCE.persist(writer, config);
     }
 
 }

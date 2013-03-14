@@ -3,9 +3,7 @@ package org.jboss.as.undertow.extension;
 import java.util.List;
 import javax.xml.stream.XMLStreamException;
 
-import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
@@ -18,18 +16,17 @@ import org.jboss.staxmapper.XMLExtendedStreamWriter;
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
  */
-class PathsHandlerDefinition extends SimplePersistentResourceDefinition {
+class LocationDefinition extends SimplePersistentResourceDefinition {
 
-    static final PathsHandlerDefinition INSTANCE = new PathsHandlerDefinition();
+    static final LocationDefinition INSTANCE = new LocationDefinition();
 
 
-    private PathsHandlerDefinition() {
-        super(UndertowExtension.PATH_PATHS, UndertowExtension.getResolver(Constants.HOST), new AbstractAddStepHandler() {
-            @Override
-            protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-
-            }
-        }, ReloadRequiredRemoveStepHandler.INSTANCE);
+    private LocationDefinition() {
+        super(UndertowExtension.PATH_LOCATION,
+                UndertowExtension.getResolver(Constants.HOST, Constants.LOCATION),
+                LocationAdd.INSTANCE,
+                ReloadRequiredRemoveStepHandler.INSTANCE
+        );
     }
 
     @Override
@@ -45,18 +42,12 @@ class PathsHandlerDefinition extends SimplePersistentResourceDefinition {
         }
     }
 
-
     @Override
     public void registerChildren(ManagementResourceRegistration resourceRegistration) {
         super.registerChildren(resourceRegistration);
         for (Handler handler : HandlerFactory.getHandlers()) {
             resourceRegistration.registerSubModel(handler);
         }
-    }
-
-    @Override
-    public String getXmlWrapperElement() {
-        return Constants.PATHS;
     }
 
     @Override

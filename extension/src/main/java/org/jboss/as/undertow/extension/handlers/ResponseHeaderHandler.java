@@ -1,10 +1,15 @@
 package org.jboss.as.undertow.extension.handlers;
 
+import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.error.SimpleErrorPageHandler;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.undertow.extension.AbstractHandlerResourceDefinition;
 import org.jboss.as.undertow.extension.Constants;
+import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 
 /**
@@ -16,7 +21,6 @@ public class ResponseHeaderHandler extends AbstractHandlerResourceDefinition {
             .setAllowNull(false)
             .setAllowExpression(true)
             .build();
-
     private static SimpleAttributeDefinition VALUE = new SimpleAttributeDefinitionBuilder("value", ModelType.STRING)
             .setAllowNull(false)
             .setAllowExpression(true)
@@ -29,5 +33,10 @@ public class ResponseHeaderHandler extends AbstractHandlerResourceDefinition {
     @Override
     public AttributeDefinition[] getAttributes() {
         return new AttributeDefinition[]{NAME, VALUE};
+    }
+
+    @Override
+    public HttpHandler createHandler(HttpHandler next, OperationContext context, ModelNode model) throws OperationFailedException {
+        return new SimpleErrorPageHandler(next);
     }
 }

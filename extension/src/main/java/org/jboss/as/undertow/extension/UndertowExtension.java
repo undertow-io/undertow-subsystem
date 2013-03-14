@@ -28,9 +28,8 @@ public class  UndertowExtension implements Extension {
     protected static final PathElement HTTPS_LISTENER_PATH = PathElement.pathElement(Constants.HTTPS_LISTENER);
     protected static final PathElement WORKER_PATH = PathElement.pathElement(Constants.WORKER);
 
-    protected static final PathElement HANDLERS_PATH = PathElement.pathElement(Constants.HANDLERS);
     protected static final PathElement PATH_SERVLET_CONTAINER = PathElement.pathElement(Constants.SERVLET_CONTAINER);
-    protected static final PathElement PATH_PATHS = PathElement.pathElement(Constants.PATH);
+    protected static final PathElement PATH_LOCATION = PathElement.pathElement(Constants.LOCATION);
     protected static final PathElement SERVER_PATH = PathElement.pathElement(Constants.SERVER);
     public static final PathElement PATH_JSP = PathElement.pathElement(Constants.SETTING, Constants.JSP);
     private static final String RESOURCE_NAME = UndertowExtension.class.getPackage().getName() + ".LocalDescriptions";

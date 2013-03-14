@@ -28,7 +28,7 @@ public class ServerService implements Service<ServerService> {
     private final NameVirtualHostHandler virtualHostHandler = new NameVirtualHostHandler();
     private final InjectedValue<ServletContainerService> servletContainer = new InjectedValue<>();
     private List<AbstractListenerService> listeners = new LinkedList<>();
-    private final ConcurrentHashMap<String, HostService> registerHosts = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Host> registerHosts = new ConcurrentHashMap<>();
 
 
     protected ServerService(String defaultHost) {
@@ -87,7 +87,7 @@ public class ServerService implements Service<ServerService> {
         }
     }
 
-    protected void registerHost(HostService host) {
+    protected void registerHost(Host host) {
         for (String hostName : host.getAllHosts()) {
             registerHosts.putIfAbsent(hostName, host);
             virtualHostHandler.addHost(hostName, host.getRootHandler());
@@ -97,7 +97,7 @@ public class ServerService implements Service<ServerService> {
         }
     }
 
-    protected void unRegisterHost(HostService host) {
+    protected void unRegisterHost(Host host) {
         for (String hostName : host.getAllHosts()) {
             registerHosts.remove(hostName);
             virtualHostHandler.removeHost(hostName);
@@ -107,7 +107,7 @@ public class ServerService implements Service<ServerService> {
         }
     }
 
-    protected HostService getHost(String hostname) {
+    protected Host getHost(String hostname) {
         return registerHosts.get(hostname);
     }
     @Override

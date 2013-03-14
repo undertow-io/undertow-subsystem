@@ -66,13 +66,14 @@
             For example: <version.org.jboss.as.console>
          -->
 
-        <version.junit>4.8.2</version.junit>
+        <version.junit>4.11</version.junit>
         <version.xnio>3.1.0.Beta9</version.xnio>
+        <version.org.apache.httpcomponents.httpclient>4.2.1</version.org.apache.httpcomponents.httpclient>
         <version.org.jboss.logging>3.1.3.GA</version.org.jboss.logging>
         <version.org.jboss.logmanager>1.4.1.Final</version.org.jboss.logmanager>
         <version.org.jboss.logging.processor>1.1.0.Final</version.org.jboss.logging.processor>
         <version.jboss.as>8.0.0.Alpha1-SNAPSHOT</version.jboss.as>
-        <version.io.undertow>1.0.0.Alpha2-SNAPSHOT</version.io.undertow>
+        <version.io.undertow>1.0.0.Alpha2</version.io.undertow>
         <version.io.undertow.jastow>1.0.0.Alpha1</version.io.undertow.jastow>
         <version.org.jboss.web.jasper-jdt>7.0.3.Final</version.org.jboss.web.jasper-jdt>
 
@@ -84,7 +85,7 @@
         <linkXRef>false</linkXRef>
 
         <jboss.home>${env.JBOSS_HOME}</jboss.home>
-        <version.javax.annotations>1.0.0.Final</version.javax.annotations>
+        <version.org.jboss.spec.javax.annotation.jboss-annotations-api_1.2_spec>1.0.0.Alpha1</version.org.jboss.spec.javax.annotation.jboss-annotations-api_1.2_spec>
         <version.arquillian>1.0.3.Final</version.arquillian>
         <version.org.jboss.shrinkwrap.descriptors>2.0.0-alpha-4</version.org.jboss.shrinkwrap.descriptors>
     </properties>
@@ -217,8 +218,8 @@
 
             <dependency>
                 <groupId>org.jboss.spec.javax.annotation</groupId>
-                <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-                <version>${version.javax.annotations}</version>
+                <artifactId>jboss-annotations-api_1.2_spec</artifactId>
+                <version>${version.org.jboss.spec.javax.annotation.jboss-annotations-api_1.2_spec}</version>
             </dependency>
 
             <dependency>
@@ -281,7 +282,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.1.3</version>
+                <version>${version.org.apache.httpcomponents.httpclient}</version>
                 <scope>test</scope>
             </dependency>
 

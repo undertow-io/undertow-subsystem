@@ -1,9 +1,15 @@
 package org.jboss.as.undertow.extension.handlers;
 
+import java.io.File;
+
+import io.undertow.server.HttpHandler;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.undertow.extension.AbstractHandlerResourceDefinition;
+import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 
 /**
@@ -15,7 +21,6 @@ public class FileErrorPageHandler extends AbstractHandlerResourceDefinition {
             .setAllowExpression(true)
             .setAllowNull(true)
             .build();
-
     private static SimpleAttributeDefinition FILE = new SimpleAttributeDefinitionBuilder("file", ModelType.STRING)
             .setAllowExpression(true)
             .setAllowNull(true)
@@ -31,9 +36,8 @@ public class FileErrorPageHandler extends AbstractHandlerResourceDefinition {
         return new AttributeDefinition[]{CODE, FILE};
     }
 
-    private void create() {
-
+    @Override
+    public HttpHandler createHandler(HttpHandler next, OperationContext context, ModelNode model) throws OperationFailedException {
+        return new io.undertow.server.handlers.error.FileErrorPageHandler(new File("500.html"), 500);
     }
-
-
 }
