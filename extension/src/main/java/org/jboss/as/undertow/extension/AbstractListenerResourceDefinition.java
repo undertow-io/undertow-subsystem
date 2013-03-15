@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;
-import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
@@ -25,33 +24,33 @@ abstract class AbstractListenerResourceDefinition extends SimplePersistentResour
             .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
             .setValidator(new StringLengthValidator(1))
             .build();
-
     protected static final SimpleAttributeDefinition WORKER = new SimpleAttributeDefinitionBuilder(Constants.WORKER, ModelType.STRING)
             .setAllowNull(true)
             .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
             .setValidator(new StringLengthValidator(1))
             .setDefaultValue(new ModelNode("default"))
             .build();
-
     protected static final SimpleAttributeDefinition BUFFER_POOL = new SimpleAttributeDefinitionBuilder(Constants.BUFFER_POOL, ModelType.STRING)
             .setAllowNull(true)
             .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
             .setValidator(new StringLengthValidator(1))
             .setDefaultValue(new ModelNode("default"))
             .build();
-
     protected static final SimpleAttributeDefinition ENABLED = new SimpleAttributeDefinitionBuilder(Constants.ENABLED, ModelType.BOOLEAN)
             .setAllowNull(true)
             .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
             .setDefaultValue(new ModelNode(true))
             .setAllowExpression(true)
             .build();
-
     protected static SimpleAttributeDefinition[] ATTRIBUTES = {SOCKET_BINDING, WORKER, BUFFER_POOL, ENABLED};
 
 
     public AbstractListenerResourceDefinition(PathElement pathElement) {
-        super(pathElement, UndertowExtension.getResolver(pathElement.getKey()), null, ReloadRequiredRemoveStepHandler.INSTANCE);
+        super(pathElement,
+                UndertowExtension.getResolver(pathElement.getKey()),
+                null,
+                null
+        );
     }
 
     static <T> T[] concat(T[] first, T[] second) {
@@ -68,6 +67,7 @@ abstract class AbstractListenerResourceDefinition extends SimplePersistentResour
     public void registerOperations(ManagementResourceRegistration resourceRegistration) {
         super.registerOperations(resourceRegistration);
         super.registerAddOperation(resourceRegistration, getAddHandler(), OperationEntry.Flag.RESTART_NONE);
+        super.registerRemoveOperation(resourceRegistration, new ListenerRemoveHandler(getAddHandler()), OperationEntry.Flag.RESTART_NONE);
     }
 
     protected abstract AbstractListenerAdd getAddHandler();
