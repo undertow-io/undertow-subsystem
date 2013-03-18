@@ -35,10 +35,7 @@ public class WorkerResourceDefinition extends SimplePersistentResourceDefinition
     static final OptionAttributeDefinition STACK_SIZE = new OptionAttributeDefinition.Builder(Constants.STACK_SIZE, Options.STACK_SIZE)
             .setDefaultValue(new ModelNode(10L))
             .build();
-    static final OptionAttributeDefinition WORKER_READ_THREADS = new OptionAttributeDefinition.Builder(Constants.WORKER_READ_THREADS, Options.WORKER_READ_THREADS)
-            .setDefaultValue(new ModelNode(1))
-            .build();
-    static final OptionAttributeDefinition WORKER_WRITE_THREADS = new OptionAttributeDefinition.Builder(Constants.WORKER_WRITE_THREADS, Options.WORKER_WRITE_THREADS)
+    static final OptionAttributeDefinition WORKER_IO_THREADS = new OptionAttributeDefinition.Builder(Constants.WORKER_IO_THREADS, Options.WORKER_IO_THREADS)
             .setDefaultValue(new ModelNode(1))
             .build();
     static final OptionAttributeDefinition WORKER_TASK_LIMIT = new OptionAttributeDefinition.Builder(Constants.WORKER_TASK_LIMIT, Options.WORKER_TASK_LIMIT)
@@ -59,12 +56,11 @@ public class WorkerResourceDefinition extends SimplePersistentResourceDefinition
 
 
     static OptionAttributeDefinition[] ATTRIBUTES = new OptionAttributeDefinition[]{
-            WORKER_READ_THREADS,
+            WORKER_IO_THREADS,
             WORKER_TASK_CORE_THREADS,
             WORKER_TASK_KEEPALIVE,
             WORKER_TASK_LIMIT,
             WORKER_TASK_MAX_THREADS,
-            WORKER_WRITE_THREADS,
             THREAD_DAEMON,
             STACK_SIZE
     };

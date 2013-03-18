@@ -40,12 +40,11 @@ public interface Constants {
     String HTTPS_LISTENER = "https-listener";
     String NAME = "name";
     String WORKER = "worker";
-    String WORKER_READ_THREADS = "read-threads";
+    String WORKER_IO_THREADS = "io-threads";
     String WORKER_TASK_CORE_THREADS = "task-core-threads";
     String WORKER_TASK_KEEPALIVE = "task-keepalive";
     String WORKER_TASK_LIMIT = "task-limit";
     String WORKER_TASK_MAX_THREADS = "task-max-threads";
-    String WORKER_WRITE_THREADS = "write-threads";
     String THREAD_DAEMON = "thread-daemon";
     String STACK_SIZE = "stack-size";
     String SERVLET_CONTAINER = "servlet-container";
