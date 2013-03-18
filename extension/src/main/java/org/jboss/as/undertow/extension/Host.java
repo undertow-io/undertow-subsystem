@@ -30,10 +30,10 @@ import org.jboss.msc.value.InjectedValue;
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
  */
 public class Host implements Service<Host>, WebHost {
-    private String name;
-    private InjectedValue<ServerService> server = new InjectedValue<>();
     private final PathHandler pathHandler = new PathHandler();
     private final List<String> allHosts;
+    private String name;
+    private InjectedValue<ServerService> server = new InjectedValue<>();
     private volatile MultiPartHandler rootHandler;
 
     protected Host(String name, List<String> aliases) {
@@ -50,11 +50,14 @@ public class Host implements Service<Host>, WebHost {
         pathHandler.setDefaultHandler(ResponseCodeHandler.HANDLE_404);
         rootHandler.setNext(pathHandler);
         server.getValue().registerHost(this);
+        UndertowLogger.ROOT_LOGGER.infof("starting host %s", name);
     }
 
     @Override
     public void stop(StopContext context) {
         server.getValue().unRegisterHost(this);
+        pathHandler.clearPaths();
+        UndertowLogger.ROOT_LOGGER.infof("stoping host %s", name);
     }
 
     @Override
@@ -121,7 +124,6 @@ public class Host implements Service<Host>, WebHost {
 
         return new WebDeploymentControllerImpl(d);
     }
-
 
     private class WebDeploymentControllerImpl implements WebDeploymentController {
 

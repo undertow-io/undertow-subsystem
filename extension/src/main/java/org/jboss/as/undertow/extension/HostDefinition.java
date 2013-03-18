@@ -8,7 +8,6 @@ import javax.xml.stream.XMLStreamException;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.SimplePersistentResourceDefinition;
 import org.jboss.as.controller.StringListAttributeDefinition;
@@ -31,15 +30,14 @@ class HostDefinition extends SimplePersistentResourceDefinition {
             .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
             .setValidator(new StringLengthValidator(1))
             .build();
-    private static final AttributeDefinition[] ATTRIBUTES = new AttributeDefinition[]{ALIAS};
-
     static final HostDefinition INSTANCE = new HostDefinition();
+    private static final AttributeDefinition[] ATTRIBUTES = new AttributeDefinition[]{ALIAS};
 
 
     private HostDefinition() {
         super(UndertowExtension.HOST_PATH, UndertowExtension.getResolver(Constants.HOST),
-                new HostAdd(),
-                ReloadRequiredRemoveStepHandler.INSTANCE);
+                HostAdd.INSTANCE,
+                new HostRemove());
     }
 
     @Override
@@ -90,7 +88,6 @@ class HostDefinition extends SimplePersistentResourceDefinition {
             }
         }
     }
-
 
     public void persist(XMLExtendedStreamWriter writer, ModelNode model) throws XMLStreamException {
         if (!model.hasDefined(Constants.HOST)) {

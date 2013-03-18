@@ -44,7 +44,6 @@ public class HttpListenerService extends AbstractListenerService<HttpListenerSer
             .set(Options.TCP_NODELAY, true)
             .set(Options.REUSE_ADDRESSES, true)
             .getMap();
-
     private volatile AcceptingChannel<? extends ConnectedStreamChannel> server;
 
     public HttpListenerService(String name) {
@@ -65,13 +64,16 @@ public class HttpListenerService extends AbstractListenerService<HttpListenerSer
             throws IOException {
         server = worker.createStreamServer(socketAddress, acceptListener, SERVER_OPTIONS);
         server.resumeAccepts();
-        UndertowLogger.ROOT_LOGGER.listenerStarted("Http listener", socketAddress);
+        UndertowLogger.ROOT_LOGGER.listenerStarted("HTTP", getName(), socketAddress);
     }
 
     @Override
     protected void stopListening() {
+        server.suspendAccepts();
+        UndertowLogger.ROOT_LOGGER.listenerSuspend("HTTP", getName());
         IoUtils.safeClose(server);
         server = null;
+        UndertowLogger.ROOT_LOGGER.listenerStopped("HTTP", getName(), getBinding().getValue().getSocketAddress());
     }
 
     @Override

@@ -20,6 +20,13 @@ import org.jboss.msc.service.ServiceName;
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
  */
 class HostAdd extends AbstractAddStepHandler {
+
+    static final HostAdd INSTANCE = new HostAdd();
+
+    private HostAdd() {
+
+    }
+
     @Override
     protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
         HostDefinition.ALIAS.validateAndSet(operation, model);

@@ -2,7 +2,6 @@ package org.jboss.as.undertow.extension;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.CanonicalPathHandler;
@@ -11,6 +10,7 @@ import io.undertow.server.handlers.NameVirtualHostHandler;
 import io.undertow.server.handlers.ResponseCodeHandler;
 import io.undertow.server.handlers.error.SimpleErrorPageHandler;
 import io.undertow.server.handlers.form.FormEncodedDataHandler;
+import org.jboss.as.network.SocketBinding;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
@@ -24,12 +24,10 @@ public class ServerService implements Service<ServerService> {
 
 
     private final String defaultHost;
-    private volatile HttpHandler root;
     private final NameVirtualHostHandler virtualHostHandler = new NameVirtualHostHandler();
     private final InjectedValue<ServletContainerService> servletContainer = new InjectedValue<>();
+    private volatile HttpHandler root;
     private List<AbstractListenerService> listeners = new LinkedList<>();
-    private final ConcurrentHashMap<String, Host> registerHosts = new ConcurrentHashMap<>();
-
 
     protected ServerService(String defaultHost) {
         this.defaultHost = defaultHost;
@@ -76,7 +74,8 @@ public class ServerService implements Service<ServerService> {
     protected void registerListener(AbstractListenerService listener) {
         listeners.add(listener);
         if (listener.isSecure()) {
-            //servletContainer.getValue().registerSecurePort(listener.getName(), listener.getBinding().getValue().getPort());
+            SocketBinding binding = (SocketBinding) listener.getBinding().getValue();
+            servletContainer.getValue().registerSecurePort(listener.getName(), binding.getPort());
         }
     }
 
@@ -89,7 +88,6 @@ public class ServerService implements Service<ServerService> {
 
     protected void registerHost(Host host) {
         for (String hostName : host.getAllHosts()) {
-            registerHosts.putIfAbsent(hostName, host);
             virtualHostHandler.addHost(hostName, host.getRootHandler());
         }
         if (host.getName().equals(getDefaultHost())) {
@@ -99,7 +97,6 @@ public class ServerService implements Service<ServerService> {
 
     protected void unRegisterHost(Host host) {
         for (String hostName : host.getAllHosts()) {
-            registerHosts.remove(hostName);
             virtualHostHandler.removeHost(hostName);
         }
         if (host.getName().equals(getDefaultHost())) {
@@ -107,9 +104,6 @@ public class ServerService implements Service<ServerService> {
         }
     }
 
-    protected Host getHost(String hostname) {
-        return registerHosts.get(hostname);
-    }
     @Override
     public void stop(StopContext stopContext) {
         servletContainer.getValue().unRegisterServer(this);

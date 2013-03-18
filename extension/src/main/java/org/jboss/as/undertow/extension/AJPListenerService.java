@@ -31,12 +31,15 @@ public class AJPListenerService extends AbstractListenerService<AJPListenerServi
     void startListening(XnioWorker worker, InetSocketAddress socketAddress, ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener) throws IOException {
         server = worker.createStreamServer(binding.getValue().getSocketAddress(), acceptListener, serverOptions);
         server.resumeAccepts();
-        UndertowLogger.ROOT_LOGGER.listenerStarted("AJP listener", binding.getValue().getSocketAddress());
+        UndertowLogger.ROOT_LOGGER.listenerStarted("AJP", getName(), binding.getValue().getSocketAddress());
     }
 
     @Override
     void stopListening() {
+        server.suspendAccepts();
+        UndertowLogger.ROOT_LOGGER.listenerSuspend("AJP", getName());
         IoUtils.safeClose(server);
+        UndertowLogger.ROOT_LOGGER.listenerStopped("AJP", getName(), getBinding().getValue().getSocketAddress());
     }
 
     @Override

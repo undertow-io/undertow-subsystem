@@ -77,8 +77,16 @@ public interface UndertowLogger extends BasicLogger {
      * @return the message.
      */
     @LogMessage(level = INFO)
-    @Message(id = 17503, value = "Undertow listener %s listening on %s")
-    void listenerStarted(String name, InetSocketAddress address);
+    @Message(id = 17503, value = "Undertow %s listener %s listening on %s")
+    void listenerStarted(String type, String name, InetSocketAddress address);
+
+    @LogMessage(level = INFO)
+    @Message(id = 17504, value = "Undertow %s listener %s stopped, was bound to %s")
+    void listenerStopped(String type, String name, InetSocketAddress address);
+
+    @LogMessage(level = INFO)
+    @Message(id = 17505, value = "Undertow %s listener %s suspending")
+    void listenerSuspend(String type, String name);
 
 
     @LogMessage(level = ERROR)
