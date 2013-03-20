@@ -45,6 +45,14 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-clustering-registry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-clustering-web-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-ee</artifactId>
         </dependency>
         <dependency>
@@ -54,6 +62,16 @@
         <dependency>
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-security</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jboss.as</groupId>
+                    <artifactId>jboss-as-web</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.web</groupId>
+                    <artifactId>jbossweb</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jboss.as</groupId>

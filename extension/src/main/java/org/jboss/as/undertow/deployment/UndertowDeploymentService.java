@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
 
+import io.undertow.server.HandlerWrapper;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.servlet.api.ConfidentialPortManager;
@@ -34,13 +35,21 @@ import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.api.ThreadSetupAction;
 import io.undertow.servlet.core.CompositeThreadSetupAction;
 import io.undertow.servlet.core.ContextClassLoaderSetupAction;
+import org.jboss.as.clustering.ClassLoaderAwareClassResolver;
+import org.jboss.as.clustering.web.DistributedCacheManagerFactory;
+import org.jboss.as.clustering.web.OutgoingDistributableSessionData;
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.undertow.extension.Host;
 import org.jboss.as.undertow.extension.ServletContainerService;
 import org.jboss.as.undertow.security.AuditNotificationReceiver;
 import org.jboss.as.undertow.security.JAASIdentityManagerImpl;
+import org.jboss.as.undertow.session.DistributableSessionManager;
 import org.jboss.as.web.common.StartupContext;
 import org.jboss.as.web.common.WebInjectionContainer;
+import org.jboss.marshalling.ClassResolver;
+import org.jboss.marshalling.ModularClassResolver;
+import org.jboss.metadata.web.jboss.JBossWebMetaData;
+import org.jboss.modules.Module;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
@@ -56,19 +65,42 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
     private final DeploymentInfo deploymentInfo;
     private final InjectedValue<ServletContainerService> container = new InjectedValue<>();
     private final WebInjectionContainer webInjectionContainer;
+    private final Module module;
+    private final JBossWebMetaData jBossWebMetaData;
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
+
+    private final InjectedValue<DistributedCacheManagerFactory> distributedCacheManagerFactoryInjectedValue = new InjectedValue<DistributedCacheManagerFactory>();
     private volatile DeploymentManager deploymentManager;
     //private final String hostName;
     private final InjectedValue<Host> host = new InjectedValue<>();
+    private volatile DistributableSessionManager<OutgoingDistributableSessionData> sessionManager;
 
-    public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer) {
+    public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer, final Module module, final JBossWebMetaData jBossWebMetaData) {
         this.deploymentInfo = deploymentInfo;
         this.webInjectionContainer = webInjectionContainer;
+        this.module = module;
+        this.jBossWebMetaData = jBossWebMetaData;
+
+        //todo: fix this
+        if(jBossWebMetaData.getDistributable() != null) {
+            deploymentInfo.addOuterHandlerChainWrapper(new HandlerWrapper() {
+                @Override
+                public HttpHandler wrap(final HttpHandler handler) {
+                    return sessionManager.wrapHandlers(handler, deploymentManager.getDeployment());
+                }
+            });
+        }
     }
 
     @Override
     public void start(final StartContext startContext) throws StartException {
-        //TODO Darran, check this!
+        if(jBossWebMetaData.getDistributable() != null) {
+            ClassResolver resolver = ModularClassResolver.getInstance(module.getModuleLoader());
+            sessionManager = new DistributableSessionManager<OutgoingDistributableSessionData>(this.distributedCacheManagerFactoryInjectedValue.getValue(), jBossWebMetaData, new ClassLoaderAwareClassResolver(resolver, module.getClassLoader()), deploymentInfo.getContextPath(), module.getClassLoader());
+            deploymentInfo.setSessionManager(sessionManager);
+        }
+
+        //TODO Darren, check this!
         final List<ThreadSetupAction> setup = new ArrayList<ThreadSetupAction>();
         setup.add(new ContextClassLoaderSetupAction(deploymentInfo.getClassLoader()));
         setup.addAll(deploymentInfo.getThreadSetupActions());
@@ -105,6 +137,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
         }
         deploymentManager.undeploy();
         deploymentInfo.setIdentityManager(null);
+        sessionManager = null;
         host.getValue().unRegisterDeployment(deploymentInfo);
     }
 
@@ -133,5 +166,9 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
                 return container.getValue().lookupSecurePort("default");
             }
         };
+    }
+
+    public InjectedValue<DistributedCacheManagerFactory> getDistributedCacheManagerFactoryInjectedValue() {
+        return distributedCacheManagerFactoryInjectedValue;
     }
 }

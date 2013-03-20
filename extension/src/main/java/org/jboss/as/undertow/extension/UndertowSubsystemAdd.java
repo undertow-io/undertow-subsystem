@@ -2,6 +2,9 @@ package org.jboss.as.undertow.extension;
 
 import java.util.List;
 
+import io.undertow.Version;
+import org.jboss.as.clustering.web.DistributedCacheManagerFactory;
+import org.jboss.as.clustering.web.DistributedCacheManagerFactoryService;
 import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -26,6 +29,7 @@ import org.jboss.as.undertow.deployment.WarStructureDeploymentProcessor;
 import org.jboss.as.undertow.deployment.WebFragmentParsingDeploymentProcessor;
 import org.jboss.as.undertow.deployment.WebJBossAllParser;
 import org.jboss.as.undertow.deployment.WebParsingDeploymentProcessor;
+import org.jboss.as.undertow.session.JvmRouteRegistryEntryProviderService;
 import org.jboss.as.web.common.SharedTldsMetaDataBuilder;
 import org.jboss.as.web.host.CommonWebServer;
 import org.jboss.dmr.ModelNode;
@@ -105,7 +109,15 @@ class UndertowSubsystemAdd extends AbstractBoottimeAddStepHandler {
             }
         }, OperationContext.Stage.RUNTIME);
 
+        UndertowLogger.ROOT_LOGGER.serverStarting(Version.getVersionString());
 
+        final DistributedCacheManagerFactory factory = new DistributedCacheManagerFactoryService().getValue();
+        if (factory != null) {
+            newControllers.add(context.getServiceTarget().addService(DistributedCacheManagerFactoryService.JVM_ROUTE_REGISTRY_ENTRY_PROVIDER_SERVICE_NAME, new JvmRouteRegistryEntryProviderService())
+                    .setInitialMode(ServiceController.Mode.ON_DEMAND)
+                    .install());
+            newControllers.addAll(factory.installServices(context.getServiceTarget()));
+        }
     }
 
 }

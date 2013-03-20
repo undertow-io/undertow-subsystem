@@ -71,6 +71,8 @@ import org.apache.jasper.deploy.TagLibraryValidatorInfo;
 import org.apache.jasper.deploy.TagVariableInfo;
 import org.apache.jasper.servlet.JspServlet;
 import org.jboss.annotation.javaee.Icon;
+import org.jboss.as.clustering.web.DistributedCacheManagerFactory;
+import org.jboss.as.clustering.web.DistributedCacheManagerFactoryService;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.ee.component.ComponentRegistry;
 import org.jboss.as.ee.component.EEModuleDescription;
@@ -239,7 +241,7 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
 
             final ServiceName deploymentServiceName = UndertowService.deploymentServiceName(hostName, deploymentInfo.getContextPath());
             final ServiceName hostServiceName = UndertowService.virtualHostName(defaultServer, hostName);
-            final UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer);
+            final UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer, module, warMetaData.getMergedJBossWebMetaData());
             final ServiceBuilder<UndertowDeploymentService> builder = serviceTarget.addService(deploymentServiceName, service)
                     .addDependencies(dependentComponents)
                     .addDependency(UndertowService.SERVLET_CONTAINER.append(defaultContainer), ServletContainerService.class, service.getContainer())
@@ -265,19 +267,19 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
                     }
                 });
             }
-            /*
-            if (metaData.getDistributable() != null) {
-                DistributedCacheManagerFactoryService factoryService = new DistributedCacheManagerFactoryService();
-                DistributedCacheManagerFactory factory = factoryService.getValue();
-                if (factory != null) {
-                    ServiceName factoryServiceName = webappServiceName.append("session");
-                    webappBuilder.addDependency(DependencyType.OPTIONAL, factoryServiceName, DistributedCacheManagerFactory.class, config.getDistributedCacheManagerFactoryInjector());
 
-                    ServiceBuilder<DistributedCacheManagerFactory> factoryBuilder = serviceTarget.addService(factoryServiceName, factoryService);
-                    boolean enabled = factory.addDeploymentDependencies(webappServiceName, deploymentUnit.getServiceRegistry(), serviceTarget, factoryBuilder, metaData);
-                    factoryBuilder.setInitialMode(enabled ? Mode.ON_DEMAND : Mode.NEVER).install();
-                }
-            }*/
+        if (metaData.getDistributable() != null) {
+            DistributedCacheManagerFactoryService factoryService = new DistributedCacheManagerFactoryService();
+            DistributedCacheManagerFactory factory = factoryService.getValue();
+            if (factory != null) {
+                ServiceName factoryServiceName = deploymentServiceName.append("session");
+                builder.addDependency(ServiceBuilder.DependencyType.OPTIONAL, factoryServiceName, DistributedCacheManagerFactory.class, service.getDistributedCacheManagerFactoryInjectedValue());
+
+                ServiceBuilder<DistributedCacheManagerFactory> factoryBuilder = serviceTarget.addService(factoryServiceName, factoryService);
+                boolean enabled = factory.addDeploymentDependencies(deploymentServiceName, deploymentUnit.getServiceRegistry(), serviceTarget, factoryBuilder, metaData);
+                factoryBuilder.setInitialMode(enabled ? Mode.ON_DEMAND : Mode.NEVER).install();
+            }
+        }
 
             // OSGi web applications are activated in {@link WebContextActivationProcessor} according to bundle lifecycle changes
             //if (deploymentUnit.hasAttachment(Attachments.OSGI_MANIFEST)) {

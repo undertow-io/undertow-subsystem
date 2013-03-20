@@ -28,6 +28,8 @@ import static org.jboss.logging.Logger.Level.WARN;
 
 import java.net.InetSocketAddress;
 
+import org.jboss.as.clustering.web.OutgoingDistributableSessionData;
+import org.jboss.as.undertow.session.ClusteredSession;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
@@ -55,6 +57,8 @@ public interface UndertowLogger extends BasicLogger {
      * A root logger with the category of the package name.
      */
     UndertowLogger ROOT_LOGGER = Logger.getMessageLogger(UndertowLogger.class, UndertowLogger.class.getPackage().getName());
+
+    UndertowLogger WEB_SESSION_LOGGER = Logger.getMessageLogger(UndertowLogger.class, UndertowLogger.class.getPackage().getName() + ".sessions");
 
     @LogMessage(level = Logger.Level.ERROR)
     @Message(id = 17500, value = "Could not initialize JSP")
@@ -186,4 +190,51 @@ public interface UndertowLogger extends BasicLogger {
     @Message(id = 18227, value = "Could not load class designated by HandlesTypes [%s].")
     void cannotLoadDesignatedHandleTypes(ClassInfo classInfo, @Cause Exception e);
 
+    @LogMessage(level = ERROR)
+    @Message(id = 18228, value = "Failed to queue session replication for session %s")
+    void failedQueueingSessionReplication(ClusteredSession<? extends OutgoingDistributableSessionData> session, @Cause Exception e);
+
+    @LogMessage(level = ERROR)
+    @Message(id = 18229, value = "Exception processing sessions")
+    void exceptionProcessingSessions(@Cause Exception e);
+
+    @LogMessage(level = ERROR)
+    @Message(id = 18230, value = "Failed to store session %s")
+    void failedToStoreSession(String realId, @Cause Exception e);
+
+    @LogMessage(level = ERROR)
+    @Message(id = 18231, value = "Failed to replicate session %s")
+    void failedToReplicateSession(String idInternal, @Cause Exception e);
+
+    @LogMessage(level = WARN)
+    @Message(id = 18232, value = "Failed to passivate session %s")
+    void errorPassivatingSession(String idInternal, @Cause Throwable t);
+
+    @LogMessage(level = WARN)
+    @Message(id = 18233, value = "Received notification for inactive session %s")
+    void notificationForInactiveSession(String realId);
+
+    @LogMessage(level = ERROR)
+    @Message(id = 18234, value = "Failed to load passivated session %s")
+    void failToPassivateLoad(String realId, @Cause Exception e);
+
+    @LogMessage(level = ERROR)
+    @Message(id = 18235, value = "Brute force cleanup failed for session %s")
+    void failToBruteForceCleanup(String realId, @Cause Exception e);
+
+    @LogMessage(level = ERROR)
+    @Message(id = 18236, value = "Problem running expiration passivation")
+    void processExpirationPassivationException(@Cause Exception ex);
+
+    @LogMessage(level = ERROR)
+    @Message(id = 18237, value = "Failed to passivate %s %s")
+    void failToPassivate(String s, String realId, @Cause Exception e);
+
+    @LogMessage(level = ERROR)
+    @Message(id = 18238, value = "Failed to rollback transaction")
+    void exceptionRollingBackTransaction(@Cause RuntimeException exception);
+
+    @LogMessage(level = WARN)
+    @Message(id = 18239, value = "Performing brute force cleanup on %s due to %s")
+    void bruteForceCleanup(String realId, String localizedMessage);
 }
