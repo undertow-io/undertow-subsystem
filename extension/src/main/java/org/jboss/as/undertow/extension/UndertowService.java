@@ -15,7 +15,7 @@ import org.jboss.msc.service.StopContext;
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
  * @author Stuart Douglas
  */
-public class UndertowService implements Service<Void> {
+public class UndertowService implements Service<UndertowService> {
 
     public static final ServiceName UNDERTOW = ServiceName.JBOSS.append("undertow");
     public static final ServiceName WORKER = UNDERTOW.append("worker");
@@ -68,8 +68,8 @@ public class UndertowService implements Service<Void> {
     }
 
     @Override
-    public Void getValue() throws IllegalStateException, IllegalArgumentException {
-        return null;
+    public UndertowService getValue() throws IllegalStateException, IllegalArgumentException {
+        return this;
     }
 
     protected void registerServer(ServerService server) {
