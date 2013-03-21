@@ -58,13 +58,13 @@ import org.jboss.security.mapping.MappingType;
  * @author Stuart Douglas
  * @author <a href="mailto:darran.lofthouse@jboss.com">Darran Lofthouse</a>
  */
-public class IdentityManagerImpl implements IdentityManager {
+public class JAASIdentityManagerImpl implements IdentityManager {
 
     private final SecurityDomainContext securityDomainContext;
     private final Map<String, Set<String>> principalVersusRolesMap;
     private final CompositeThreadSetupAction threadSetupAction;
 
-    public IdentityManagerImpl(final SecurityDomainContext securityDomainContext, final Map<String, Set<String>> principalVersusRolesMap, CompositeThreadSetupAction threadSetupAction) {
+    public JAASIdentityManagerImpl(final SecurityDomainContext securityDomainContext, final Map<String, Set<String>> principalVersusRolesMap, CompositeThreadSetupAction threadSetupAction) {
         this.securityDomainContext = securityDomainContext;
         this.principalVersusRolesMap = principalVersusRolesMap;
         this.threadSetupAction = threadSetupAction;
