@@ -20,7 +20,7 @@ public class HttpListenerAdd extends AbstractListenerAdd {
     }
 
     protected ServiceName constructServiceName(final String name) {
-        return UndertowServices.HTTP_LISTENER.append(name);
+        return UndertowService.HTTP_LISTENER.append(name);
     }
 
     @Override

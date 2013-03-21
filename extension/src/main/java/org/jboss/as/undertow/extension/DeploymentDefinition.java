@@ -92,7 +92,7 @@ public class DeploymentDefinition extends SimpleResourceDefinition {
             final String host = VIRTUAL_HOST.resolveModelAttribute(context, subModel).asString();
             final String path = CONTEXT_ROOT.resolveModelAttribute(context, subModel).asString();
 
-            final ServiceController<?> controller = context.getServiceRegistry(false).getService(UndertowServices.deploymentServiceName(host, path));
+            final ServiceController<?> controller = context.getServiceRegistry(false).getService(UndertowService.deploymentServiceName(host, path));
 
             SessionStat stat = SessionStat.getStat(operation.require(ModelDescriptionConstants.NAME).asString());
 

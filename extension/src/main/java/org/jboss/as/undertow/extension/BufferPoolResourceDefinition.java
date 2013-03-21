@@ -84,7 +84,7 @@ public class BufferPoolResourceDefinition extends SimplePersistentResourceDefini
             int bufferPerSlice = BUFFER_PER_SLICE.resolveModelAttribute(context, model).asInt();
 
             final BufferPoolService service = new BufferPoolService(bufferSize, bufferPerSlice);
-            final ServiceBuilder<Pool<ByteBuffer>> serviceBuilder = context.getServiceTarget().addService(UndertowServices.BUFFER_POOL.append(name), service);
+            final ServiceBuilder<Pool<ByteBuffer>> serviceBuilder = context.getServiceTarget().addService(UndertowService.BUFFER_POOL.append(name), service);
 
             serviceBuilder.setInitialMode(ServiceController.Mode.ACTIVE);
 

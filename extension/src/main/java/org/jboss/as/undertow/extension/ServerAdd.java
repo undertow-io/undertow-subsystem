@@ -33,11 +33,11 @@ class ServerAdd extends AbstractBoottimeAddStepHandler {
         final String defaultHost = ServerDefinition.DEFAULT_HOST.resolveModelAttribute(context, model).asString();
         final String servletContainer = ServerDefinition.SERVLET_CONTAINER.resolveModelAttribute(context, model).asString();
 
-        final ServiceName serverName = UndertowServices.SERVER.append(name);
+        final ServiceName serverName = UndertowService.SERVER.append(name);
         final ServerService service = new ServerService(name,defaultHost);
         final ServiceBuilder<ServerService> builder = context.getServiceTarget().addService(serverName, service)
-                .addDependency(UndertowServices.SERVLET_CONTAINER.append(servletContainer), ServletContainerService.class, service.getServletContainer())
-                .addDependency(UndertowServices.UNDERTOW, UndertowService.class, service.getUndertowService());
+                .addDependency(UndertowService.SERVLET_CONTAINER.append(servletContainer), ServletContainerService.class, service.getServletContainer())
+                .addDependency(UndertowService.UNDERTOW, UndertowService.class, service.getUndertowService());
 
         builder.setInitialMode(ServiceController.Mode.ACTIVE);
         final ServiceController<ServerService> serviceController = builder.install();

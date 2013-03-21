@@ -24,7 +24,7 @@ class HostRemove extends AbstractRemoveStepHandler {
         final PathAddress parent = address.subAddress(0, address.size() - 1);
         final String name = address.getLastElement().getValue();
         final String serverName = parent.getLastElement().getValue();
-        final ServiceName virtualHostServiceName = UndertowServices.virtualHostName(serverName, name);
+        final ServiceName virtualHostServiceName = UndertowService.virtualHostName(serverName, name);
         context.removeService(virtualHostServiceName);
     }
 
