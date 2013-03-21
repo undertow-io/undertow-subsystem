@@ -37,6 +37,7 @@ import io.undertow.servlet.core.ContextClassLoaderSetupAction;
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.undertow.extension.Host;
 import org.jboss.as.undertow.extension.ServletContainerService;
+import org.jboss.as.undertow.security.AuditNotificationReceiver;
 import org.jboss.as.undertow.security.JAASIdentityManagerImpl;
 import org.jboss.as.web.common.StartupContext;
 import org.jboss.as.web.common.WebInjectionContainer;
@@ -45,6 +46,7 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
+import org.jboss.security.audit.AuditManager;
 
 /**
  * @author Stuart Douglas
@@ -66,13 +68,18 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
 
     @Override
     public void start(final StartContext startContext) throws StartException {
-        //TODO darren, check this!
+        //TODO Darran, check this!
         final List<ThreadSetupAction> setup = new ArrayList<ThreadSetupAction>();
         setup.add(new ContextClassLoaderSetupAction(deploymentInfo.getClassLoader()));
         setup.addAll(deploymentInfo.getThreadSetupActions());
         final CompositeThreadSetupAction threadSetupAction = new CompositeThreadSetupAction(setup);
 
-        deploymentInfo.setIdentityManager(new JAASIdentityManagerImpl(securityDomainContextValue.getValue(), deploymentInfo.getPrincipleVsRoleMapping(), threadSetupAction));
+        SecurityDomainContext sdc = securityDomainContextValue.getValue();
+        deploymentInfo.setIdentityManager(new JAASIdentityManagerImpl(sdc, deploymentInfo.getPrincipleVsRoleMapping(), threadSetupAction));
+        AuditManager auditManager = sdc.getAuditManager();
+        if (auditManager != null) {
+            deploymentInfo.addNotificationReceiver(new AuditNotificationReceiver(auditManager));
+        }
         deploymentInfo.setConfidentialPortManager(getConfidentialPortManager());
         StartupContext.setInjectionContainer(webInjectionContainer);
         try {
