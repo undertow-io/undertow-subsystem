@@ -39,27 +39,6 @@ public class ServerService implements Service<ServerService> {
 
     @Override
     public void start(StartContext startContext) throws StartException {
-
-       /* for (Undertow.VirtualHost host : hosts) {
-            final PathHandler paths = new PathHandler();
-            paths.setDefaultHandler(host.defaultHandler);
-            for (final Map.Entry<String, HttpHandler> entry : host.handlers.entrySet()) {
-                paths.addPath(entry.getKey(), entry.getValue());
-            }
-            HttpHandler handler = paths;
-            for (HandlerWrapper<HttpHandler> wrapper : host.wrappers) {
-                handler = wrapper.wrap(handler);
-            }
-            handler = addLoginConfig(handler, host.loginConfig);
-            if (host.defaultHost) {
-                virtualHostHandler.setDefaultHandler(handler);
-            }
-            for (String hostName : host.hostNames) {
-                virtualHostHandler.addHost(hostName, handler);
-            }
-        }
-*/
-
         root = virtualHostHandler;
         root = new CookieHandler(root);
         root = new FormEncodedDataHandler(root);
@@ -70,7 +49,6 @@ public class ServerService implements Service<ServerService> {
         if (cacheSize > 0) {
             root = new CacheHandler(new DirectBufferCache<CachedHttpRequest>(1024, cacheSize * 1024 * 1024), root);
         }*/
-
 
         UndertowLogger.ROOT_LOGGER.infof("Starting server server service: %s", startContext.getController().getName());
         undertowService.getValue().registerServer(this);
