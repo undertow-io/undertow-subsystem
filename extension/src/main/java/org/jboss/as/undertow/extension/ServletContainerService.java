@@ -22,9 +22,7 @@
 
 package org.jboss.as.undertow.extension;
 
-import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,8 +42,10 @@ public class ServletContainerService implements Service<ServletContainerService>
     private volatile ServletContainer servletContainer;
     @Deprecated
     private Map<String, Integer> secureListeners = new ConcurrentHashMap<>(1);
-    //private ConcurrentHashMap<String,>
-    private List<ServerService> registerServers = new ArrayList<>(1);
+
+    static String getDeployedContextPath(DeploymentInfo deploymentInfo) {
+        return "".equals(deploymentInfo.getContextPath()) ? "/" : deploymentInfo.getContextPath();
+    }
 
     public void start(StartContext context) throws StartException {
 
@@ -60,33 +60,9 @@ public class ServletContainerService implements Service<ServletContainerService>
         return this;
     }
 
-    static String getDeployedContextPath(DeploymentInfo deploymentInfo) {
-        return "".equals(deploymentInfo.getContextPath()) ? "/" : deploymentInfo.getContextPath();
-    }
-
-
     public ServletContainer getServletContainer() {
         return servletContainer;
     }
-
-    public void registerServer(ServerService server) {
-        registerServers.add(server);
-    }
-
-    public void unRegisterServer(ServerService server) {
-        registerServers.remove(server);
-    }
-
-    /*public HostService getHost(String hostName) {
-        for (ServerService server : registerServers) {
-            HostService host = server.getHost(hostName);
-            if (host != null) {
-                return host;
-            }
-        }
-        UndertowLogger.ROOT_LOGGER.warnf("could not find host for hostname: %s", hostName);
-        return null;
-    }*/
 
     public Integer lookupSecurePort(final String listenerName) {
         Integer response = null;

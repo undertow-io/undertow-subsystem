@@ -69,6 +69,10 @@ public interface UndertowLogger extends BasicLogger {
     @Message(id = 17502, value = "Undertow %s starting")
     void serverStarting(String version);
 
+    @LogMessage(level = INFO)
+    @Message(id = 17506, value = "Undertow %s starting")
+    void serverStopping(String version);
+
     /**
      * Creates an exception indicating the class, represented by the {@code className} parameter, cannot be accessed.
      *
