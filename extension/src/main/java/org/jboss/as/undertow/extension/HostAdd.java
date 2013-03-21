@@ -39,10 +39,10 @@ class HostAdd extends AbstractAddStepHandler {
         final String name = address.getLastElement().getValue();
         List<String> aliases = HostDefinition.ALIAS.unwrap(context, model);
         final String serverName = parent.getLastElement().getValue();
-        final ServiceName virtualHostServiceName = UndertowServices.virtualHostName(serverName, name);
+        final ServiceName virtualHostServiceName = UndertowService.virtualHostName(serverName, name);
         Host service = new Host(name, aliases == null ? new LinkedList<String>() : aliases);
         final ServiceBuilder<Host> builder = context.getServiceTarget().addService(virtualHostServiceName, service)
-                .addDependency(UndertowServices.SERVER.append(serverName), ServerService.class, service.getServer())
+                .addDependency(UndertowService.SERVER.append(serverName), ServerService.class, service.getServer())
                 .addAliases(WebHost.SERVICE_NAME.append(name));
 
         if (aliases != null) {

@@ -50,14 +50,14 @@ public class Host implements Service<Host>, WebHost {
         pathHandler.setDefaultHandler(ResponseCodeHandler.HANDLE_404);
         rootHandler.setNext(pathHandler);
         server.getValue().registerHost(this);
-        UndertowLogger.ROOT_LOGGER.infof("starting host %s", name);
+        UndertowLogger.ROOT_LOGGER.infof("Starting host %s", name);
     }
 
     @Override
     public void stop(StopContext context) {
         server.getValue().unRegisterHost(this);
         pathHandler.clearPaths();
-        UndertowLogger.ROOT_LOGGER.infof("stoping host %s", name);
+        UndertowLogger.ROOT_LOGGER.infof("Stopping host %s", name);
     }
 
     @Override

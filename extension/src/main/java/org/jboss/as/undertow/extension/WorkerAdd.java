@@ -59,7 +59,7 @@ public class WorkerAdd extends AbstractAddStepHandler {
 
         final WorkerService workerService = new WorkerService(builder.getMap());
         final ServiceBuilder<XnioWorker> serviceBuilder = context.getServiceTarget().
-                addService(UndertowServices.WORKER.append(name), workerService);
+                addService(UndertowService.WORKER.append(name), workerService);
 
         serviceBuilder.setInitialMode(ServiceController.Mode.ACTIVE);
 

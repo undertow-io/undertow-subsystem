@@ -45,8 +45,8 @@ class LocationAdd extends AbstractAddStepHandler {
         final LocationService service = new LocationService(name,handlers);
         final String serverName = serverAddress.getLastElement().getValue();
         final String hostName = hostAddress.getLastElement().getValue();
-        final ServiceName hostServiceName = UndertowServices.virtualHostName(serverName, hostName);
-        final ServiceName serviceName = UndertowServices.locationServiceName(serverName, hostName, name);
+        final ServiceName hostServiceName = UndertowService.virtualHostName(serverName, hostName);
+        final ServiceName serviceName = UndertowService.locationServiceName(serverName, hostName, name);
         final ServiceBuilder<LocationService> builder = context.getServiceTarget().addService(serviceName, service)
                 .addDependency(hostServiceName, Host.class, service.getHost())
                 .addAliases(WebHost.SERVICE_NAME.append(name));

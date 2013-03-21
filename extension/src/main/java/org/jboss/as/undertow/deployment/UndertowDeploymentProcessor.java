@@ -88,7 +88,7 @@ import org.jboss.as.undertow.extension.DeploymentDefinition;
 import org.jboss.as.undertow.extension.Host;
 import org.jboss.as.undertow.extension.ServletContainerService;
 import org.jboss.as.undertow.extension.UndertowExtension;
-import org.jboss.as.undertow.extension.UndertowServices;
+import org.jboss.as.undertow.extension.UndertowService;
 import org.jboss.as.undertow.security.SecurityContextAssociationHandler;
 import org.jboss.as.undertow.security.SecurityContextCreationHandler;
 import org.jboss.as.web.common.ServletContextAttribute;
@@ -237,12 +237,12 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
         String securityDomain = metaDataSecurityDomain == null ? SecurityConstants.DEFAULT_APPLICATION_POLICY : SecurityUtil
                 .unprefixSecurityDomain(metaDataSecurityDomain);
 
-            final ServiceName deploymentServiceName = UndertowServices.deploymentServiceName(hostName,deploymentInfo.getContextPath());
-            final ServiceName hostServiceName = UndertowServices.virtualHostName(defaultServer,hostName);
+            final ServiceName deploymentServiceName = UndertowService.deploymentServiceName(hostName, deploymentInfo.getContextPath());
+            final ServiceName hostServiceName = UndertowService.virtualHostName(defaultServer, hostName);
             final UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer);
             final ServiceBuilder<UndertowDeploymentService> builder = serviceTarget.addService(deploymentServiceName, service)
                     .addDependencies(dependentComponents)
-                    .addDependency(UndertowServices.SERVLET_CONTAINER.append(defaultContainer), ServletContainerService.class, service.getContainer())
+                    .addDependency(UndertowService.SERVLET_CONTAINER.append(defaultContainer), ServletContainerService.class, service.getContainer())
                     .addDependency(hostServiceName, Host.class, service.getHost())
                     .addDependency(SecurityDomainService.SERVICE_NAME.append(securityDomain), SecurityDomainContext.class, service.getSecurityDomainContextValue());
 
