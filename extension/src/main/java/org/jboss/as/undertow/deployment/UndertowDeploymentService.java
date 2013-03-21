@@ -37,7 +37,7 @@ import io.undertow.servlet.core.ContextClassLoaderSetupAction;
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.undertow.extension.Host;
 import org.jboss.as.undertow.extension.ServletContainerService;
-import org.jboss.as.undertow.security.IdentityManagerImpl;
+import org.jboss.as.undertow.security.JAASIdentityManagerImpl;
 import org.jboss.as.web.common.StartupContext;
 import org.jboss.as.web.common.WebInjectionContainer;
 import org.jboss.msc.service.Service;
@@ -72,7 +72,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
         setup.addAll(deploymentInfo.getThreadSetupActions());
         final CompositeThreadSetupAction threadSetupAction = new CompositeThreadSetupAction(setup);
 
-        deploymentInfo.setIdentityManager(new IdentityManagerImpl(securityDomainContextValue.getValue(), deploymentInfo.getPrincipleVsRoleMapping(), threadSetupAction));
+        deploymentInfo.setIdentityManager(new JAASIdentityManagerImpl(securityDomainContextValue.getValue(), deploymentInfo.getPrincipleVsRoleMapping(), threadSetupAction));
         deploymentInfo.setConfidentialPortManager(getConfidentialPortManager());
         StartupContext.setInjectionContainer(webInjectionContainer);
         try {
