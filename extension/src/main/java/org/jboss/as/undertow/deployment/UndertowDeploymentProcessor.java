@@ -145,11 +145,9 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
     private final String defaultServer;
     private final String defaultHost;
     private final String defaultContainer;
-    private final String instanceId;
 
-    public UndertowDeploymentProcessor(String defaultHost, final String defaultContainer, String defaultServer, final String instanceId) {
+    public UndertowDeploymentProcessor(String defaultHost, final String defaultContainer, String defaultServer) {
         this.defaultHost = defaultHost;
-        this.instanceId = instanceId;
         if (defaultHost == null) {
                     throw MESSAGES.nullDefaultHost();
                 }
@@ -243,12 +241,13 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
 
             final ServiceName deploymentServiceName = UndertowService.deploymentServiceName(hostName, deploymentInfo.getContextPath());
             final ServiceName hostServiceName = UndertowService.virtualHostName(defaultServer, hostName);
-            final UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer, module, warMetaData.getMergedJBossWebMetaData(), instanceId);
+            final UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer, module, warMetaData.getMergedJBossWebMetaData());
             final ServiceBuilder<UndertowDeploymentService> builder = serviceTarget.addService(deploymentServiceName, service)
                     .addDependencies(dependentComponents)
                     .addDependency(UndertowService.SERVLET_CONTAINER.append(defaultContainer), ServletContainerService.class, service.getContainer())
                     .addDependency(hostServiceName, Host.class, service.getHost())
-                    .addDependency(SecurityDomainService.SERVICE_NAME.append(securityDomain), SecurityDomainContext.class, service.getSecurityDomainContextValue());
+                    .addDependency(SecurityDomainService.SERVICE_NAME.append(securityDomain), SecurityDomainContext.class, service.getSecurityDomainContextValue())
+                    .addDependency(UndertowService.UNDERTOW, UndertowService.class, service.getUndertowService());
 
             deploymentUnit.addToAttachmentList(Attachments.DEPLOYMENT_COMPLETE_SERVICES, deploymentServiceName);
 

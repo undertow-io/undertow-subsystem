@@ -37,12 +37,14 @@ public class UndertowService implements Service<UndertowService> {
     private final String defaultContainer;
     private final String defaultServer;
     private final String defaultVirtualHost;
+    private final String instanceId;
     private List<String> registeredServers = new CopyOnWriteArrayList<>();
 
-    protected UndertowService(String defaultContainer, String defaultServer, String defaultVirtualHost) {
+    protected UndertowService(String defaultContainer, String defaultServer, String defaultVirtualHost,String instanceId) {
         this.defaultContainer = defaultContainer;
         this.defaultServer = defaultServer;
         this.defaultVirtualHost = defaultVirtualHost;
+        this.instanceId = instanceId;
     }
 
     public static ServiceName deploymentServiceName(final String virtualHost, final String contextPath) {
@@ -94,5 +96,9 @@ public class UndertowService implements Service<UndertowService> {
 
     public List<String> getServers() {
         return Collections.unmodifiableList(registeredServers);
+    }
+
+    public String getInstanceId() {
+        return instanceId;
     }
 }

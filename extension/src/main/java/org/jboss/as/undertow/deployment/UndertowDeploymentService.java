@@ -41,6 +41,7 @@ import org.jboss.as.clustering.web.OutgoingDistributableSessionData;
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.undertow.extension.Host;
 import org.jboss.as.undertow.extension.ServletContainerService;
+import org.jboss.as.undertow.extension.UndertowService;
 import org.jboss.as.undertow.security.AuditNotificationReceiver;
 import org.jboss.as.undertow.security.JAASIdentityManagerImpl;
 import org.jboss.as.undertow.session.DistributableSessionManager;
@@ -68,20 +69,18 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
     private final Module module;
     private final JBossWebMetaData jBossWebMetaData;
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
-    private final String instanceId;
+    private final InjectedValue<UndertowService> undertowService = new InjectedValue<>();
 
     private final InjectedValue<DistributedCacheManagerFactory> distributedCacheManagerFactoryInjectedValue = new InjectedValue<DistributedCacheManagerFactory>();
     private volatile DeploymentManager deploymentManager;
-    //private final String hostName;
     private final InjectedValue<Host> host = new InjectedValue<>();
     private volatile DistributableSessionManager<OutgoingDistributableSessionData> sessionManager;
 
-    public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer, final Module module, final JBossWebMetaData jBossWebMetaData, final String instanceId) {
+    public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer, final Module module, final JBossWebMetaData jBossWebMetaData) {
         this.deploymentInfo = deploymentInfo;
         this.webInjectionContainer = webInjectionContainer;
         this.module = module;
         this.jBossWebMetaData = jBossWebMetaData;
-        this.instanceId = instanceId;
 
         //todo: fix this
         if(jBossWebMetaData.getDistributable() != null) {
@@ -97,6 +96,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
     @Override
     public void start(final StartContext startContext) throws StartException {
         if(jBossWebMetaData.getDistributable() != null) {
+            String instanceId = undertowService.getValue().getInstanceId();
             ClassResolver resolver = ModularClassResolver.getInstance(module.getModuleLoader());
             sessionManager = new DistributableSessionManager<OutgoingDistributableSessionData>(this.distributedCacheManagerFactoryInjectedValue.getValue(), jBossWebMetaData, new ClassLoaderAwareClassResolver(resolver, module.getClassLoader()), deploymentInfo.getContextPath(), module.getClassLoader(), instanceId);
             deploymentInfo.setSessionManager(sessionManager);
@@ -158,6 +158,10 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
 
     public InjectedValue<SecurityDomainContext> getSecurityDomainContextValue() {
         return securityDomainContextValue;
+    }
+
+    public InjectedValue<UndertowService> getUndertowService() {
+        return undertowService;
     }
 
     private ConfidentialPortManager getConfidentialPortManager() {
