@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.servlet.Servlet;
 
 import io.undertow.server.HttpHandler;
@@ -99,6 +100,13 @@ public class Host implements Service<Host>, WebHost {
 
     public void unRegisterHandler(String path) {
         pathHandler.removePath(path);
+    }
+
+    /**
+     * @return set of registered contexts for this Host
+     */
+    public Set<String> getContexts() {
+        return pathHandler.getPaths().keySet();
     }
 
     @Override
