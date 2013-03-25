@@ -60,7 +60,7 @@ abstract class AbstractListenerAdd extends AbstractAddStepHandler {
         serviceBuilder.addDependency(UndertowService.WORKER.append(workerName), XnioWorker.class, service.getWorker())
                 .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding())
                 .addDependency(UndertowService.BUFFER_POOL.append(bufferPoolName), Pool.class, service.getBufferPool())
-                .addDependency(UndertowService.SERVER.append(serverName), ServerService.class, service.getServerService());
+                .addDependency(UndertowService.SERVER.append(serverName), Server.class, service.getServerService());
 
     }
 

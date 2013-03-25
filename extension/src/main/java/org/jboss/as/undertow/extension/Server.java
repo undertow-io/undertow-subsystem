@@ -22,7 +22,7 @@ import org.jboss.msc.value.InjectedValue;
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
  */
-public class ServerService implements Service<ServerService> {
+public class Server implements Service<Server> {
     private final String defaultHost;
     private final String name;
     private final NameVirtualHostHandler virtualHostHandler = new NameVirtualHostHandler();
@@ -32,7 +32,7 @@ public class ServerService implements Service<ServerService> {
     private List<AbstractListenerService> listeners = new LinkedList<>();
     private List<String> hosts = new CopyOnWriteArrayList<>();
 
-    protected ServerService(String name, String defaultHost) {
+    protected Server(String name, String defaultHost) {
         this.name = name;
         this.defaultHost = defaultHost;
     }
@@ -95,7 +95,7 @@ public class ServerService implements Service<ServerService> {
     }
 
     @Override
-    public ServerService getValue() throws IllegalStateException, IllegalArgumentException {
+    public Server getValue() throws IllegalStateException, IllegalArgumentException {
         return this;
     }
 

@@ -51,7 +51,7 @@ public abstract class AbstractListenerService<T> implements Service<T> {
     protected final InjectedValue<XnioWorker> worker = new InjectedValue<>();
     protected final InjectedValue<SocketBinding> binding = new InjectedValue<>();
     protected final InjectedValue<Pool> bufferPool = new InjectedValue<>();
-    protected final InjectedValue<ServerService> serverService = new InjectedValue<>();
+    protected final InjectedValue<Server> serverService = new InjectedValue<>();
 
     protected volatile OpenListener openListener;
     private volatile ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener;
@@ -79,7 +79,7 @@ public abstract class AbstractListenerService<T> implements Service<T> {
         return bufferPool;
     }
 
-    public InjectedValue<ServerService> getServerService() {
+    public InjectedValue<Server> getServerService() {
         return serverService;
     }
 

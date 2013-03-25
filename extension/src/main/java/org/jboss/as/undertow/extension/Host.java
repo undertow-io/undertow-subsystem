@@ -33,7 +33,7 @@ public class Host implements Service<Host>, WebHost {
     private final PathHandler pathHandler = new PathHandler();
     private final List<String> allHosts;
     private String name;
-    private InjectedValue<ServerService> server = new InjectedValue<>();
+    private InjectedValue<Server> server = new InjectedValue<>();
     private volatile MultiPartHandler rootHandler;
 
     protected Host(String name, List<String> aliases) {
@@ -65,7 +65,7 @@ public class Host implements Service<Host>, WebHost {
         return this;
     }
 
-    protected InjectedValue<ServerService> getServer() {
+    protected InjectedValue<Server> getServer() {
         return server;
     }
 
