@@ -39,6 +39,7 @@ public class UndertowService implements Service<UndertowService> {
     private final String defaultVirtualHost;
     private String instanceId;
     private List<String> registeredServers = new CopyOnWriteArrayList<>();
+    private List<UndertowEventListener> listeners = new CopyOnWriteArrayList<>();
 
     protected UndertowService(String defaultContainer, String defaultServer, String defaultVirtualHost,String instanceId) {
         this.defaultContainer = defaultContainer;
@@ -104,5 +105,13 @@ public class UndertowService implements Service<UndertowService> {
 
     public void setInstanceId(String instanceId) {
         this.instanceId = instanceId;
+    }
+
+    /**
+     * Registers custom Event listener to server
+     * @param listener event listener to register
+     */
+    public void registerListener(UndertowEventListener listener){
+        this.listeners.add(listener);
     }
 }
