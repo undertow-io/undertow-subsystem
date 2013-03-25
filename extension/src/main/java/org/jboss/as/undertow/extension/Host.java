@@ -31,7 +31,7 @@ import org.jboss.msc.value.InjectedValue;
  */
 public class Host implements Service<Host>, WebHost {
     private final PathHandler pathHandler = new PathHandler();
-    private final List<String> allHosts;
+    private final List<String> allAliases;
     private String name;
     private InjectedValue<Server> server = new InjectedValue<>();
     private volatile MultiPartHandler rootHandler;
@@ -41,7 +41,7 @@ public class Host implements Service<Host>, WebHost {
         List<String> hosts = new ArrayList<>(aliases.size() + 1);
         hosts.add(name);
         hosts.addAll(aliases);
-        allHosts = Collections.unmodifiableList(hosts);
+        allAliases = Collections.unmodifiableList(hosts);
         rootHandler = new MultiPartHandler();
     }
 
@@ -69,8 +69,8 @@ public class Host implements Service<Host>, WebHost {
         return server;
     }
 
-    public List<String> getAllHosts() {
-        return allHosts;
+    public List<String> getAllAliases() {
+        return allAliases;
     }
 
     public String getName() {
