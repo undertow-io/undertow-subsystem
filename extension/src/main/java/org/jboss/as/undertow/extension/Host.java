@@ -69,7 +69,7 @@ public class Host implements Service<Host>, WebHost {
         return server;
     }
 
-    protected List<String> getAllHosts() {
+    public List<String> getAllHosts() {
         return allHosts;
     }
 
