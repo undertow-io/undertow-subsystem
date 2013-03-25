@@ -114,6 +114,7 @@ public class Host implements Service<Host>, WebHost {
     public WebDeploymentController addWebDeployment(final WebDeploymentBuilder webDeploymentBuilder) throws Exception {
 
         DeploymentInfo d = new DeploymentInfo();
+        d.setDeploymentName(webDeploymentBuilder.getContextRoot());
         d.setContextPath(webDeploymentBuilder.getContextRoot());
         d.setClassLoader(webDeploymentBuilder.getClassLoader());
         d.setResourceLoader(new FileResourceLoader(webDeploymentBuilder.getDocumentRoot()));
@@ -123,6 +124,9 @@ public class Host implements Service<Host>, WebHost {
                 s = new ServletInfo(servlet.getServletName(), (Class<? extends Servlet>) servlet.getServletClass());
             } else {
                 s = new ServletInfo(servlet.getServletName(), (Class<? extends Servlet>) servlet.getServletClass(), new ImmediateInstanceFactory<>(servlet.getServlet()));
+            }
+            if (servlet.isForceInit()){
+                s.setLoadOnStartup(1);
             }
             s.addMappings(servlet.getUrlMappings());
             for (Map.Entry<String, String> param : servlet.getInitParams().entrySet()) {
@@ -152,12 +156,14 @@ public class Host implements Service<Host>, WebHost {
 
         @Override
         public void start() throws Exception {
-            manager.start();
+            HttpHandler handler = manager.start();
+            registerDeployment(deploymentInfo,handler);
         }
 
         @Override
         public void stop() throws Exception {
             manager.stop();
+            unRegisterDeployment(deploymentInfo);
         }
 
         @Override
