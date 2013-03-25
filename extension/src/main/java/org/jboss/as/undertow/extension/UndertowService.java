@@ -37,7 +37,7 @@ public class UndertowService implements Service<UndertowService> {
     private final String defaultContainer;
     private final String defaultServer;
     private final String defaultVirtualHost;
-    private final String instanceId;
+    private String instanceId;
     private List<String> registeredServers = new CopyOnWriteArrayList<>();
 
     protected UndertowService(String defaultContainer, String defaultServer, String defaultVirtualHost,String instanceId) {
@@ -100,5 +100,9 @@ public class UndertowService implements Service<UndertowService> {
 
     public String getInstanceId() {
         return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 }
