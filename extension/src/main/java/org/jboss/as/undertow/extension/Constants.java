@@ -38,6 +38,7 @@ public interface Constants {
     String PATH = "path";
     String HTTP_LISTENER = "http-listener";
     String HTTPS_LISTENER = "https-listener";
+    String INSTANCE_ID = "instance-id";
     String NAME = "name";
     String WORKER = "worker";
     String WORKER_IO_THREADS = "io-threads";

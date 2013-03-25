@@ -68,6 +68,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
     private final Module module;
     private final JBossWebMetaData jBossWebMetaData;
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
+    private final String instanceId;
 
     private final InjectedValue<DistributedCacheManagerFactory> distributedCacheManagerFactoryInjectedValue = new InjectedValue<DistributedCacheManagerFactory>();
     private volatile DeploymentManager deploymentManager;
@@ -75,11 +76,12 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
     private final InjectedValue<Host> host = new InjectedValue<>();
     private volatile DistributableSessionManager<OutgoingDistributableSessionData> sessionManager;
 
-    public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer, final Module module, final JBossWebMetaData jBossWebMetaData) {
+    public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer, final Module module, final JBossWebMetaData jBossWebMetaData, final String instanceId) {
         this.deploymentInfo = deploymentInfo;
         this.webInjectionContainer = webInjectionContainer;
         this.module = module;
         this.jBossWebMetaData = jBossWebMetaData;
+        this.instanceId = instanceId;
 
         //todo: fix this
         if(jBossWebMetaData.getDistributable() != null) {
@@ -96,7 +98,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
     public void start(final StartContext startContext) throws StartException {
         if(jBossWebMetaData.getDistributable() != null) {
             ClassResolver resolver = ModularClassResolver.getInstance(module.getModuleLoader());
-            sessionManager = new DistributableSessionManager<OutgoingDistributableSessionData>(this.distributedCacheManagerFactoryInjectedValue.getValue(), jBossWebMetaData, new ClassLoaderAwareClassResolver(resolver, module.getClassLoader()), deploymentInfo.getContextPath(), module.getClassLoader());
+            sessionManager = new DistributableSessionManager<OutgoingDistributableSessionData>(this.distributedCacheManagerFactoryInjectedValue.getValue(), jBossWebMetaData, new ClassLoaderAwareClassResolver(resolver, module.getClassLoader()), deploymentInfo.getContextPath(), module.getClassLoader(), instanceId);
             deploymentInfo.setSessionManager(sessionManager);
         }
 

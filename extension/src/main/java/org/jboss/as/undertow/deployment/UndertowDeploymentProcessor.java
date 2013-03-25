@@ -145,9 +145,11 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
     private final String defaultServer;
     private final String defaultHost;
     private final String defaultContainer;
+    private final String instanceId;
 
-    public UndertowDeploymentProcessor(String defaultHost, final String defaultContainer, String defaultServer) {
+    public UndertowDeploymentProcessor(String defaultHost, final String defaultContainer, String defaultServer, final String instanceId) {
         this.defaultHost = defaultHost;
+        this.instanceId = instanceId;
         if (defaultHost == null) {
                     throw MESSAGES.nullDefaultHost();
                 }
@@ -241,7 +243,7 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
 
             final ServiceName deploymentServiceName = UndertowService.deploymentServiceName(hostName, deploymentInfo.getContextPath());
             final ServiceName hostServiceName = UndertowService.virtualHostName(defaultServer, hostName);
-            final UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer, module, warMetaData.getMergedJBossWebMetaData());
+            final UndertowDeploymentService service = new UndertowDeploymentService(deploymentInfo, injectionContainer, module, warMetaData.getMergedJBossWebMetaData(), instanceId);
             final ServiceBuilder<UndertowDeploymentService> builder = serviceTarget.addService(deploymentServiceName, service)
                     .addDependencies(dependentComponents)
                     .addDependency(UndertowService.SERVLET_CONTAINER.append(defaultContainer), ServletContainerService.class, service.getContainer())

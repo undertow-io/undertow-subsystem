@@ -140,18 +140,19 @@ public class DistributableSessionManager<O extends OutgoingDistributableSessionD
 
     private final SessionIdGenerator sessionIdGenerator = new SecureRandomSessionIdGenerator();
 
-    private final String jvmRoute = "route1"; //fixme
-
     private final String contextPath;
 
     private final ClassLoader classLoader;
 
+    private final String jvmRoute;
+
     private static final Logger log = Logger.getLogger(DistributableSessionManager.class);
 
-    public DistributableSessionManager(DistributedCacheManagerFactory factory, JBossWebMetaData metaData, ClassResolver resolver, final String contextPath, final ClassLoader classLoader) {
+    public DistributableSessionManager(DistributedCacheManagerFactory factory, JBossWebMetaData metaData, ClassResolver resolver, final String contextPath, final ClassLoader classLoader, final String jvmRoute) {
         super(metaData);
         this.contextPath = contextPath;
         this.classLoader = classLoader;
+        this.jvmRoute = jvmRoute;
 
         PassivationConfig passivationConfig = metaData.getPassivationConfig();
         Boolean useSessionPassivation = (passivationConfig != null) ? passivationConfig.getUseSessionPassivation() : null;

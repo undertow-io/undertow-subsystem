@@ -32,18 +32,24 @@ import org.jboss.msc.service.AbstractService;
  */
 public class JvmRouteRegistryEntryProviderService extends AbstractService<Registry.RegistryEntryProvider<String, Void>> {
 
+    private final String jvmRoute;
+
+    public JvmRouteRegistryEntryProviderService(final String jvmRoute) {
+        this.jvmRoute = jvmRoute;
+    }
+
 
     @Override
     public RegistryEntryProvider<String, Void> getValue() {
         return new JvmRouteRegistryEntryProvider();
     }
 
-    static class JvmRouteRegistryEntryProvider implements Registry.RegistryEntryProvider<String, Void>, Serializable {
+    class JvmRouteRegistryEntryProvider implements Registry.RegistryEntryProvider<String, Void>, Serializable {
 
 
         @Override
         public String getKey() {
-            return "route1"; //fixme
+            return jvmRoute;
         }
 
         @Override

@@ -70,6 +70,9 @@ class UndertowSubsystemAdd extends AbstractBoottimeAddStepHandler {
         final String defaultContainer = UndertowRootDefinition.DEFAULT_SERVLET_CONTAINER.resolveModelAttribute(context, model).asString();
         final String defaultServer = UndertowRootDefinition.DEFAULT_SERVER.resolveModelAttribute(context, model).asString();
 
+        final ModelNode instanceIdModel = UndertowRootDefinition.INSTANCE_ID.resolveModelAttribute(context, model);
+        final String instanceId = instanceIdModel.isDefined() ? instanceIdModel.asString() : null;
+
         newControllers.add(context.getServiceTarget().addService(UndertowService.UNDERTOW, new UndertowService(defaultContainer, defaultServer, defaultVirtualHost))
                 .setInitialMode(ServiceController.Mode.ACTIVE)
                 .install());
@@ -104,7 +107,7 @@ class UndertowSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
                 processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.INSTALL, Phase.INSTALL_SERVLET_INIT_DEPLOYMENT, new ServletContainerInitializerDeploymentProcessor());
 
-                processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.INSTALL, Phase.INSTALL_WAR_DEPLOYMENT, new UndertowDeploymentProcessor(defaultVirtualHost, defaultContainer, defaultServer));
+                processorTarget.addDeploymentProcessor(UndertowExtension.SUBSYSTEM_NAME, Phase.INSTALL, Phase.INSTALL_WAR_DEPLOYMENT, new UndertowDeploymentProcessor(defaultVirtualHost, defaultContainer, defaultServer, instanceId));
 
             }
         }, OperationContext.Stage.RUNTIME);
@@ -113,7 +116,7 @@ class UndertowSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
         final DistributedCacheManagerFactory factory = new DistributedCacheManagerFactoryService().getValue();
         if (factory != null) {
-            newControllers.add(context.getServiceTarget().addService(DistributedCacheManagerFactoryService.JVM_ROUTE_REGISTRY_ENTRY_PROVIDER_SERVICE_NAME, new JvmRouteRegistryEntryProviderService())
+            newControllers.add(context.getServiceTarget().addService(DistributedCacheManagerFactoryService.JVM_ROUTE_REGISTRY_ENTRY_PROVIDER_SERVICE_NAME, new JvmRouteRegistryEntryProviderService(instanceId))
                     .setInitialMode(ServiceController.Mode.ON_DEMAND)
                     .install());
             newControllers.addAll(factory.installServices(context.getServiceTarget()));
