@@ -14,6 +14,7 @@ import org.jboss.msc.service.StopContext;
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
  * @author Stuart Douglas
+ * @author Radoslav Husar
  */
 public class UndertowService implements Service<UndertowService> {
 
@@ -37,12 +38,14 @@ public class UndertowService implements Service<UndertowService> {
     private final String defaultContainer;
     private final String defaultServer;
     private final String defaultVirtualHost;
+    private String instanceId; // Not final, we allow for auto-magic configuration
     private List<String> registeredServers = new CopyOnWriteArrayList<>();
 
-    protected UndertowService(String defaultContainer, String defaultServer, String defaultVirtualHost) {
+    protected UndertowService(String defaultContainer, String defaultServer, String defaultVirtualHost, String instanceId) {
         this.defaultContainer = defaultContainer;
         this.defaultServer = defaultServer;
         this.defaultVirtualHost = defaultVirtualHost;
+        this.instanceId = instanceId;
     }
 
     public static ServiceName deploymentServiceName(final String virtualHost, final String contextPath) {
@@ -90,6 +93,14 @@ public class UndertowService implements Service<UndertowService> {
 
     public String getDefaultVirtualHost() {
         return defaultVirtualHost;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
     }
 
     public List<String> getServers() {
