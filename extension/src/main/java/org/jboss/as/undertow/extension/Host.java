@@ -1,7 +1,7 @@
 package org.jboss.as.undertow.extension;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,20 +29,21 @@ import org.jboss.msc.value.InjectedValue;
 
 /**
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
+ * @author Radoslav Husar
  */
 public class Host implements Service<Host>, WebHost {
     private final PathHandler pathHandler = new PathHandler();
-    private final List<String> allAliases;
+    private final Set<String> allAliases;
     private String name;
     private InjectedValue<Server> server = new InjectedValue<>();
     private volatile MultiPartHandler rootHandler;
 
     protected Host(String name, List<String> aliases) {
         this.name = name;
-        List<String> hosts = new ArrayList<>(aliases.size() + 1);
+        Set<String> hosts = new HashSet<>(aliases.size() + 1);
         hosts.add(name);
         hosts.addAll(aliases);
-        allAliases = Collections.unmodifiableList(hosts);
+        allAliases = Collections.unmodifiableSet(hosts);
         rootHandler = new MultiPartHandler();
     }
 
@@ -70,7 +71,7 @@ public class Host implements Service<Host>, WebHost {
         return server;
     }
 
-    public List<String> getAllAliases() {
+    public Set<String> getAllAliases() {
         return allAliases;
     }
 
