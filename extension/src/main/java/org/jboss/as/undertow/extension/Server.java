@@ -70,8 +70,8 @@ public class Server implements Service<Server> {
     }
 
     protected void registerHost(Host host) {
-        hosts.addAll(host.getAllHosts());
-        for (String hostName : host.getAllHosts()) {
+        hosts.addAll(host.getAllAliases());
+        for (String hostName : host.getAllAliases()) {
             virtualHostHandler.addHost(hostName, host.getRootHandler());
         }
         if (host.getName().equals(getDefaultHost())) {
@@ -80,7 +80,7 @@ public class Server implements Service<Server> {
     }
 
     protected void unRegisterHost(Host host) {
-        for (String hostName : host.getAllHosts()) {
+        for (String hostName : host.getAllAliases()) {
             virtualHostHandler.removeHost(hostName);
             hosts.remove(hostName);
         }
