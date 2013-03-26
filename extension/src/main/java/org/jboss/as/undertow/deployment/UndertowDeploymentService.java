@@ -222,17 +222,17 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
         public synchronized boolean start(long timeout, TimeUnit unit) throws TimeoutException {
             if (controller.getMode() == ServiceController.Mode.NEVER) {
                 controller.setMode(ServiceController.Mode.ACTIVE);
-                final StabilityMonitor monitor = new StabilityMonitor();
-                monitor.addController(controller);
-                try {
-                    if (!monitor.awaitStability(timeout, unit)) {
-                        throw UndertowMessages.MESSAGES.timeoutContextActivation(controller.getName());
-                    }
-                } catch (final InterruptedException e) {
-                    // ignore
-                } finally {
-                    monitor.removeController(controller);
+            }
+            final StabilityMonitor monitor = new StabilityMonitor();
+            monitor.addController(controller);
+            try {
+                if (!monitor.awaitStability(timeout, unit)) {
+                    throw UndertowMessages.MESSAGES.timeoutContextActivation(controller.getName());
                 }
+            } catch (final InterruptedException e) {
+                // ignore
+            } finally {
+                monitor.removeController(controller);
             }
             return true;
         }
@@ -246,17 +246,17 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
             boolean result = true;
             if (controller.getMode() == ServiceController.Mode.ACTIVE) {
                 controller.setMode(ServiceController.Mode.NEVER);
-                final StabilityMonitor monitor = new StabilityMonitor();
-                monitor.addController(controller);
-                try {
-                    if (!monitor.awaitStability(timeout, unit)) {
-                        UndertowLogger.ROOT_LOGGER.debugf("Timeout stopping context: %s", controller.getName());
-                    }
-                } catch (final InterruptedException e) {
-                    // ignore
-                } finally {
-                    monitor.removeController(controller);
+            }
+            final StabilityMonitor monitor = new StabilityMonitor();
+            monitor.addController(controller);
+            try {
+                if (!monitor.awaitStability(timeout, unit)) {
+                    UndertowLogger.ROOT_LOGGER.debugf("Timeout stopping context: %s", controller.getName());
                 }
+            } catch (final InterruptedException e) {
+                // ignore
+            } finally {
+                monitor.removeController(controller);
             }
             return result;
         }
