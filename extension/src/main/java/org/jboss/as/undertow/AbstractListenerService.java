@@ -93,7 +93,7 @@ public abstract class AbstractListenerService<T> implements Service<T> {
         binding.getValue().getSocketBindings().getNamedRegistry().registerBinding(new ListenerBinding(binding.getValue()));
     }
 
-    protected void unRegisterBinding() {
+    protected void unregisterBinding() {
         final SocketBinding binding = this.binding.getValue();
         binding.getSocketBindings().getNamedRegistry().unregisterBinding(binding.getName());
     }
@@ -115,9 +115,9 @@ public abstract class AbstractListenerService<T> implements Service<T> {
 
     @Override
     public void stop(StopContext context) {
-        serverService.getValue().unRegisterListener(this);
+        serverService.getValue().unregisterListener(this);
         stopListening();
-        unRegisterBinding();
+        unregisterBinding();
     }
 
     protected abstract OpenListener createOpenListener();
