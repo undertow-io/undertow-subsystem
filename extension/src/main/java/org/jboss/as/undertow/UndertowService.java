@@ -23,7 +23,6 @@ public class UndertowService implements Service<UndertowService> {
     public static final ServiceName WORKER = UNDERTOW.append("worker");
     public static final ServiceName SERVLET_CONTAINER = UNDERTOW.append(Constants.SERVLET_CONTAINER);
     public static final ServiceName SERVER = UNDERTOW.append(Constants.SERVER);
-
     /**
      * The base name for jboss.web connector services.
      */
@@ -31,7 +30,6 @@ public class UndertowService implements Service<UndertowService> {
     public static final ServiceName HTTP_LISTENER = UNDERTOW.append("http-listener");
     public static final ServiceName HTTPS_LISTENER = UNDERTOW.append("https-listener");
     public static final ServiceName BUFFER_POOL = UNDERTOW.append("buffer-pool");
-
     /**
      * The base name for jboss.web deployments.
      */
@@ -43,7 +41,7 @@ public class UndertowService implements Service<UndertowService> {
     private ConcurrentHashSet<Server> registeredServers = new ConcurrentHashSet<>();
     private List<UndertowEventListener> listeners = new CopyOnWriteArrayList<>();
 
-    protected UndertowService(String defaultContainer, String defaultServer, String defaultVirtualHost,String instanceId) {
+    protected UndertowService(String defaultContainer, String defaultServer, String defaultVirtualHost, String instanceId) {
         this.defaultContainer = defaultContainer;
         this.defaultServer = defaultServer;
         this.defaultVirtualHost = defaultVirtualHost;
@@ -79,10 +77,12 @@ public class UndertowService implements Service<UndertowService> {
 
     protected void registerServer(Server server) {
         registeredServers.add(server);
+        fireEvent(EventType.SERVER_START, server);
     }
 
     protected void unregisterServer(Server server) {
         registeredServers.remove(server);
+        fireEvent(EventType.SERVER_STOP, server);
     }
 
     public String getDefaultContainer() {
@@ -111,13 +111,37 @@ public class UndertowService implements Service<UndertowService> {
 
     /**
      * Registers custom Event listener to server
+     *
      * @param listener event listener to register
      */
-    public void registerListener(UndertowEventListener listener){
+    public void registerListener(UndertowEventListener listener) {
         this.listeners.add(listener);
     }
 
-    protected void fireEvent(EventType type){
-
+    protected void fireEvent(EventType type, Object eventData) {
+        for (UndertowEventListener listener : listeners) {
+            switch (type) {
+                case HOST_ADD:
+                    break;
+                case HOST_REMOVE:
+                    break;
+                case HOST_START:
+                    break;
+                case HOST_STOP:
+                    break;
+                case SERVER_ADD:
+                    break;
+                case SERVER_REMOVE:
+                    break;
+                case SERVER_START:
+                    listener.onServerStart((Server)eventData);
+                    break;
+                case SERVER_STOP:
+                    listener.onServerStop((Server)eventData);
+                    break;
+                default:
+                    throw new IllegalArgumentException("not supported yet");
+            }
+        }
     }
 }
