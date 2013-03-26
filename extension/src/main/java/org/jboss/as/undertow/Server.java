@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.CanonicalPathHandler;
@@ -12,7 +13,6 @@ import io.undertow.server.handlers.NameVirtualHostHandler;
 import io.undertow.server.handlers.ResponseCodeHandler;
 import io.undertow.server.handlers.error.SimpleErrorPageHandler;
 import io.undertow.server.handlers.form.FormEncodedDataHandler;
-import org.infinispan.util.concurrent.ConcurrentHashSet;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
@@ -31,7 +31,7 @@ public class Server implements Service<Server> {
     private final InjectedValue<UndertowService> undertowService = new InjectedValue<>();
     private volatile HttpHandler root;
     private List<AbstractListenerService> listeners = new LinkedList<>();
-    private Set<Host> hosts = new ConcurrentHashSet<>();
+    private Set<Host> hosts = new CopyOnWriteArraySet<>();
 
     protected Server(String name, String defaultHost) {
         this.name = name;
