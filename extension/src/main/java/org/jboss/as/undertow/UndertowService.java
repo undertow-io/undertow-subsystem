@@ -2,9 +2,11 @@ package org.jboss.as.undertow;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.undertow.Version;
+import org.infinispan.util.concurrent.ConcurrentHashSet;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.StartContext;
@@ -38,7 +40,7 @@ public class UndertowService implements Service<UndertowService> {
     private final String defaultServer;
     private final String defaultVirtualHost;
     private String instanceId;
-    private List<String> registeredServers = new CopyOnWriteArrayList<>();
+    private ConcurrentHashSet<Server> registeredServers = new ConcurrentHashSet<>();
     private List<UndertowEventListener> listeners = new CopyOnWriteArrayList<>();
 
     protected UndertowService(String defaultContainer, String defaultServer, String defaultVirtualHost,String instanceId) {
@@ -76,11 +78,11 @@ public class UndertowService implements Service<UndertowService> {
     }
 
     protected void registerServer(Server server) {
-        registeredServers.add(server.getName());
+        registeredServers.add(server);
     }
 
     protected void unRegisterServer(Server server) {
-        registeredServers.remove(server.getName());
+        registeredServers.remove(server);
     }
 
     public String getDefaultContainer() {
@@ -95,8 +97,8 @@ public class UndertowService implements Service<UndertowService> {
         return defaultVirtualHost;
     }
 
-    public List<String> getServers() {
-        return Collections.unmodifiableList(registeredServers);
+    public Set<Server> getServers() {
+        return Collections.unmodifiableSet(registeredServers);
     }
 
     public String getInstanceId() {
@@ -113,5 +115,9 @@ public class UndertowService implements Service<UndertowService> {
      */
     public void registerListener(UndertowEventListener listener){
         this.listeners.add(listener);
+    }
+
+    protected void fireEvent(EventType type){
+
     }
 }

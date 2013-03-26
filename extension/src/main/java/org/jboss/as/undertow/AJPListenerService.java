@@ -29,7 +29,7 @@ public class AJPListenerService extends AbstractListenerService<AJPListenerServi
 
     @Override
     void startListening(XnioWorker worker, InetSocketAddress socketAddress, ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener) throws IOException {
-        server = worker.createStreamServer(binding.getValue().getSocketAddress(), acceptListener, serverOptions);
+        server = worker.createStreamServer(binding.getValue().getSocketAddress(), acceptListener, SERVER_OPTIONS);
         server.resumeAccepts();
         UndertowLogger.ROOT_LOGGER.listenerStarted("AJP", getName(), binding.getValue().getSocketAddress());
     }

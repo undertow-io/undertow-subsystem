@@ -29,8 +29,6 @@ import io.undertow.server.HttpOpenListener;
 import io.undertow.server.OpenListener;
 import org.xnio.ChannelListener;
 import org.xnio.IoUtils;
-import org.xnio.OptionMap;
-import org.xnio.Options;
 import org.xnio.XnioWorker;
 import org.xnio.channels.AcceptingChannel;
 import org.xnio.channels.ConnectedStreamChannel;
@@ -39,11 +37,6 @@ import org.xnio.channels.ConnectedStreamChannel;
  * @author Stuart Douglas
  */
 public class HttpListenerService extends AbstractListenerService<HttpListenerService> {
-    protected static final OptionMap SERVER_OPTIONS = OptionMap.builder()
-            .set(Options.WORKER_ACCEPT_THREADS, 3)
-            .set(Options.TCP_NODELAY, true)
-            .set(Options.REUSE_ADDRESSES, true)
-            .getMap();
     private volatile AcceptingChannel<? extends ConnectedStreamChannel> server;
 
     public HttpListenerService(String name) {

@@ -3,7 +3,7 @@ package org.jboss.as.undertow;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.CanonicalPathHandler;
@@ -12,6 +12,7 @@ import io.undertow.server.handlers.NameVirtualHostHandler;
 import io.undertow.server.handlers.ResponseCodeHandler;
 import io.undertow.server.handlers.error.SimpleErrorPageHandler;
 import io.undertow.server.handlers.form.FormEncodedDataHandler;
+import org.infinispan.util.concurrent.ConcurrentHashSet;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
@@ -30,7 +31,7 @@ public class Server implements Service<Server> {
     private final InjectedValue<UndertowService> undertowService = new InjectedValue<>();
     private volatile HttpHandler root;
     private List<AbstractListenerService> listeners = new LinkedList<>();
-    private List<String> hosts = new CopyOnWriteArrayList<>();
+    private Set<Host> hosts = new ConcurrentHashSet<>();
 
     protected Server(String name, String defaultHost) {
         this.name = name;
@@ -69,8 +70,8 @@ public class Server implements Service<Server> {
         }
     }
 
-    protected void registerHost(Host host) {
-        hosts.addAll(host.getAllAliases());
+    protected void registerHost(final Host host) {
+        hosts.add(host);
         for (String hostName : host.getAllAliases()) {
             virtualHostHandler.addHost(hostName, host.getRootHandler());
         }
@@ -82,7 +83,7 @@ public class Server implements Service<Server> {
     protected void unRegisterHost(Host host) {
         for (String hostName : host.getAllAliases()) {
             virtualHostHandler.removeHost(hostName);
-            hosts.remove(hostName);
+            hosts.remove(host);
         }
         if (host.getName().equals(getDefaultHost())) {
             virtualHostHandler.setDefaultHandler(ResponseCodeHandler.HANDLE_404);
@@ -119,12 +120,7 @@ public class Server implements Service<Server> {
         return defaultHost;
     }
 
-    /**
-     * Get all registered host names
-     *
-     * @return list of host names
-     */
-    public List<String> getHostNames() {
-        return Collections.unmodifiableList(hosts);
+    public Set<Host> getHosts() {
+        return Collections.unmodifiableSet(hosts);
     }
 }

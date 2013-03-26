@@ -47,20 +47,16 @@ import org.xnio.channels.ConnectedStreamChannel;
  */
 public abstract class AbstractListenerService<T> implements Service<T> {
 
-    private final String name;
+    protected static final OptionMap SERVER_OPTIONS = OptionMap.builder()
+            .set(Options.TCP_NODELAY, true)
+            .set(Options.REUSE_ADDRESSES, true)
+            .getMap();
     protected final InjectedValue<XnioWorker> worker = new InjectedValue<>();
     protected final InjectedValue<SocketBinding> binding = new InjectedValue<>();
     protected final InjectedValue<Pool> bufferPool = new InjectedValue<>();
     protected final InjectedValue<Server> serverService = new InjectedValue<>();
-
+    private final String name;
     protected volatile OpenListener openListener;
-    private volatile ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener;
-
-    OptionMap serverOptions = OptionMap.builder()
-            .set(Options.WORKER_ACCEPT_THREADS, Runtime.getRuntime().availableProcessors())
-            .set(Options.TCP_NODELAY, true)
-            .set(Options.REUSE_ADDRESSES, true)
-            .getMap();
 
 
     protected AbstractListenerService(String name) {
@@ -108,9 +104,7 @@ public abstract class AbstractListenerService<T> implements Service<T> {
         try {
             final InetSocketAddress socketAddress = binding.getValue().getSocketAddress();
             openListener = createOpenListener();
-            acceptListener = ChannelListeners.openListenerAdapter(openListener);
-
-
+            final ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener = ChannelListeners.openListenerAdapter(openListener);
             openListener.setRootHandler(serverService.getValue().getRoot());
             startListening(worker.getValue(), socketAddress, acceptListener);
             registerBinding();
@@ -131,7 +125,6 @@ public abstract class AbstractListenerService<T> implements Service<T> {
     abstract void startListening(XnioWorker worker, InetSocketAddress socketAddress, ChannelListener<? super AcceptingChannel<ConnectedStreamChannel>> acceptListener) throws IOException;
 
     abstract void stopListening();
-
 
     private static class ListenerBinding implements ManagedBinding {
 
