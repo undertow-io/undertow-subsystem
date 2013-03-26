@@ -24,6 +24,9 @@ package org.jboss.as.undertow.deployment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import io.undertow.server.HandlerWrapper;
@@ -41,17 +44,22 @@ import org.jboss.as.clustering.web.OutgoingDistributableSessionData;
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.undertow.extension.Host;
 import org.jboss.as.undertow.extension.ServletContainerService;
+import org.jboss.as.undertow.extension.UndertowLogger;
+import org.jboss.as.undertow.extension.UndertowMessages;
 import org.jboss.as.undertow.extension.UndertowService;
 import org.jboss.as.undertow.security.AuditNotificationReceiver;
 import org.jboss.as.undertow.security.JAASIdentityManagerImpl;
 import org.jboss.as.undertow.session.DistributableSessionManager;
 import org.jboss.as.web.common.StartupContext;
 import org.jboss.as.web.common.WebInjectionContainer;
+import org.jboss.as.web.host.ContextActivator;
 import org.jboss.marshalling.ClassResolver;
 import org.jboss.marshalling.ModularClassResolver;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.modules.Module;
 import org.jboss.msc.service.Service;
+import org.jboss.msc.service.ServiceController;
+import org.jboss.msc.service.StabilityMonitor;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
@@ -70,10 +78,9 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
     private final JBossWebMetaData jBossWebMetaData;
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
     private final InjectedValue<UndertowService> undertowService = new InjectedValue<>();
-
     private final InjectedValue<DistributedCacheManagerFactory> distributedCacheManagerFactoryInjectedValue = new InjectedValue<DistributedCacheManagerFactory>();
-    private volatile DeploymentManager deploymentManager;
     private final InjectedValue<Host> host = new InjectedValue<>();
+    private volatile DeploymentManager deploymentManager;
     private volatile DistributableSessionManager<OutgoingDistributableSessionData> sessionManager;
 
     public UndertowDeploymentService(final DeploymentInfo deploymentInfo, final WebInjectionContainer webInjectionContainer, final Module module, final JBossWebMetaData jBossWebMetaData) {
@@ -176,5 +183,88 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
 
     public InjectedValue<DistributedCacheManagerFactory> getDistributedCacheManagerFactoryInjectedValue() {
         return distributedCacheManagerFactoryInjectedValue;
+    }
+
+    /**
+     * Provides an API to start/stop the {@link UndertowDeploymentService}.
+     * This should register/deregister the web context.
+     */
+    protected static class ContextActivatorImpl implements ContextActivator {
+
+        private final ServiceController<UndertowDeploymentService> controller;
+
+
+        ContextActivatorImpl(ServiceController<UndertowDeploymentService> controller) {
+            this.controller = controller;
+        }
+
+        /**
+         * Provide access to the Servlet Context.
+         */
+
+        /**
+         * Start the web context asynchronously.
+         * <p/>
+         * This would happen during OSGi webapp deployment.
+         * <p/>
+         * No DUP can assume that all dependencies are available to make a blocking call
+         * instead it should call this method.
+         */
+        public synchronized void startAsync() {
+            controller.setMode(ServiceController.Mode.ACTIVE);
+        }
+
+        /**
+         * Start the web context synchronously.
+         * <p/>
+         * This would happen when the OSGi webapp gets explicitly started.
+         */
+        public synchronized boolean start(long timeout, TimeUnit unit) throws TimeoutException {
+            if (controller.getMode() == ServiceController.Mode.NEVER) {
+                controller.setMode(ServiceController.Mode.ACTIVE);
+                final StabilityMonitor monitor = new StabilityMonitor();
+                monitor.addController(controller);
+                try {
+                    if (!monitor.awaitStability(timeout, unit)) {
+                        throw UndertowMessages.MESSAGES.timeoutContextActivation(controller.getName());
+                    }
+                } catch (final InterruptedException e) {
+                    // ignore
+                } finally {
+                    monitor.removeController(controller);
+                }
+            }
+            return true;
+        }
+
+        /**
+         * Stop the web context synchronously.
+         * <p/>
+         * This would happen when the OSGi webapp gets explicitly stops.
+         */
+        public synchronized boolean stop(long timeout, TimeUnit unit) {
+            boolean result = true;
+            if (controller.getMode() == ServiceController.Mode.ACTIVE) {
+                controller.setMode(ServiceController.Mode.NEVER);
+                final StabilityMonitor monitor = new StabilityMonitor();
+                monitor.addController(controller);
+                try {
+                    if (!monitor.awaitStability(timeout, unit)) {
+                        UndertowLogger.ROOT_LOGGER.debugf("Timeout stopping context: %s", controller.getName());
+                    }
+                } catch (final InterruptedException e) {
+                    // ignore
+                } finally {
+                    monitor.removeController(controller);
+                }
+            }
+            return result;
+        }
+
+        @Override
+        public ServletContext getServletContext() {
+            //todo UndertowDeploymentService should be fully started before this method is called
+            return controller.getValue().deploymentManager.getDeployment().getServletContext();
+        }
     }
 }

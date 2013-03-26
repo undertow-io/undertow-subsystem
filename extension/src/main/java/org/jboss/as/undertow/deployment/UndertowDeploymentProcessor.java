@@ -97,6 +97,7 @@ import org.jboss.as.web.common.ServletContextAttribute;
 import org.jboss.as.web.common.WarMetaData;
 import org.jboss.as.web.common.WebComponentDescription;
 import org.jboss.as.web.common.WebInjectionContainer;
+import org.jboss.as.web.host.ContextActivator;
 import org.jboss.dmr.ModelNode;
 import org.jboss.metadata.ear.jboss.JBossAppMetaData;
 import org.jboss.metadata.ear.spec.EarMetaData;
@@ -283,14 +284,14 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
         }
 
             // OSGi web applications are activated in {@link WebContextActivationProcessor} according to bundle lifecycle changes
-            //if (deploymentUnit.hasAttachment(Attachments.OSGI_MANIFEST)) {
-            //    webappBuilder.setInitialMode(Mode.NEVER);
-            //    ContextActivator activator = new ContextActivator(webappBuilder.install());
-            //    deploymentUnit.putAttachment(ContextActivator.ATTACHMENT_KEY, activator);
-            // } else {
-            builder.setInitialMode(Mode.ACTIVE);
-            builder.install();
-            // }
+            if (deploymentUnit.hasAttachment(Attachments.OSGI_MANIFEST)) {
+                builder.setInitialMode(Mode.NEVER);
+                UndertowDeploymentService.ContextActivatorImpl activator = new UndertowDeploymentService.ContextActivatorImpl(builder.install());
+                deploymentUnit.putAttachment(ContextActivator.ATTACHMENT_KEY, activator);
+             } else {
+                builder.setInitialMode(Mode.ACTIVE);
+                builder.install();
+             }
 
 
         // Process the web related mgmt information

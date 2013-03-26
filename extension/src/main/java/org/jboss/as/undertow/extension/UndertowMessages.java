@@ -23,7 +23,6 @@
 package org.jboss.as.undertow.extension;
 
 import java.util.concurrent.TimeoutException;
-
 import javax.servlet.ServletException;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
@@ -37,6 +36,7 @@ import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
 import org.jboss.logging.annotations.Param;
 import org.jboss.modules.ModuleIdentifier;
+import org.jboss.msc.service.ServiceName;
 import org.jboss.vfs.VirtualFile;
 
 /**
@@ -187,4 +187,8 @@ public interface UndertowMessages {
 
     @Message(id = 17344, value = "Failed session replication")
     RuntimeException failedSessionReplication(@Cause Exception e);
+
+    @Message(id = 17345, value = "Timeout context service activation: %s")
+    TimeoutException timeoutContextActivation(ServiceName service);
+
 }
