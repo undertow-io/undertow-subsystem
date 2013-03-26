@@ -46,7 +46,7 @@ import org.jboss.as.server.deployment.annotation.CompositeIndex;
 import org.jboss.as.server.deployment.module.ModuleDependency;
 import org.jboss.as.server.deployment.module.ModuleSpecification;
 import org.jboss.as.server.moduleservice.ServiceModuleLoader;
-import org.jboss.as.undertow.extension.UndertowLogger;
+import org.jboss.as.undertow.UndertowLogger;
 import org.jboss.as.web.common.WarMetaData;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
@@ -59,7 +59,7 @@ import org.jboss.modules.Module;
 import org.jboss.modules.ModuleLoadException;
 import org.jboss.vfs.VirtualFile;
 
-import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
+import static org.jboss.as.undertow.UndertowMessages.MESSAGES;
 
 /**
  * SCI deployment processor.

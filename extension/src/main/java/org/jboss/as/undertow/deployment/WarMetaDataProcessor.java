@@ -63,7 +63,7 @@ import org.jboss.metadata.web.spec.WebFragmentMetaData;
 import org.jboss.metadata.web.spec.WebMetaData;
 import org.jboss.vfs.VirtualFile;
 
-import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
+import static org.jboss.as.undertow.UndertowMessages.MESSAGES;
 
 /**
  * Merge all metadata into a main JBossWebMetaData.

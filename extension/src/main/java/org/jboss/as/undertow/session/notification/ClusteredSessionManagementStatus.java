@@ -23,7 +23,7 @@
 package org.jboss.as.undertow.session.notification;
 
 
-import org.jboss.as.undertow.extension.UndertowMessages;
+import org.jboss.as.undertow.UndertowMessages;
 
 /**
  * Encapsulates the status of how the local container is managing the given session.

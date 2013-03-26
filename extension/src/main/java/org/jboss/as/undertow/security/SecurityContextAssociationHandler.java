@@ -35,7 +35,7 @@ import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.servlet.handlers.ServletAttachments;
 import io.undertow.servlet.handlers.ServletChain;
-import org.jboss.as.undertow.extension.UndertowLogger;
+import org.jboss.as.undertow.UndertowLogger;
 import org.jboss.security.RunAsIdentity;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityRolesAssociation;

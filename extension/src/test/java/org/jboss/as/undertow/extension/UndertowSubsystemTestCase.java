@@ -3,6 +3,7 @@ package org.jboss.as.undertow.extension;
 import java.io.IOException;
 
 import org.jboss.as.subsystem.test.AbstractSubsystemBaseTest;
+import org.jboss.as.undertow.UndertowExtension;
 
 /**
  * This is the barebone test example that tests subsystem

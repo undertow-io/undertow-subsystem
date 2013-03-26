@@ -59,7 +59,7 @@ import org.jboss.as.clustering.web.LocalDistributableSessionManager;
 import org.jboss.as.clustering.web.OutgoingAttributeGranularitySessionData;
 import org.jboss.as.clustering.web.OutgoingDistributableSessionData;
 import org.jboss.as.clustering.web.OutgoingSessionGranularitySessionData;
-import org.jboss.as.undertow.extension.UndertowLogger;
+import org.jboss.as.undertow.UndertowLogger;
 import org.jboss.as.undertow.session.notification.ClusteredSessionNotificationCapability;
 import org.jboss.as.undertow.session.notification.ClusteredSessionNotificationCause;
 import org.jboss.as.undertow.session.notification.ClusteredSessionNotificationPolicy;
@@ -74,7 +74,7 @@ import org.jboss.metadata.web.jboss.ReplicationGranularity;
 import org.jboss.metadata.web.jboss.ReplicationTrigger;
 import org.jboss.metadata.web.jboss.SnapshotMode;
 
-import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
+import static org.jboss.as.undertow.UndertowMessages.MESSAGES;
 
 /**
  * @author Paul Ferraro

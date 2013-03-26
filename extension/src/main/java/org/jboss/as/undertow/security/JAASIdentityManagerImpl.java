@@ -41,7 +41,7 @@ import io.undertow.security.idm.X509CertificateCredential;
 import io.undertow.servlet.api.ThreadSetupAction;
 import io.undertow.servlet.core.CompositeThreadSetupAction;
 import org.jboss.as.security.plugins.SecurityDomainContext;
-import org.jboss.as.undertow.extension.UndertowLogger;
+import org.jboss.as.undertow.UndertowLogger;
 import org.jboss.security.AuthenticationManager;
 import org.jboss.security.AuthorizationManager;
 import org.jboss.security.SecurityConstants;

@@ -46,7 +46,7 @@ import org.jboss.metadata.web.spec.WebMetaData;
 import org.jboss.vfs.VirtualFile;
 import org.xml.sax.SAXException;
 
-import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
+import static org.jboss.as.undertow.UndertowMessages.MESSAGES;
 
 /**
  * @author Jean-Frederic Clere

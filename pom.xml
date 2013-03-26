@@ -123,6 +123,7 @@
                         <configLocation>undertow-checkstyle/checkstyle.xml</configLocation>
                         <consoleOutput>true</consoleOutput>
                         <failsOnError>true</failsOnError>
+                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
                         <useFile/>
                     </configuration>
                     <dependencies>

@@ -24,7 +24,7 @@ package org.jboss.as.undertow.session;
 
 import org.jboss.as.clustering.web.DistributableSessionMetadata;
 import org.jboss.as.clustering.web.OutgoingDistributableSessionData;
-import org.jboss.as.undertow.extension.UndertowMessages;
+import org.jboss.as.undertow.UndertowMessages;
 
 /**
  * @author Brian Stansberry

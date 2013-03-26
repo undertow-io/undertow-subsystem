@@ -86,11 +86,11 @@ import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.SetupAction;
 import org.jboss.as.server.deployment.reflect.DeploymentClassIndex;
-import org.jboss.as.undertow.extension.DeploymentDefinition;
-import org.jboss.as.undertow.extension.Host;
-import org.jboss.as.undertow.extension.ServletContainerService;
-import org.jboss.as.undertow.extension.UndertowExtension;
-import org.jboss.as.undertow.extension.UndertowService;
+import org.jboss.as.undertow.DeploymentDefinition;
+import org.jboss.as.undertow.Host;
+import org.jboss.as.undertow.ServletContainerService;
+import org.jboss.as.undertow.UndertowExtension;
+import org.jboss.as.undertow.UndertowService;
 import org.jboss.as.undertow.security.SecurityContextAssociationHandler;
 import org.jboss.as.undertow.security.SecurityContextCreationHandler;
 import org.jboss.as.web.common.ServletContextAttribute;
@@ -139,7 +139,7 @@ import org.jboss.vfs.VirtualFile;
 
 import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.DENY;
 import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.PERMIT;
-import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
+import static org.jboss.as.undertow.UndertowMessages.MESSAGES;
 
 public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
 

@@ -22,7 +22,7 @@
 package org.jboss.as.undertow.session;
 
 import org.jboss.as.clustering.web.OutgoingDistributableSessionData;
-import org.jboss.as.undertow.extension.UndertowLogger;
+import org.jboss.as.undertow.UndertowLogger;
 
 /**
  * A concrete implementation of the snapshot manager interface that does instant replication of a modified session

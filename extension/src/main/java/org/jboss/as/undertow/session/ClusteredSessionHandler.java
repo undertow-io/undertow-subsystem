@@ -30,7 +30,7 @@ import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.servlet.api.Deployment;
 import org.jboss.as.clustering.web.BatchingManager;
-import org.jboss.as.undertow.extension.UndertowMessages;
+import org.jboss.as.undertow.UndertowMessages;
 import org.jboss.logging.Logger;
 
 

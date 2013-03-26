@@ -57,7 +57,7 @@ import org.jboss.as.undertow.session.notification.ClusteredSessionNotificationPo
 import org.jboss.logging.Logger;
 import org.jboss.metadata.web.jboss.ReplicationTrigger;
 
-import static org.jboss.as.undertow.extension.UndertowMessages.MESSAGES;
+import static org.jboss.as.undertow.UndertowMessages.MESSAGES;
 
 /**
  * Abstract base class for session clustering based on StandardSession. Different session replication strategies can be

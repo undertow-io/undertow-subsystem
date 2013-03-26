@@ -26,7 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.jboss.as.clustering.web.OutgoingDistributableSessionData;
-import org.jboss.as.undertow.extension.UndertowLogger;
+import org.jboss.as.undertow.UndertowLogger;
 import org.jboss.logging.Logger;
 
 /**
