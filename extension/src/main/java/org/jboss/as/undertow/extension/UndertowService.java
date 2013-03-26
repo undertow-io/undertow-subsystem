@@ -79,7 +79,7 @@ public class UndertowService implements Service<UndertowService> {
         registeredServers.add(server.getName());
     }
 
-    protected void unRegisterServer(Server server) {
+    protected void unregisterServer(Server server) {
         registeredServers.remove(server.getName());
     }
 

@@ -32,7 +32,7 @@ public class LocationService implements Service<LocationService> {
 
     @Override
     public void stop(StopContext context) {
-        host.getValue().unRegisterHandler(locationPath);
+        host.getValue().unregisterHandler(locationPath);
     }
 
     @Override

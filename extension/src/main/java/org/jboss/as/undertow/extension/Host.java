@@ -57,7 +57,7 @@ public class Host implements Service<Host>, WebHost {
 
     @Override
     public void stop(StopContext context) {
-        server.getValue().unRegisterHost(this);
+        server.getValue().unregisterHost(this);
         pathHandler.clearPaths();
         UndertowLogger.ROOT_LOGGER.infof("Stopping host %s", name);
     }
@@ -89,9 +89,9 @@ public class Host implements Service<Host>, WebHost {
         UndertowLogger.ROOT_LOGGER.registerWebapp(path);
     }
 
-    public void unRegisterDeployment(DeploymentInfo deploymentInfo) {
+    public void unregisterDeployment(DeploymentInfo deploymentInfo) {
         String path = ServletContainerService.getDeployedContextPath(deploymentInfo);
-        unRegisterHandler(path);
+        unregisterHandler(path);
         UndertowLogger.ROOT_LOGGER.unregisterWebapp(path);
     }
 
@@ -99,7 +99,7 @@ public class Host implements Service<Host>, WebHost {
         pathHandler.addPath(path, handler);
     }
 
-    public void unRegisterHandler(String path) {
+    public void unregisterHandler(String path) {
         pathHandler.removePath(path);
     }
 
@@ -163,7 +163,7 @@ public class Host implements Service<Host>, WebHost {
         @Override
         public void stop() throws Exception {
             manager.stop();
-            unRegisterDeployment(deploymentInfo);
+            unregisterDeployment(deploymentInfo);
         }
 
         @Override

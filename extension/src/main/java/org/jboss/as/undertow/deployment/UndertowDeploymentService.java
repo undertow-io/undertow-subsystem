@@ -147,7 +147,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
         deploymentManager.undeploy();
         deploymentInfo.setIdentityManager(null);
         sessionManager = null;
-        host.getValue().unRegisterDeployment(deploymentInfo);
+        host.getValue().unregisterDeployment(deploymentInfo);
     }
 
     @Override
