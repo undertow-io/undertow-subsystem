@@ -62,7 +62,7 @@ public class Server implements Service<Server> {
         }
     }
 
-    protected void unRegisterListener(AbstractListenerService listener) {
+    protected void unregisterListener(AbstractListenerService listener) {
         listeners.add(listener);
         if (listener.isSecure()) {
             servletContainer.getValue().unregisterSecurePort(listener.getName());
@@ -79,7 +79,7 @@ public class Server implements Service<Server> {
         }
     }
 
-    protected void unRegisterHost(Host host) {
+    protected void unregisterHost(Host host) {
         for (String hostName : host.getAllAliases()) {
             virtualHostHandler.removeHost(hostName);
             hosts.remove(hostName);
@@ -91,7 +91,7 @@ public class Server implements Service<Server> {
 
     @Override
     public void stop(StopContext stopContext) {
-        undertowService.getValue().unRegisterServer(this);
+        undertowService.getValue().unregisterServer(this);
     }
 
     @Override
