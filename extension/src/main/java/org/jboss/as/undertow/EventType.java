@@ -14,5 +14,5 @@ public enum EventType {
     HOST_STOP,
     SHUTDOWN,
     DEPLOYMENT_START,
-    DEPLOYMENT_STOP
+    DEPLOYMENT_STOP,
 }
