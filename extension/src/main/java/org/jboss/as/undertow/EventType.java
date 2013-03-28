@@ -11,5 +11,5 @@ public enum EventType {
     HOST_ADD,
     HOST_REMOVE,
     HOST_START,
-    HOST_STOP
+    HOST_STOP,
 }
