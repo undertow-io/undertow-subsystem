@@ -6,8 +6,6 @@ import io.undertow.servlet.api.DeploymentInfo;
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2013 Red Hat Inc.
  */
 public interface UndertowEventListener {
-    void onStartup(UndertowService undertowService);
-
     void onShutdown();
 
     void onDeploymentAdd(DeploymentInfo deploymentInfo);

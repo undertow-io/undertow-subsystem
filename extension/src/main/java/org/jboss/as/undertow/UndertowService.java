@@ -7,6 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import io.undertow.Version;
+import io.undertow.servlet.api.DeploymentInfo;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.StartContext;
@@ -68,6 +69,7 @@ public class UndertowService implements Service<UndertowService> {
     @Override
     public void stop(StopContext context) {
         UndertowLogger.ROOT_LOGGER.serverStopping(Version.getVersionString());
+        fireEvent(EventType.SHUTDOWN, null);
     }
 
     @Override
@@ -121,23 +123,26 @@ public class UndertowService implements Service<UndertowService> {
     protected void fireEvent(EventType type, Object eventData) {
         for (UndertowEventListener listener : listeners) {
             switch (type) {
-                case HOST_ADD:
-                    break;
-                case HOST_REMOVE:
-                    break;
                 case HOST_START:
+                    listener.onHostStart((Host) eventData);
                     break;
                 case HOST_STOP:
+                    listener.onHostStop((Host) eventData);
                     break;
-                case SERVER_ADD:
+                case DEPLOYMENT_START:
+                    listener.onDeploymentStart((DeploymentInfo) eventData);
                     break;
-                case SERVER_REMOVE:
+                case DEPLOYMENT_STOP:
+                    listener.onDeploymentStop((DeploymentInfo) eventData);
                     break;
                 case SERVER_START:
-                    listener.onServerStart((Server)eventData);
+                    listener.onServerStart((Server) eventData);
                     break;
                 case SERVER_STOP:
-                    listener.onServerStop((Server)eventData);
+                    listener.onServerStop((Server) eventData);
+                    break;
+                case SHUTDOWN:
+                    listener.onShutdown();
                     break;
                 default:
                     throw new IllegalArgumentException("not supported yet");

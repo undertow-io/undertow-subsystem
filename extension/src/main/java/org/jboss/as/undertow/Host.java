@@ -34,8 +34,9 @@ import org.jboss.msc.value.InjectedValue;
 public class Host implements Service<Host>, WebHost {
     private final PathHandler pathHandler = new PathHandler();
     private final Set<String> allAliases;
-    private String name;
-    private InjectedValue<Server> server = new InjectedValue<>();
+    private final String name;
+    private final InjectedValue<Server> server = new InjectedValue<>();
+    private final InjectedValue<UndertowService> undertowService = new InjectedValue<>();
     private volatile MultiPartHandler rootHandler;
 
     protected Host(String name, List<String> aliases) {
@@ -71,6 +72,10 @@ public class Host implements Service<Host>, WebHost {
         return server;
     }
 
+    protected InjectedValue<UndertowService> getUndertowService() {
+        return undertowService;
+    }
+
     public Set<String> getAllAliases() {
         return allAliases;
     }
@@ -87,12 +92,14 @@ public class Host implements Service<Host>, WebHost {
         String path = ServletContainerService.getDeployedContextPath(deploymentInfo);
         registerHandler(path, handler);
         UndertowLogger.ROOT_LOGGER.registerWebapp(path);
+        undertowService.getValue().fireEvent(EventType.DEPLOYMENT_START, deploymentInfo);
     }
 
     public void unregisterDeployment(DeploymentInfo deploymentInfo) {
         String path = ServletContainerService.getDeployedContextPath(deploymentInfo);
         unregisterHandler(path);
         UndertowLogger.ROOT_LOGGER.unregisterWebapp(path);
+        undertowService.getValue().fireEvent(EventType.DEPLOYMENT_STOP, deploymentInfo);
     }
 
     public void registerHandler(String path, HttpHandler handler) {
