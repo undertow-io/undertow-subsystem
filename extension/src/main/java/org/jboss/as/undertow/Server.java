@@ -30,7 +30,7 @@ public class Server implements Service<Server> {
     private final InjectedValue<ServletContainerService> servletContainer = new InjectedValue<>();
     private final InjectedValue<UndertowService> undertowService = new InjectedValue<>();
     private volatile HttpHandler root;
-    private List<AbstractListenerService> listeners = new LinkedList<>();
+    private List<AbstractListenerService<?>> listeners = new LinkedList<>();
     private Set<Host> hosts = new CopyOnWriteArraySet<>();
 
     protected Server(String name, String defaultHost) {
@@ -55,7 +55,7 @@ public class Server implements Service<Server> {
         undertowService.getValue().registerServer(this);
     }
 
-    protected void registerListener(AbstractListenerService listener) {
+    protected void registerListener(AbstractListenerService<?> listener) {
         listeners.add(listener);
         if (listener.isSecure()) {
             SocketBinding binding = (SocketBinding) listener.getBinding().getValue();
@@ -63,7 +63,7 @@ public class Server implements Service<Server> {
         }
     }
 
-    protected void unregisterListener(AbstractListenerService listener) {
+    protected void unregisterListener(AbstractListenerService<?> listener) {
         listeners.add(listener);
         if (listener.isSecure()) {
             servletContainer.getValue().unregisterSecurePort(listener.getName());

@@ -53,7 +53,7 @@ abstract class AbstractListenerAdd extends AbstractAddStepHandler {
         installService(context, model, verificationHandler, newControllers);
     }
 
-    protected void addDefaultDependencies(ServiceBuilder<? extends AbstractListenerService> serviceBuilder, AbstractListenerService service) {
+    protected void addDefaultDependencies(ServiceBuilder<? extends AbstractListenerService<?>> serviceBuilder, AbstractListenerService<?> service) {
         serviceBuilder.addDependency(UndertowService.WORKER.append(workerName), XnioWorker.class, service.getWorker())
                 .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding())
                 .addDependency(UndertowService.BUFFER_POOL.append(bufferPoolName), Pool.class, service.getBufferPool())
