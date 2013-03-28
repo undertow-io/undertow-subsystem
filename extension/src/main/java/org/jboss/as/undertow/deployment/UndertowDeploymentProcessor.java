@@ -627,14 +627,6 @@ public class UndertowDeploymentProcessor implements DeploymentUnitProcessor {
 
             }
 
-            if (mergedMetaData.getPrincipalVersusRolesMap() != null) {
-                for (Map.Entry<String, Set<String>> entry : mergedMetaData.getPrincipalVersusRolesMap().entrySet()) {
-                    for (String role : entry.getValue()) {
-                        d.addPrincipleVsRoleMapping(entry.getKey(), role);
-                    }
-                }
-            }
-
             // Setup an deployer configured ServletContext attributes
             final List<ServletContextAttribute> attributes = deploymentUnit.getAttachmentList(ServletContextAttribute.ATTACHMENT_KEY);
             for (ServletContextAttribute attribute : attributes) {
