@@ -1,8 +1,7 @@
 package org.jboss.as.undertow;
 
-import java.util.List;
-
 import io.undertow.server.HttpHandler;
+
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
