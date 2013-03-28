@@ -40,9 +40,9 @@ class LocationAdd extends AbstractAddStepHandler {
         final PathAddress serverAddress = hostAddress.subAddress(0, hostAddress.size() - 1);
         final String name = address.getLastElement().getValue();
         ModelNode fullModel = Resource.Tools.readModel(context.readResource(PathAddress.EMPTY_ADDRESS));
-        List<HttpHandler> handlers = HandlerFactory.getHandlers(fullModel,context);
+        HttpHandler handlerChain = HandlerFactory.getHandlerChain(fullModel,context);
 
-        final LocationService service = new LocationService(name,handlers);
+        final LocationService service = new LocationService(name,handlerChain);
         final String serverName = serverAddress.getLastElement().getValue();
         final String hostName = hostAddress.getLastElement().getValue();
         final ServiceName hostServiceName = UndertowService.virtualHostName(serverName, hostName);

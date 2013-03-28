@@ -92,16 +92,14 @@ public class HandlerFactory {
         }
     }
 
-    public static List<HttpHandler> getHandlers(final ModelNode model, final OperationContext context) throws OperationFailedException {
-        List<HttpHandler> result = new LinkedList<>();
+    public static HttpHandler getHandlerChain(final ModelNode model, final OperationContext context) throws OperationFailedException {
         HttpHandler last = null;
         for (Handler h : handlers) {
             ModelNode handlerModel = model.get(Constants.HANDLER, h.getName());
             if (handlerModel.isDefined()) {
                 last = h.createHandler(last, context, handlerModel);
-                result.add(last);
             }
         }
-        return result;
+        return last;
     }
 }

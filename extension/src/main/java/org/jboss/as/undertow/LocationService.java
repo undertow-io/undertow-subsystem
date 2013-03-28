@@ -15,19 +15,18 @@ import org.jboss.msc.value.InjectedValue;
 public class LocationService implements Service<LocationService> {
 
     private final String locationPath;
-    private final List<HttpHandler> handlers;
+    private final HttpHandler handlerChain;
     private InjectedValue<Host> host = new InjectedValue<>();
 
-    public LocationService(String locationPath, List<HttpHandler> handlers) {
+    public LocationService(String locationPath, HttpHandler handlerChain) {
         this.locationPath = locationPath;
-        this.handlers = handlers;
+        this.handlerChain = handlerChain;
     }
 
     @Override
     public void start(StartContext context) throws StartException {
-        HttpHandler h = handlers.get(0);
-        UndertowLogger.ROOT_LOGGER.infof("registering handler %s under path '%s'", h, locationPath);
-        host.getValue().registerHandler(locationPath, handlers.get(0));
+        UndertowLogger.ROOT_LOGGER.infof("registering handler %s under path '%s'", handlerChain, locationPath);
+        host.getValue().registerHandler(locationPath, handlerChain);
     }
 
     @Override

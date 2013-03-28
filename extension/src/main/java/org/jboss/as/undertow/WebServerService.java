@@ -11,6 +11,7 @@ import org.jboss.msc.service.StopContext;
  * TODO: this is a hack for now
  * @author Stuart Douglas
  */
+@Deprecated
 public class WebServerService implements CommonWebServer, Service<WebServerService> {
 
 

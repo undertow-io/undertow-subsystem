@@ -74,7 +74,7 @@ public interface UndertowLogger extends BasicLogger {
     void serverStarting(String version);
 
     @LogMessage(level = INFO)
-    @Message(id = 17506, value = "Undertow %s starting")
+    @Message(id = 17506, value = "Undertow %s stopping")
     void serverStopping(String version);
 
     /**
@@ -82,7 +82,6 @@ public interface UndertowLogger extends BasicLogger {
      *
      * @param name    name of the listener
      * @param address socket address
-     * @return the message.
      */
     @LogMessage(level = INFO)
     @Message(id = 17503, value = "Undertow %s listener %s listening on %s")
