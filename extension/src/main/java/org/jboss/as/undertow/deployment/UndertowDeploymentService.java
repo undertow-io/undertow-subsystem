@@ -116,7 +116,7 @@ public class UndertowDeploymentService implements Service<UndertowDeploymentServ
         final CompositeThreadSetupAction threadSetupAction = new CompositeThreadSetupAction(setup);
 
         SecurityDomainContext sdc = securityDomainContextValue.getValue();
-        deploymentInfo.setIdentityManager(new JAASIdentityManagerImpl(sdc, deploymentInfo.getPrincipleVsRoleMapping(), threadSetupAction));
+        deploymentInfo.setIdentityManager(new JAASIdentityManagerImpl(sdc, jBossWebMetaData.getPrincipalVersusRolesMap(), threadSetupAction));
         AuditManager auditManager = sdc.getAuditManager();
         if (auditManager != null) {
             deploymentInfo.addNotificationReceiver(new AuditNotificationReceiver(auditManager));
