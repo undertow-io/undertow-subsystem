@@ -123,4 +123,8 @@ public class Server implements Service<Server> {
     public Set<Host> getHosts() {
         return Collections.unmodifiableSet(hosts);
     }
+
+    public List<AbstractListenerService<?>> getListeners() {
+        return listeners;
+    }
 }
