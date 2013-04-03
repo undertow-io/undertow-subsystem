@@ -25,14 +25,12 @@
 
     <extensions>
         <extension module="org.jboss.as.clustering.infinispan"/>
-        <extension module="org.jboss.as.cmp"/>
         <extension module="org.jboss.as.configadmin"/>
         <extension module="org.jboss.as.connector"/>
         <extension module="org.jboss.as.deployment-scanner"/>
         <extension module="org.jboss.as.ee"/>
         <extension module="org.jboss.as.ejb3"/>
         <extension module="org.jboss.as.jacorb"/>
-        <extension module="org.jboss.as.jaxr"/>
         <extension module="org.jboss.as.jaxrs"/>
         <extension module="org.jboss.as.jdr"/>
         <extension module="org.jboss.as.jmx"/>
@@ -157,24 +155,6 @@
                     <handler name="FILE"/>
                 </handlers>
             </root-logger>
-        </subsystem>
-        <subsystem xmlns="urn:jboss:domain:cmp:1.0">
-            <key-generators>
-                <hilo name="HiLo">
-                    <data-source>java:/jdbc/DB1</data-source>
-                    <table-name>HILOSEQUENCES</table-name>
-                    <sequence-column>SEQUENCENAME</sequence-column>
-                    <id-column>HIGHVALUES</id-column>
-                    <create-table-ddl>create table HILOSEQUENCES (SEQUENCENAME varchar(50) not null, HIGHVALUES integer
-                        not null, constraint hilo_pk primary key (SEQUENCENAME))
-                    </create-table-ddl>
-                    <create-table>true</create-table>
-                    <data-source>java:jboss/datasources/HiLo</data-source>
-                    <drop-table>false</drop-table>
-                    <sequence-name>general</sequence-name>
-                    <block-size>10</block-size>
-                </hilo>
-            </key-generators>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:configadmin:1.0"/>
         <subsystem xmlns="urn:jboss:domain:datasources:1.1">
@@ -344,13 +324,6 @@
                 <initializers transactions="spec" security="on"/>
             </orb>
             <security support-ssl="on" security-domain="IIOP+SSL"/>
-        </subsystem>
-        <subsystem xmlns="urn:jboss:domain:jaxr:1.1">
-            <connection-factory jndi-name="java:/eis/JAXR"/>
-            <properties>
-                <property name="javax.xml.registry.lifeCycleManagerURL" value="http://localhost:8080/juddi/publish"/>
-                <property name="javax.xml.registry.queryManagerURL" value="http://localhost:8080/juddi/query"/>
-            </properties>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:jaxrs:1.0"/>
         <subsystem xmlns="urn:jboss:domain:jca:1.1">
@@ -1326,28 +1299,22 @@
             <coordinator-environment default-timeout="300"/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:undertow:1.0">
-            <worker name="default" task-core-threads="12" io-threads="3"/>
-            <buffer-pool name="default" buffer-size="2048" buffers-per-slice="512"/>
+                <worker name="default" task-core-threads="12" io-threads="3"/>
+                <buffer-pool name="default" buffer-size="2048" buffers-per-slice="512"/>
 
-            <virtual-host default-host="localhost">
-                <http-listener name="default" socket-binding="http"/>
-                <ajp-listener name="ajp-connector" socket-binding="ajp"/>
-
-                <handlers>
-                    <simple-error-page/>
-                </handlers>
-
-                <host name="localhost" alias="www.localhost">
-                    <handlers>
-                        <file-error-page code="404" file="/my/error/page.html"/>
-                    </handlers>
-                </host>
-
-            </virtual-host>
-            <servlet-container name="default">
-                <jsp-config/>
-            </servlet-container>
-        </subsystem>
+                <server name="default-server" >
+                    <http-listener name="default" socket-binding="http"/>
+                    <?AJP?>
+                    <host name="default-host" alias="localhost">
+                        <location name="/">
+                            <file path="${jboss.home.dir}/welcome-content" cache-buffer-size="1024" cache-buffers="1024"/>
+                        </location>
+                    </host>
+                </server>
+                <servlet-container name="default">
+                    <jsp-config/>
+                </servlet-container>
+            </subsystem>
         <subsystem xmlns="urn:jboss:domain:webservices:1.1">
             <modify-wsdl-address>true</modify-wsdl-address>
             <wsdl-host>${jboss.bind.address:127.0.0.1}</wsdl-host>
