@@ -30,7 +30,6 @@
         <extension module="org.jboss.as.deployment-scanner"/>
         <extension module="org.jboss.as.ee"/>
         <extension module="org.jboss.as.ejb3"/>
-        <extension module="org.jboss.as.io"/>
         <extension module="org.jboss.as.jacorb"/>
         <extension module="org.jboss.as.jaxrs"/>
         <extension module="org.jboss.as.jdr"/>
@@ -49,7 +48,8 @@
         <extension module="org.jboss.as.security"/>
         <extension module="org.jboss.as.threads"/>
         <extension module="org.jboss.as.transactions"/>
-        <extension module="org.jboss.as.undertow"/>
+        <extension module="org.wildfly.extension.io"/>
+        <extension module="org.wildfly.extension.undertow"/>
         <extension module="org.jboss.as.webservices"/>
         <extension module="org.jboss.as.weld"/>
     </extensions>
@@ -1309,17 +1309,23 @@
             <coordinator-environment default-timeout="300"/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:undertow:1.0">
-                <server name="default-server" >
-                    <http-listener name="default" socket-binding="http"/>
-                    <host name="default-host" alias="localhost">
-                        <location name="/">
-                            <file path="${jboss.home.dir}/welcome-content" cache-buffer-size="1024" cache-buffers="1024"/>
-                        </location>
-                    </host>
-                </server>
-                <servlet-container name="default">
-                    <jsp-config/>
-                </servlet-container>
+            <buffer-caches>
+                        <buffer-cache name="default" buffer-size="1024" buffers-per-region="1024" max-regions="10"/>
+                    </buffer-caches>
+                    <server name="default-server">
+                        <http-listener name="default" socket-binding="http"/>
+                        <?AJP?>
+                        <host name="default-host" alias="localhost">
+                            <location name="/" handler="welcome-content">
+                            </location>
+                        </host>
+                    </server>
+                    <servlet-container name="default">
+                        <jsp-config/>
+                    </servlet-container>
+                    <handlers>
+                        <file name="welcome-content" path="${jboss.home.dir}/welcome-content" directory-listing="true"/>
+                    </handlers>
             </subsystem>
         <subsystem xmlns="urn:jboss:domain:webservices:1.1">
             <modify-wsdl-address>true</modify-wsdl-address>
